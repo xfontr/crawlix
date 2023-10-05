@@ -4,7 +4,7 @@ import {
   SuperProxyOptions,
   SuperProxyPlugin,
 } from "./superProxy.types";
-import { capitalize } from "./superProxy.utils";
+import { capitalize, superProxyStoreInitialState } from "./superProxy.utils";
 
 const superProxyStore = <
   T extends object,
@@ -19,19 +19,7 @@ const superProxyStore = <
     customMethods: baseOptions.customMethods,
     additionalArguments: defaultValues.additionalArguments,
     options: baseOptions,
-    plugins: {
-      init: [],
-      before: [],
-      after: [],
-      cleanUp: [],
-      publicActions: {},
-    },
-    current: {
-      before: undefined,
-      main: undefined,
-      after: undefined,
-      method: undefined,
-    },
+    ...superProxyStoreInitialState(),
   };
 
   store.options.plugins?.forEach((plugin) => {
@@ -86,8 +74,7 @@ const superProxyStore = <
     const processedArgs: unknown[] = Array.isArray(store.current.before)
       ? store.current.before
       : [store.current.before];
-    store.current.main =
-      callback(...processedArgs) ?? store.current.before;
+    store.current.main = callback(...processedArgs) ?? store.current.before;
 
     // AFTER
     store.current.after = baseOptions.actions?.after?.(store, ...args);
