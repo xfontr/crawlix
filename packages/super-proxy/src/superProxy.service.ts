@@ -16,7 +16,6 @@ const superProxyStore = <
   defaultValues: Partial<SuperProxyStore<T, C, A>> = {},
 ) => {
   const store: SuperProxyStore<T, C, A, P> = {
-    ...defaultValues,
     customMethods: baseOptions.customMethods,
     additionalArguments: defaultValues.additionalArguments,
     options: baseOptions,
@@ -24,11 +23,10 @@ const superProxyStore = <
       init: [],
       before: [],
       after: [],
-      closeUp: [],
+      cleanUp: [],
       publicActions: {},
     },
     current: {
-      ...defaultValues.current,
       before: undefined,
       main: undefined,
       after: undefined,
@@ -67,10 +65,10 @@ const superProxyStore = <
           ? [...store.plugins.before, module.action]
           : store.plugins.before;
 
-      store.plugins.closeUp =
-        module.run === "CLOSEUP"
-          ? [...store.plugins.closeUp, module.action]
-          : store.plugins.closeUp;
+      store.plugins.cleanUp =
+        module.run === "CLEANUP"
+          ? [...store.plugins.cleanUp, module.action]
+          : store.plugins.cleanUp;
     });
   });
 

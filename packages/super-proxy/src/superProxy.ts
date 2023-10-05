@@ -11,8 +11,8 @@ const superProxy =
     A extends object,
     C extends SuperProxyCustomMethods<T>,
     K extends boolean,
-    P extends string[],
-    T extends object = typeof console,
+    P extends string[] = string[],
+    T extends Record<string, any> = Record<string, any>,
   >(
     baseOptions: SuperProxyOptions<T, C, A>,
   ) =>
@@ -31,10 +31,10 @@ const superProxy =
 
     const defaultProxiedFunction = {
       superProxyStore: publicStore.storeActions,
-      plugins: publicStore.plugins,
+      superProxyPlugins: publicStore.plugins,
       superProxyTerminate: (...args: unknown[]) => {
-        privateStore.options.actions?.closeUp?.(privateStore, ...args);
-        privateStore.plugins.closeUp.forEach((action) => {
+        privateStore.options.actions?.cleanUp?.(privateStore, ...args);
+        privateStore.plugins.cleanUp.forEach((action) => {
           action(privateStore, ...args);
         });
       },

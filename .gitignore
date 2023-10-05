@@ -1,4 +1,8 @@
 node_modules
 build
 coverage
-.env
+ignoreMe
+*.tgz
+*.js
+*.d.ts
+*.d.ts.map

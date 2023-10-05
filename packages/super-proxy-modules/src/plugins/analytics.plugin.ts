@@ -1,6 +1,7 @@
-import { writeFile } from "fs";
-import { SuperProxyCustomMethods, SuperProxyPlugin } from "../superProxy.types";
-import path from "path";
+import { SuperProxyCustomMethods, SuperProxyPlugin } from "@super-proxy/core";
+import printFile, {
+  SuperProxyPrintFilePublicModuleOptions,
+} from "../modules/printFile.module";
 
 export type AnalyticsPluginActions = ["getHistory", "getCounters"];
 
@@ -8,7 +9,7 @@ const analyticsPlugin = <
   T extends object,
   C extends SuperProxyCustomMethods<T>,
 >(
-  run: "AFTER" | "BEFORE" | "BEFORE_AFTER" = "AFTER",
+  printFileOptions: SuperProxyPrintFilePublicModuleOptions,
 ): SuperProxyPlugin<T, C> => {
   const store = {
     history: [] as string[],
@@ -20,7 +21,7 @@ const analyticsPlugin = <
   };
 
   return {
-    name: "history-plugin",
+    name: "@super-proxy/analytics-plugin",
     version: "0.0.1",
     modules: {
       setup: {
@@ -47,7 +48,7 @@ const analyticsPlugin = <
           store.usageCounter.totalCount += 1;
           store.usageCounter[cleanMethod] += 1;
         },
-        run,
+        run: "AFTER",
       },
       getHistory: {
         action: (_, getLast: boolean) =>
@@ -58,24 +59,11 @@ const analyticsPlugin = <
         action: () => store.usageCounter,
         isPublic: true,
       },
-      printHistory: {
-        action: (_, throwError = false) => {
-          writeFile(
-            path.join(
-              __dirname,
-              "../../public/history/",
-              `${Date.now().toString()}.txt`,
-            ),
-            JSON.stringify(store.history),
-            (error) => {
-              if (error && throwError) {
-                throw new Error(error.message);
-              }
-            },
-          );
-        },
-        run: "CLOSEUP",
-      },
+      printHistory: printFile({
+        ...printFileOptions,
+        pluginStore: store,
+        storeKey: "history",
+      }),
     },
   };
 };

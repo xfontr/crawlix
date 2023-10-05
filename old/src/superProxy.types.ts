@@ -41,7 +41,7 @@ export interface SuperProxyOptions<
     init: SuperProxyAction<T, C, A, false>;
     before: SuperProxyAction<T, C, A>;
     after: SuperProxyAction<T, C, A>;
-    closeUp: SuperProxyAction<T, C, A>;
+    cleanUp: SuperProxyAction<T, C, A>;
   }>;
   keepOriginal: boolean;
 }
@@ -142,7 +142,7 @@ export interface SuperProxyStore<
     init: SuperProxyAction<T, C, A, false>[];
     before: SuperProxyAction<T, C, A>[];
     after: SuperProxyAction<T, C, A>[];
-    closeUp: SuperProxyAction<T, C, A>[];
+    cleanUp: SuperProxyAction<T, C, A>[];
     publicActions: Record<string, SuperProxyAction<T, C, A>>;
   };
 }
