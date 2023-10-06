@@ -27,8 +27,9 @@ const superProxyStore = <
   store.options.plugins?.forEach((plugin) => {
     Object.entries(plugin.modules).forEach(([moduleName, module]) => {
       if (module.isPublic) {
-        store.plugins.publicActions[moduleName] = <T = unknown>(...args: unknown[]): T =>
-          module.action(store, ...args);
+        store.plugins.publicActions[moduleName] = <T = unknown>(
+          ...args: unknown[]
+        ): T => module.action(store, ...args);
       }
 
       if (!module.run) return;
@@ -39,25 +40,15 @@ const superProxyStore = <
         return;
       }
 
-      store.plugins.init =
-        module.run === "INIT"
-          ? [...store.plugins.init, module.action]
-          : store.plugins.init;
+      const actions: (keyof NonNullable<
+        SuperProxyOptions<T, C, object>["actions"]
+      >)[] = ["init", "after", "before", "cleanUp"];
 
-      store.plugins.after =
-        module.run === "AFTER"
-          ? [...store.plugins.after, module.action]
-          : store.plugins.after;
-
-      store.plugins.before =
-        module.run === "BEFORE"
-          ? [...store.plugins.before, module.action]
-          : store.plugins.before;
-
-      store.plugins.cleanUp =
-        module.run === "CLEANUP"
-          ? [...store.plugins.cleanUp, module.action]
-          : store.plugins.cleanUp;
+      actions.forEach((action) => {
+        module.run === action.toUpperCase()
+          ? [...store.plugins[action], module.action]
+          : store.plugins[action];
+      });
     });
   });
 
