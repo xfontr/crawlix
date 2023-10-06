@@ -3,6 +3,8 @@ import {
   SuperProxyStore,
   SuperProxyOptions,
   SuperProxyPlugin,
+  PublicStoreGetters,
+  PublicStoreSetters,
 } from "./superProxy.types";
 import { capitalize, superProxyStoreInitialState } from "./superProxy.utils";
 
@@ -25,8 +27,7 @@ const superProxyStore = <
   store.options.plugins?.forEach((plugin) => {
     Object.entries(plugin.modules).forEach(([moduleName, module]) => {
       if (module.isPublic) {
-        store.plugins.publicActions[moduleName] = (...args: unknown[]) =>
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        store.plugins.publicActions[moduleName] = <T = unknown>(...args: unknown[]): T =>
           module.action(store, ...args);
       }
 
@@ -83,35 +84,28 @@ const superProxyStore = <
     });
   };
 
-  const getters = () =>
+  const getters = (): PublicStoreGetters<T, C> =>
     Object.keys(store.current).reduce(
       (allGetters, getterName) => ({
         ...allGetters,
         [`get${capitalize(getterName)}`]: () =>
           store.current[getterName as keyof typeof store.current],
       }),
-      {} as Record<
-        `get${Capitalize<keyof typeof store.current>}`,
-        () => string | undefined
-      >,
+      {} as PublicStoreGetters<T, C>,
     );
 
-  const setters = () =>
+  const setters = (): PublicStoreSetters<T, C> =>
     Object.keys(store.current).reduce(
       (allSetters, rawSetterName) => {
         const setterName = rawSetterName as keyof typeof store.current;
         return {
           ...allSetters,
           [`set${capitalize(setterName)}`]: (value: string) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            store.current[setterName] = value as any;
+            store.current[setterName] = value;
           },
         };
       },
-      {} as Record<
-        `set${Capitalize<keyof typeof store.current>}`,
-        (value?: string) => void
-      >,
+      {} as PublicStoreSetters<T, C>,
     );
 
   return {

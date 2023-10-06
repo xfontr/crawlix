@@ -63,7 +63,9 @@ export interface SuperProxyPlugin<
     {
       action: SuperProxyAction<T, C, object>;
       run?:
-        | Uppercase<keyof NonNullable<SuperProxyOptions<T, C, object>["actions"]>>
+        | Uppercase<
+            keyof NonNullable<SuperProxyOptions<T, C, object>["actions"]>
+          >
         | "BEFORE_AFTER";
       isPublic?: boolean;
     }
@@ -114,9 +116,9 @@ export type SuperProxiedFunction<
 /**
  * @param T Additional arguments object
  */
-export type SuperProxyAdditionalArguments<T extends object = Record<string, unknown>> =
-  | T
-  | undefined;
+export type SuperProxyAdditionalArguments<
+  T extends object = Record<string, unknown>,
+> = T | undefined;
 
 /**
  * @param T Proxied item
@@ -146,3 +148,19 @@ export interface SuperProxyStore<
     publicActions: Record<string, SuperProxyAction<T, C, A>>;
   };
 }
+
+export type PublicStoreGetters<
+  T extends object,
+  C extends SuperProxyCustomMethods<T>,
+> = Record<
+  `get${Capitalize<keyof SuperProxyStore<T, C>["current"]>}`,
+  () => string | undefined
+>;
+
+export type PublicStoreSetters<
+  T extends object,
+  C extends SuperProxyCustomMethods<T>,
+> = Record<
+  `set${Capitalize<keyof SuperProxyStore<T, C>["current"]>}`,
+  (value?: string) => void
+>;

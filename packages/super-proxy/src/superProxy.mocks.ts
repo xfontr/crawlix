@@ -1,11 +1,20 @@
 import { superProxyStore } from "..";
 import { superProxyStoreInitialState } from "./superProxy.utils";
 
+/**
+ * Simple empty object
+ */
 export const mockProxiedItem: object = {};
 
-export const mockSuperProxyBasicStore: Omit<ReturnType<
-  typeof superProxyStore<object, []>
->, "public"> = {
+/**
+ * At least the first letter is going to be in caps
+ */
+export const mockText: `${Uppercase<string>}${string}` = "Some text";
+
+export const mockSuperProxyStore = (): Omit<
+  ReturnType<typeof superProxyStore<object, []>>,
+  "public"
+> => ({
   private: {
     store: {
       customMethods: [],
@@ -19,4 +28,10 @@ export const mockSuperProxyBasicStore: Omit<ReturnType<
     },
     proxiedAction: () => mockProxiedItem,
   },
-};
+});
+
+export const mockReturnedSuperProxyStore = () => superProxyStore({
+  customMethods: [],
+  keepOriginal: false,
+  proxiedItem: mockProxiedItem,
+});
