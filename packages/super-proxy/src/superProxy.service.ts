@@ -3,8 +3,10 @@ import {
   SuperProxyStore,
   SuperProxyOptions,
   SuperProxyPlugin,
+  PublicStoreGetters,
+  PublicStoreSetters,
 } from "./superProxy.types";
-import { capitalize } from "./superProxy.utils";
+import { capitalize, superProxyStoreInitialState } from "./superProxy.utils";
 
 const superProxyStore = <
   T extends object,
@@ -19,27 +21,15 @@ const superProxyStore = <
     customMethods: baseOptions.customMethods,
     additionalArguments: defaultValues.additionalArguments,
     options: baseOptions,
-    plugins: {
-      init: [],
-      before: [],
-      after: [],
-      cleanUp: [],
-      publicActions: {},
-    },
-    current: {
-      before: undefined,
-      main: undefined,
-      after: undefined,
-      method: undefined,
-    },
+    ...superProxyStoreInitialState(),
   };
 
   store.options.plugins?.forEach((plugin) => {
     Object.entries(plugin.modules).forEach(([moduleName, module]) => {
       if (module.isPublic) {
-        store.plugins.publicActions[moduleName] = (...args: unknown[]) =>
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          module.action(store, ...args);
+        store.plugins.publicActions[moduleName] = <T = unknown>(
+          ...args: unknown[]
+        ): T => module.action(store, ...args);
       }
 
       if (!module.run) return;
@@ -50,25 +40,15 @@ const superProxyStore = <
         return;
       }
 
-      store.plugins.init =
-        module.run === "INIT"
-          ? [...store.plugins.init, module.action]
-          : store.plugins.init;
+      const actions: (keyof NonNullable<
+        SuperProxyOptions<T, C, object>["actions"]
+      >)[] = ["init", "after", "before", "cleanUp"];
 
-      store.plugins.after =
-        module.run === "AFTER"
-          ? [...store.plugins.after, module.action]
-          : store.plugins.after;
-
-      store.plugins.before =
-        module.run === "BEFORE"
-          ? [...store.plugins.before, module.action]
-          : store.plugins.before;
-
-      store.plugins.cleanUp =
-        module.run === "CLEANUP"
-          ? [...store.plugins.cleanUp, module.action]
-          : store.plugins.cleanUp;
+      actions.forEach((action) => {
+        module.run === action.toUpperCase()
+          ? [...store.plugins[action], module.action]
+          : store.plugins[action];
+      });
     });
   });
 
@@ -86,8 +66,7 @@ const superProxyStore = <
     const processedArgs: unknown[] = Array.isArray(store.current.before)
       ? store.current.before
       : [store.current.before];
-    store.current.main =
-      callback(...processedArgs) ?? store.current.before;
+    store.current.main = callback(...processedArgs) ?? store.current.before;
 
     // AFTER
     store.current.after = baseOptions.actions?.after?.(store, ...args);
@@ -96,35 +75,28 @@ const superProxyStore = <
     });
   };
 
-  const getters = () =>
+  const getters = (): PublicStoreGetters<T, C> =>
     Object.keys(store.current).reduce(
       (allGetters, getterName) => ({
         ...allGetters,
         [`get${capitalize(getterName)}`]: () =>
           store.current[getterName as keyof typeof store.current],
       }),
-      {} as Record<
-        `get${Capitalize<keyof typeof store.current>}`,
-        () => string | undefined
-      >,
+      {} as PublicStoreGetters<T, C>,
     );
 
-  const setters = () =>
+  const setters = (): PublicStoreSetters<T, C> =>
     Object.keys(store.current).reduce(
       (allSetters, rawSetterName) => {
         const setterName = rawSetterName as keyof typeof store.current;
         return {
           ...allSetters,
           [`set${capitalize(setterName)}`]: (value: string) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            store.current[setterName] = value as any;
+            store.current[setterName] = value;
           },
         };
       },
-      {} as Record<
-        `set${Capitalize<keyof typeof store.current>}`,
-        (value?: string) => void
-      >,
+      {} as PublicStoreSetters<T, C>,
     );
 
   return {

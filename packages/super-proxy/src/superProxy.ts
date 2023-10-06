@@ -12,6 +12,7 @@ const superProxy =
     C extends SuperProxyCustomMethods<T>,
     K extends boolean,
     P extends string[] = string[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     T extends Record<string, any> = Record<string, any>,
   >(
     baseOptions: SuperProxyOptions<T, C, A>,
