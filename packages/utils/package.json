@@ -1,0 +1,33 @@
+{
+  "name": "@personal/utils",
+  "description": "Personal utils",
+  "version": "0.0.2",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "author": "Xifré Font",
+  "license": "MIT",
+  "scripts": {
+    "start": "node .",
+    "build": "npm ci && rimraf build && tsc *.ts && tsc && npm pack",
+    "dev": "clear && nodemon -q --watch src --exec node --loader ts-node/esm --inspect src/index.ts | npm run pretty-log",
+    "dev:verbose": "clear && nodemon --watch src --exec node --loader ts-node/esm --inspect src/index.ts",
+    "lint": "eslint \"**/*.{ts}\"",
+    "format": "prettier . --write"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-xo": "^0.43.1",
+    "eslint-config-xo-typescript": "^1.0.1",
+    "eslint-plugin-jest": "^27.2.3",
+    "nodemon": "^3.0.1",
+    "prettier": "3.0.0",
+    "rimraf": "^5.0.1",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}

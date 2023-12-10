@@ -1,0 +1,11 @@
+node_modules
+build
+coverage
+ignore
+*.tgz
+*.js
+*.d.ts
+*.d.ts.map
+**/*.js
+**/*.d.ts
+**/*.d.ts.map

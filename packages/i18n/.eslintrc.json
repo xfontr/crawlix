@@ -1,0 +1,24 @@
+{
+  "extends": ["xo", "xo-typescript"],
+  "overrides": [
+    {
+      "files": [
+        "**/__tests__/**/*.[jt]s?(x)",
+        "**/?(*.)+(spec|test).[jt]s?(x)"
+      ],
+      "plugins": ["jest"],
+      "extends": ["plugin:jest/recommended", "plugin:jest/style"]
+    },
+    {
+      "files": ["*"],
+      "extends": ["prettier"]
+    }
+  ],
+  "ignorePatterns": ["build"],
+  "root": true,
+  "rules": {
+    "object-shorthand": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-unsafe-call": "off"
+  }
+}

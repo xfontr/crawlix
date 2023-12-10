@@ -1,15 +1,8 @@
 {
-  "name": "function-proxier",
+  "name": "scraper",
   "version": "0.0.1",
-  "description": "Function proxier",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xfontr/super-proxy.git"
-  },
-  "author": "Xifré Font",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/xfontr/super-proxy/issues"
-  },
-  "homepage": "https://github.com/xfontr/super-proxy#readme"
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
