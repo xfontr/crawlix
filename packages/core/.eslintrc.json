@@ -31,7 +31,8 @@
     }
   },
   "rules": {
-    "eslint-comments/no-unused-disable": "error"
+    "eslint-comments/no-unused-disable": "error",
+    "@typescript-eslint/no-unsafe-return": "off"
   },
   "ignorePatterns": ["build", "coverage"]
 }
