@@ -5,7 +5,7 @@ import tryCatch from "./src/tryCatch";
 import {
   type CustomFunction,
   type PromiseFunction,
-} from "./src/types/Functions";
+} from "./src/types/function";
 
 export {
   replaceMethods,
