@@ -11,11 +11,18 @@ const SessionStore = () => {
       date: new Date(),
       ...config,
     };
+
+    return sessionStore;
   };
 
-  return {
+  const current = () => ({ ...store.session });
+
+  const sessionStore = {
     init,
+    current,
   };
+
+  return sessionStore;
 };
 
 export default SessionStore;

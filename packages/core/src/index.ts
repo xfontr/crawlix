@@ -1,3 +1,5 @@
-import logger from "./logger";
+import Session from "./helpers/Session";
 
-logger.warn("Hello world");
+const session = Session();
+
+session.init();
