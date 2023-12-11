@@ -1,0 +1,38 @@
+import { LIMIT_MAX } from "../configs/session";
+import t from "../i18n";
+import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
+import SessionConfig from "../types/SessionConfig";
+import setConfig from "../utils/setConfig";
+import Session from "./Session";
+
+const mockInit = jest.fn();
+const mockInfoMessage = jest.fn();
+
+jest.mock("./SessionStore", () => () => ({
+  init: (config: SessionConfig) => mockInit(config),
+}));
+
+jest.mock("../logger.ts", () => ({
+  infoMessage: (message: string) => mockInfoMessage(message),
+}));
+
+describe("Given a Session.init function", () => {
+  describe("When called", () => {
+    const config: SessionConfig = {
+      ...mockSessionConfig,
+      limit: LIMIT_MAX + 1,
+    };
+
+    test("Then it should start the store with curated passed configs", () => {
+      Session(config).init();
+
+      expect(mockInit).toHaveBeenCalledWith(setConfig(config));
+    });
+
+    test("Then it should send a info message", () => {
+      Session(config).init();
+
+      expect(mockInfoMessage).toHaveBeenCalledWith(t("session.init"));
+    });
+  });
+});

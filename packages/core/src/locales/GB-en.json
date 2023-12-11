@@ -1,5 +1,8 @@
 {
   "directories": {
-    "index": "Index"
+    "session": "Index"
+  },
+  "session": {
+    "init": "Starting a new session"
   }
 }
