@@ -1,4 +1,4 @@
-import { type PromiseFunction } from "./types/Functions";
+import { type PromiseFunction } from "./types/function";
 
 const tryCatch = async <R, T extends PromiseFunction<R> = PromiseFunction<R>>(
   callback: T,
