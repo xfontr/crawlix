@@ -1,6 +1,6 @@
 import Session from "./helpers/Session";
 import { launch } from "puppeteer";
-import delay from "./helpers/delay";
+import delay from "./helpers/ScraperAction";
 
 const session = Session();
 
