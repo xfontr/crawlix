@@ -1,4 +1,4 @@
-import { LIMIT_MAX } from "../configs/session";
+import { GLOBAL_TIMEOUT_MAX, LIMIT_MAX, TIMEOUT_MAX } from "../configs/session";
 import SessionConfig from "../types/SessionConfig";
 
 export const defaultSessionConfig: SessionConfig = {
@@ -7,14 +7,23 @@ export const defaultSessionConfig: SessionConfig = {
   },
   limit: 50,
   timeout: 1_000,
+  taskLength: 800,
+  globalTimeout: 10 * 30 * 1_000,
 };
+
+const getMax = (max: number, fallback: number, value?: number) =>
+  ((value ?? 0) > max ? max : value) ?? fallback;
 
 export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => ({
   ...defaultSessionConfig,
   ...config,
-  limit:
-    ((config?.limit ?? 0) > LIMIT_MAX ? LIMIT_MAX : config?.limit) ??
-    defaultSessionConfig.limit,
+  limit: getMax(LIMIT_MAX, defaultSessionConfig.limit, config?.limit),
+  globalTimeout: getMax(
+    GLOBAL_TIMEOUT_MAX,
+    defaultSessionConfig.globalTimeout,
+    config?.globalTimeout,
+  ),
+  timeout: getMax(TIMEOUT_MAX, defaultSessionConfig.timeout, config?.timeout),
 });
 
 export default setConfig;
