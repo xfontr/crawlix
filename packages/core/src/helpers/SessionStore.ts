@@ -1,28 +1,50 @@
+import t from "../i18n";
 import type SessionConfig from "../types/SessionConfig";
 import type SessionData from "../types/SessionData";
 
+let initialized = false;
+
 const SessionStore = () => {
   const store = {
-    session: {} as SessionData,
+    session: {} as Partial<SessionData>,
   };
 
-  const init = (config: SessionConfig) => {
+  const end = () => {
+    const endDate = new Date();
+
     store.session = {
-      date: new Date(),
-      ...config,
+      ...store.session,
+      endDate,
+      duration: store.session.startDate!.getTime() - endDate.getTime(),
     };
 
-    return sessionStore;
+    initialized = false;
+
+    return current();
   };
 
   const current = () => ({ ...store.session });
 
-  const sessionStore = {
-    init,
-    current,
+  const init = (config: SessionConfig) => {
+    if (initialized) {
+      throw new Error(t("session.error.initialized"));
+    }
+
+    store.session = {
+      startDate: new Date(),
+      ...config,
+    };
+
+    initialized = true;
+
+    return {
+      init,
+      current,
+      end,
+    };
   };
 
-  return sessionStore;
+  return { init };
 };
 
 export default SessionStore;
