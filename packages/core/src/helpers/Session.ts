@@ -8,15 +8,15 @@ const Session = (baseConfig?: SessionConfig) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
 
+  const end = (): void => {
+    store.end();
+    infoMessage(t("session.end"));
+  };
+
   const init = () => {
     store.init(config);
     infoMessage(t("session.init"));
     return session;
-  };
-
-  const end = () => {
-    store.end();
-    infoMessage(t("session.end"));
   };
 
   const session = {
