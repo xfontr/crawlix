@@ -1,12 +1,16 @@
 import t from "../i18n";
 import type SessionConfig from "../types/SessionConfig";
 import type SessionData from "../types/SessionData";
+import EventBus, { events } from "../utils/EventBus";
 
 let initialized = false;
 
 const SessionStore = () => {
   const store = {
-    session: {} as Partial<SessionData>,
+    session: {
+      totalActions: 0,
+      totalActionsJointLength: 0,
+    } as Partial<SessionData>,
   };
 
   const end = () => {
@@ -19,6 +23,8 @@ const SessionStore = () => {
     };
 
     initialized = false;
+
+    EventBus.removeAllListeners();
 
     return current();
   };
@@ -35,15 +41,23 @@ const SessionStore = () => {
       ...config,
     };
 
+    EventBus.on(events.countAction, countAction);
+
     initialized = true;
 
     return sessionStore;
   };
 
+  const countAction = (speed: number): void => {
+    store.session.totalActions! += 1;
+    store.session.totalActionsJointLength! += speed * store.session.taskLength!;
+  }
+
   const sessionStore = {
     init,
     current,
     end,
+    countAction,
   };
 
   return sessionStore;

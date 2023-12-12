@@ -19,7 +19,8 @@
   "dependencies": {
     "@personal/i18n": "workspace:*",
     "@personal/utils": "workspace:*",
-    "pino": "^8.16.2"
+    "pino": "^8.16.2",
+    "puppeteer": "^21.6.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",
