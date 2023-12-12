@@ -37,14 +37,16 @@ const SessionStore = () => {
 
     initialized = true;
 
-    return {
-      init,
-      current,
-      end,
-    };
+    return sessionStore;
   };
 
-  return { init };
+  const sessionStore = {
+    init,
+    current,
+    end,
+  };
+
+  return sessionStore;
 };
 
 export default SessionStore;
