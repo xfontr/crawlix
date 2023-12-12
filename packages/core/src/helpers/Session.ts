@@ -11,11 +11,20 @@ const Session = (baseConfig?: SessionConfig) => {
   const init = () => {
     store.init(config);
     infoMessage(t("session.init"));
+    return session;
   };
 
-  return {
-    init,
+  const end = () => {
+    store.end();
+    infoMessage(t("session.end"));
   };
+
+  const session = {
+    init,
+    end,
+  }
+
+  return session;
 };
 
 export default Session;

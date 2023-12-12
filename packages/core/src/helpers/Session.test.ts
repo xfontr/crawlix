@@ -6,10 +6,12 @@ import setConfig from "../utils/setConfig";
 import Session from "./Session";
 
 const mockInit = jest.fn();
+const mockEnd = jest.fn();
 const mockInfoMessage = jest.fn();
 
 jest.mock("./SessionStore", () => () => ({
   init: (config: SessionConfig) => mockInit(config),
+  end: () => mockEnd(),
 }));
 
 jest.mock("../logger.ts", () => ({
@@ -33,6 +35,22 @@ describe("Given a Session.init function", () => {
       Session(config).init();
 
       expect(mockInfoMessage).toHaveBeenCalledWith(t("session.init"));
+    });
+  });
+});
+
+describe("Given a Session.end function", () => {
+  describe("When called", () => {
+    test("Then it should end the store", () => {
+      Session(mockSessionConfig).init().end();
+
+      expect(mockEnd).toHaveBeenCalled();
+    });
+
+    test("Then it should send a info message", () => {
+      Session(mockSessionConfig).init().end();
+
+      expect(mockInfoMessage).toHaveBeenCalledWith(t("session.end"));
     });
   });
 });
