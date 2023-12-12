@@ -12,10 +12,17 @@ interface SessionConfig {
   limit: number;
   /**
    * @description Maximum session length in milliseconds
-   * @example
-   * { timeout: 3_000 } // 3 seconds
+   */
+  globalTimeout: number;
+  /**
+   * @description Time (in ms) after which the request will be cancelled
    */
   timeout: number;
+  /**
+   * @description The length, in ms, by which the duration of each action
+   * will be multiplied (higher, slower everything will be)
+   */
+  taskLength: number;
 }
 
 export default SessionConfig;
