@@ -57,7 +57,34 @@ describe("Given a SessionStore function", () => {
 
       end();
 
-      expect(SessionStore().init).not.toThrow();
+      const { init, end: cleanUpEnd } = SessionStore();
+
+      expect(init).not.toThrow();
+
+      cleanUpEnd();
+    });
+  });
+});
+
+describe("Given a SessionStore.countAction function", () => {
+  describe("When called with a speed of '1'", () => {
+    test(`Then it should increase the total amount of actions by '1' and the time by '${mockSessionConfig.taskLength}'`, () => {
+      const speed = 1;
+
+      const {
+        countAction,
+        current,
+        end: cleanUpEnd,
+      } = SessionStore().init(mockSessionConfig);
+
+      countAction(speed);
+
+      expect(current().totalActions).toBe(speed);
+      expect(current().totalActionsJointLength).toBe(
+        mockSessionConfig.taskLength * speed,
+      );
+
+      cleanUpEnd();
     });
   });
 });
