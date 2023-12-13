@@ -3,12 +3,16 @@ import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionData from "../types/SessionData";
 import SessionStore from "./SessionStore";
 
+jest.useFakeTimers();
+
 describe("Given a SessionStore function", () => {
   describe("When started and getting the current store value", () => {
     test("Then it should return the current store value", () => {
       const expectedStore: Partial<SessionData> = {
         ...mockSessionConfig,
         startDate: new Date(),
+        totalActions: 0,
+        totalActionsJointLength: 0,
       };
 
       const { current, end: cleanUpEnd } =
@@ -27,6 +31,8 @@ describe("Given a SessionStore function", () => {
         startDate: new Date(),
         endDate: new Date(),
         duration: 0,
+        totalActions: 0,
+        totalActionsJointLength: 0,
       };
 
       const { end } = SessionStore().init(mockSessionConfig);
