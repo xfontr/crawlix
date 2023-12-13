@@ -1,6 +1,7 @@
 import Session from "./helpers/Session";
 import { launch } from "puppeteer";
 import action from "./utils/action";
+import ENVIRONMENT from "./configs/environment";
 
 const session = Session();
 
@@ -12,7 +13,7 @@ void (async () => {
   const browser = await launch({ headless: "new" });
   const page = await browser.newPage();
 
-  await $a(() => page.goto("https://www.huellalegal.com/publicaciones/"), 0);
+  await $a(() => page.goto(ENVIRONMENT.baseUrl), 0);
 
   await Promise.all([
     () => page.waitForNavigation({ timeout: store.timeout }),
