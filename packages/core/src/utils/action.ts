@@ -23,14 +23,14 @@ const action = (taskLength: number) => {
   ): Promise<T | void> => {
     const [response, error] = await tryCatch(() => delay(callback, speed));
 
+    countAction(speed);
+
     if (error) {
       errorMessage((error as Error).message);
-      countAction(0);
       EventBus.emit("END_SESSION"); // TODO: Do we always want to abruptly end session on each task?
       return;
     }
 
-    countAction(speed);
     return response as T;
   };
 };
