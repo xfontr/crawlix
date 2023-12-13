@@ -1,3 +1,3 @@
-export type CustomFunction<T = any> = (...args: any[]) => T;
+export type CustomFunction<T> = (...args: unknown[]) => T | void;
 
 export type PromiseFunction<T = any> = CustomFunction<Promise<T>>;
