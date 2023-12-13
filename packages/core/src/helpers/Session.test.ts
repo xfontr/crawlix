@@ -12,6 +12,7 @@ const mockInfoMessage = jest.fn();
 jest.mock("./SessionStore", () => () => ({
   init: (config: SessionConfig) => mockInit(config),
   end: () => mockEnd(),
+  current: () => ({}),
 }));
 
 jest.mock("../logger.ts", () => ({

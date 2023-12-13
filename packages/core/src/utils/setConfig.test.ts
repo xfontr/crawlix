@@ -1,4 +1,4 @@
-import { LIMIT_MAX } from "../configs/session";
+import { GLOBAL_TIMEOUT_MAX, LIMIT_MAX, TIMEOUT_MAX } from "../configs/session";
 import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionConfig from "../types/SessionConfig";
 import setConfig, { defaultSessionConfig } from "./setConfig";
@@ -14,9 +14,19 @@ describe("Given a setConfig function", () => {
 
   describe("When called with full session configs, where the limit is excessive", () => {
     test("Then it should return the passed values, but with a maxed limit", () => {
-      const config = setConfig({ ...mockSessionConfig, limit: LIMIT_MAX + 1 });
+      const config = setConfig({
+        ...mockSessionConfig,
+        limit: LIMIT_MAX + 1,
+        globalTimeout: GLOBAL_TIMEOUT_MAX + 1,
+        timeout: TIMEOUT_MAX + 1,
+      });
 
-      expect(config).toStrictEqual({ ...mockSessionConfig, limit: LIMIT_MAX });
+      expect(config).toStrictEqual({
+        ...mockSessionConfig,
+        limit: LIMIT_MAX,
+        globalTimeout: GLOBAL_TIMEOUT_MAX,
+        timeout: TIMEOUT_MAX,
+      });
     });
   });
 
