@@ -49,7 +49,7 @@ describe("Given an action function", () => {
     });
 
     test("Then it should catch any error and send an error message", async () => {
-      await $a(callbackWithError, speed);
+      await $a(callbackWithError);
 
       expect(mockError).toHaveBeenCalledWith(errorMessage);
     });

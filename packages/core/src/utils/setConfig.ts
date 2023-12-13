@@ -1,3 +1,4 @@
+import { TASK_LENGTH_MAX } from "../configs/scraper";
 import { GLOBAL_TIMEOUT_MAX, LIMIT_MAX, TIMEOUT_MAX } from "../configs/session";
 import SessionConfig from "../types/SessionConfig";
 
@@ -24,6 +25,11 @@ export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => ({
     config?.globalTimeout,
   ),
   timeout: getMax(TIMEOUT_MAX, defaultSessionConfig.timeout, config?.timeout),
+  taskLength: getMax(
+    TASK_LENGTH_MAX,
+    defaultSessionConfig.taskLength,
+    config?.taskLength,
+  ),
 });
 
 export default setConfig;

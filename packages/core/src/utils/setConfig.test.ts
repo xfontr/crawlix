@@ -1,3 +1,4 @@
+import { TASK_LENGTH_MAX } from "../configs/scraper";
 import { GLOBAL_TIMEOUT_MAX, LIMIT_MAX, TIMEOUT_MAX } from "../configs/session";
 import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionConfig from "../types/SessionConfig";
@@ -19,6 +20,7 @@ describe("Given a setConfig function", () => {
         limit: LIMIT_MAX + 1,
         globalTimeout: GLOBAL_TIMEOUT_MAX + 1,
         timeout: TIMEOUT_MAX + 1,
+        taskLength: TASK_LENGTH_MAX + 1,
       });
 
       expect(config).toStrictEqual({
@@ -26,13 +28,17 @@ describe("Given a setConfig function", () => {
         limit: LIMIT_MAX,
         globalTimeout: GLOBAL_TIMEOUT_MAX,
         timeout: TIMEOUT_MAX,
+        taskLength: TASK_LENGTH_MAX,
       });
     });
   });
 
   describe("When called with partial session configs", () => {
     test("Then it should return the default values to fill the blanks", () => {
-      const passedSessionConfig: Partial<SessionConfig> = { limit: 10 };
+      const passedSessionConfig: Partial<SessionConfig> = {
+        offset: { page: 2, item: "test" },
+      };
+
       const config = setConfig(passedSessionConfig);
 
       expect(config).toStrictEqual({
