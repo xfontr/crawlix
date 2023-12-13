@@ -1,7 +1,7 @@
 import t from "../i18n";
 import type SessionConfig from "../types/SessionConfig";
 import type SessionData from "../types/SessionData";
-import EventBus, { events } from "../utils/EventBus";
+import EventBus from "../utils/EventBus";
 
 let initialized = false;
 
@@ -19,7 +19,7 @@ const SessionStore = () => {
     store.session = {
       ...store.session,
       endDate,
-      duration: store.session.startDate!.getTime() - endDate.getTime(),
+      duration: endDate.getTime() - store.session.startDate!.getTime(),
     };
 
     initialized = false;
@@ -29,7 +29,7 @@ const SessionStore = () => {
     return current();
   };
 
-  const current = () => ({ ...store.session });
+  const current = (): SessionData => ({ ...store.session }) as SessionData;
 
   const init = (config: SessionConfig) => {
     if (initialized) {
@@ -37,11 +37,12 @@ const SessionStore = () => {
     }
 
     store.session = {
+      ...store.session,
       startDate: new Date(),
       ...config,
     };
 
-    EventBus.on(events.countAction, countAction);
+    EventBus.on("COUNT_ACTION", countAction);
 
     initialized = true;
 
@@ -51,7 +52,7 @@ const SessionStore = () => {
   const countAction = (speed: number): void => {
     store.session.totalActions! += 1;
     store.session.totalActionsJointLength! += speed * store.session.taskLength!;
-  }
+  };
 
   const sessionStore = {
     init,
