@@ -12,7 +12,10 @@ const Session = (baseConfig?: SessionConfig) => {
   const store = SessionStore();
 
   const end = (): void => {
-    if (!initialized) return;
+    if (!initialized) {
+      infoMessage(t("session.warning.not_initialized"));
+      return;
+    }
 
     store.end();
 

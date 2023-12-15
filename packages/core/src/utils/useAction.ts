@@ -23,39 +23,28 @@ const useAction = (taskLength: number) => {
     callback: CustomFunction<T>,
     speed: ScraperSpeed,
     isCritical: boolean,
-    isItem: boolean,
   ): Promise<T | void> => {
     if (!isSessionOn) return;
     
     const [response, error] = await tryCatch(() => delay(callback, speed));
 
-    EventBus.emit("ACTION:COUNT", speed, isItem);
-    EventBus.emit("SESSION:ERROR", error, isCritical);
+    EventBus.emit("ACTION:COUNT", speed);
+    error && EventBus.emit("SESSION:ERROR", error, isCritical);
 
     return (response as T) ?? undefined;
   };
 
   const $a = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>
-    action(callback, speed, false, false);
+    action(callback, speed, false);
 
   const $$a = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>
-    action(callback, speed, true, false);
-
-  const $i = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>
-    action(callback, speed, false, true);
-
-  const $$i = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>
-    action(callback, speed, true, true);
+    action(callback, speed, true);
 
   return {
     $a,
     $$a,
-    $i,
-    $$i,
     action: $a,
     criticalAction: $$a,
-    item: $i,
-    criticalItem: $i,
   };
 };
 

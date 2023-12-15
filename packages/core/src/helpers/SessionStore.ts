@@ -17,7 +17,7 @@ const SessionStore = () => {
 
   const end = () => {
     if (!initialized) {
-      throw new Error(t("session_Store.error.not_initialized"));
+      throw new Error(t("session_store.error.not_initialized"));
     }
 
     const endDate = new Date();
@@ -54,11 +54,9 @@ const SessionStore = () => {
     return sessionStore;
   };
 
-  const countAction = (speed: number, isItem?: boolean): void => {
+  const countAction = (speed: number): void => {
     store.session.totalActions! += 1;
     store.session.totalActionsJointLength! += speed * store.session.taskLength!;
-
-    store.session.items! += isItem ? 1 : 0;
   };
 
   const updateLocation = (item: string, page?: number): void => {
@@ -67,7 +65,7 @@ const SessionStore = () => {
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {
-    store.session.errorLog?.push({
+    store.session.errorLog!.push({
       error,
       isCritical: !!isCritical,
       time: new Date(),
