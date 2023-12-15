@@ -49,7 +49,7 @@ describe("Given a SessionStore function", () => {
 
   describe("When started twice", () => {
     test("It should throw an error if the first session wasn't ended", () => {
-      const expectedError = t("session.error.initialized");
+      const expectedError = t("session_store.error.initialized");
 
       const { end: cleanUpEnd } = SessionStore().init(mockSessionConfig);
 

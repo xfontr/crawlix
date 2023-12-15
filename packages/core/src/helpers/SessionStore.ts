@@ -16,6 +16,10 @@ const SessionStore = () => {
   };
 
   const end = () => {
+    if (!initialized) {
+      throw new Error(t("session_Store.error.not_initialized"));
+    }
+
     const endDate = new Date();
 
     store.session = {
@@ -33,7 +37,7 @@ const SessionStore = () => {
 
   const init = (config: SessionConfig) => {
     if (initialized) {
-      throw new Error(t("session.error.initialized"));
+      throw new Error(t("session_store.error.initialized"));
     }
 
     store.session = {
