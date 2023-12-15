@@ -13,6 +13,9 @@ describe("Given a SessionStore function", () => {
         startDate: new Date(),
         totalActions: 0,
         totalActionsJointLength: 0,
+        errorLog: [],
+        items: 0,
+        location: mockSessionConfig.offset,
       };
 
       const { current, end: cleanUpEnd } =
@@ -33,6 +36,9 @@ describe("Given a SessionStore function", () => {
         duration: 0,
         totalActions: 0,
         totalActionsJointLength: 0,
+        errorLog: [],
+        items: 0,
+        location: mockSessionConfig.offset,
       };
 
       const { end } = SessionStore().init(mockSessionConfig);
@@ -59,7 +65,7 @@ describe("Given a SessionStore function", () => {
 
       const { init, end: cleanUpEnd } = SessionStore();
 
-      expect(init).not.toThrow();
+      expect(() => init(mockSessionConfig)).not.toThrow();
 
       cleanUpEnd();
     });

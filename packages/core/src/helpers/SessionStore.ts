@@ -10,6 +10,8 @@ const SessionStore = () => {
     session: {
       totalActions: 0,
       totalActionsJointLength: 0,
+      items: 0,
+      errorLog: [],
     } as Partial<SessionData>,
   };
 
@@ -23,8 +25,6 @@ const SessionStore = () => {
     };
 
     initialized = false;
-
-    EventBus.removeAllListeners();
 
     return current();
   };
@@ -40,18 +40,39 @@ const SessionStore = () => {
       ...store.session,
       startDate: new Date(),
       ...config,
+      location: config.offset,
     };
 
-    EventBus.on("COUNT_ACTION", countAction);
+    EventBus.on("ACTION:COUNT", countAction);
 
     initialized = true;
 
     return sessionStore;
   };
 
-  const countAction = (speed: number): void => {
+  const countAction = (speed: number, isItem?: boolean): void => {
     store.session.totalActions! += 1;
     store.session.totalActionsJointLength! += speed * store.session.taskLength!;
+
+    store.session.items! += isItem ? 1 : 0;
+  };
+
+  const updateLocation = (item: string, page?: number): void => {
+    store.session.location!.item = item;
+    store.session.location!.page = page ?? store.session.location!.page;
+  };
+
+  const logError = (error: Error, isCritical?: boolean): void => {
+    store.session.errorLog?.push({
+      error,
+      isCritical: !!isCritical,
+      time: new Date(),
+      location: {
+        ...store.session.location!,
+        itemNumber: store.session.items!,
+      },
+      actionNumber: store.session.totalActions!,
+    });
   };
 
   const sessionStore = {
@@ -59,6 +80,8 @@ const SessionStore = () => {
     current,
     end,
     countAction,
+    logError,
+    updateLocation,
   };
 
   return sessionStore;

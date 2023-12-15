@@ -1,3 +1,3 @@
-type Events = "COUNT_ACTION" | "END_SESSION";
+type Events = "ACTION:COUNT" | "SESSION:ERROR";
 
 export default Events;

@@ -1,6 +1,6 @@
 import Events from "../types/Events";
 import ScraperSpeed from "../types/ScraperSpeed";
-import action from "./action";
+import action from "./useAction";
 
 const mockEmit = jest.fn();
 const mockError = jest.fn();
@@ -28,7 +28,7 @@ describe("Given an action function", () => {
     const callbackWithError = () =>
       new Promise((_, reject) => reject(new Error(errorMessage)));
 
-    const $a = action(taskLength);
+    const { $a } = action(taskLength);
 
     test("Then it should call the callback after the task length and return its value", async () => {
       const start = new Date().getTime();
@@ -41,17 +41,11 @@ describe("Given an action function", () => {
     });
 
     test("Then it should also count up the amount of actions", async () => {
-      const expectedEvent: Events = "COUNT_ACTION";
+      const expectedEvent: Events = "ACTION:COUNT";
 
       await $a(callback, speed);
 
       expect(mockEmit).toHaveBeenCalledWith(expectedEvent, speed);
-    });
-
-    test("Then it should catch any error and send an error message", async () => {
-      await $a(callbackWithError);
-
-      expect(mockError).toHaveBeenCalledWith(errorMessage);
     });
 
     test("Then it should catch any error and emit an error event", async () => {
