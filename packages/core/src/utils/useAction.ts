@@ -2,6 +2,12 @@ import { CustomFunction, tryCatch } from "@personal/utils";
 import ScraperSpeed from "../types/ScraperSpeed";
 import EventBus from "./EventBus";
 
+let isSessionOn = true;
+
+EventBus.on("SESSION:ACTIVE", (status: boolean) => {
+  isSessionOn = status;
+})
+
 const useAction = (taskLength: number) => {
   const delay = async <T>(
     callback: CustomFunction<T>,
@@ -19,6 +25,8 @@ const useAction = (taskLength: number) => {
     isCritical: boolean,
     isItem: boolean,
   ): Promise<T | void> => {
+    if (!isSessionOn) return;
+    
     const [response, error] = await tryCatch(() => delay(callback, speed));
 
     EventBus.emit("ACTION:COUNT", speed, isItem);

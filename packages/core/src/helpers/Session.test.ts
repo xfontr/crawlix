@@ -27,15 +27,19 @@ describe("Given a Session.init function", () => {
     };
 
     test("Then it should start the store with curated passed configs", () => {
-      Session(config).init();
+      const { end: cleanUpEnd } = Session(config).init();
 
       expect(mockInit).toHaveBeenCalledWith(setConfig(config));
+
+      cleanUpEnd();
     });
 
     test("Then it should send a info message", () => {
-      Session(config).init();
+      const { end: cleanUpEnd } = Session(config).init();
 
       expect(mockInfoMessage).toHaveBeenCalledWith(t("session.init"));
+
+      cleanUpEnd();
     });
   });
 });

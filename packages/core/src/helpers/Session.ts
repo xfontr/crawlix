@@ -5,22 +5,39 @@ import EventBus from "../utils/EventBus";
 import setConfig from "../utils/setConfig";
 import SessionStore from "./SessionStore";
 
+let initialized = false;
+
 const Session = (baseConfig?: SessionConfig) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
 
   const end = (): void => {
+    if (!initialized) return;
+
     store.end();
+
+    EventBus.emit("SESSION:ACTIVE", false);
     EventBus.removeAllListeners();
+
+    initialized = false;
+
     infoMessage(t("session.end"));
   };
 
   const init = () => {
+    if (initialized) {
+      throw new Error(t("session.error.initialized"));
+    }
+
     store.init(config);
 
     EventBus.on("SESSION:ERROR", error);
+    EventBus.emit("SESSION:ACTIVE", true);
 
     infoMessage(t("session.init"));
+
+    initialized = true;
+
     return session;
   };
 

@@ -7,6 +7,7 @@ const mockError = jest.fn();
 
 jest.mock("./EventBus", () => ({
   emit: (eventName: Events, speed: number) => mockEmit(eventName, speed),
+  on: () => undefined,
 }));
 
 jest.mock("pino", () => () => ({
