@@ -17,7 +17,7 @@ const SessionStore = () => {
 
   const end = () => {
     if (!initialized) {
-      throw new Error(t("session_Store.error.not_initialized"));
+      throw new Error(t("session_store.error.not_initialized"));
     }
 
     const endDate = new Date();
@@ -65,7 +65,7 @@ const SessionStore = () => {
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {
-    store.session.errorLog?.push({
+    store.session.errorLog!.push({
       error,
       isCritical: !!isCritical,
       time: new Date(),

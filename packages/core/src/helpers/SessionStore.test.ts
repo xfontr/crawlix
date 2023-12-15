@@ -47,6 +47,18 @@ describe("Given a SessionStore function", () => {
     });
   });
 
+  describe("When ended twice", () => {
+    test("It should throw an error", () => {
+      const expectedError = t("session_store.error.not_initialized");
+
+      const { end } = SessionStore().init(mockSessionConfig);
+
+      end();
+
+      expect(SessionStore().end).toThrow(new Error(expectedError));
+    });
+  })
+
   describe("When started twice", () => {
     test("It should throw an error if the first session wasn't ended", () => {
       const expectedError = t("session_store.error.initialized");
@@ -89,6 +101,106 @@ describe("Given a SessionStore.countAction function", () => {
       expect(current().totalActionsJointLength).toBe(
         mockSessionConfig.taskLength * speed,
       );
+
+      cleanUpEnd();
+    });
+  });
+});
+
+describe("Given a SessionStore.updateLocation function", () => {
+  describe("When called with an item 'test' and a page '2'", () => {
+    test("Then it should set said values in the current location", () => {
+      const item = "test", page = 2;
+
+      const {
+        updateLocation,
+        current,
+        end: cleanUpEnd,
+      } = SessionStore().init(mockSessionConfig);
+
+      updateLocation(item, page);
+
+      expect(current().location).toStrictEqual({ item, page });
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called only with an item 'test'", () => {
+    test("Then it should set the item, but not update the page", () => {
+      const item = "test", page = 2, newItem = "second test";
+
+      const {
+        updateLocation,
+        current,
+        end: cleanUpEnd,
+      } = SessionStore().init(mockSessionConfig);
+
+      updateLocation(item, page);
+
+      expect(current().location.page).toBe(page);
+
+      updateLocation(newItem);
+
+      expect(current().location).toStrictEqual({ item: newItem, page });
+
+      cleanUpEnd();
+    })
+  })
+});
+
+describe("Given a SessionStore.logError function", () => {
+  describe("When called with a critical error", () => {
+    test("Then it should register the error with the current session data", () => {
+      const {
+        current,
+        end: cleanUpEnd,
+        logError,
+      } = SessionStore().init(mockSessionConfig);
+
+      const error = new Error("test");
+      const expectedLog = {
+        error,
+        isCritical: true,
+        time: new Date(),
+        location: {
+          ...current().location,
+          itemNumber: current().items,
+        },
+        actionNumber: current().totalActions,
+      };
+
+      logError(error, expectedLog.isCritical);
+
+      expect(current().errorLog).toStrictEqual([expectedLog]);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called with a non critical error", () => {
+    test("Then it should register the error with the current session data", () => {
+      const {
+        current,
+        end: cleanUpEnd,
+        logError,
+      } = SessionStore().init(mockSessionConfig);
+
+      const error = new Error("test");
+      const expectedLog = {
+        error,
+        isCritical: false,
+        time: new Date(),
+        location: {
+          ...current().location,
+          itemNumber: current().items,
+        },
+        actionNumber: current().totalActions,
+      };
+
+      logError(error, expectedLog.isCritical);
+
+      expect(current().errorLog).toStrictEqual([expectedLog]);
 
       cleanUpEnd();
     });
