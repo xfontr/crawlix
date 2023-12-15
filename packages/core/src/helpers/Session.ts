@@ -1,5 +1,5 @@
 import t from "../i18n";
-import { infoMessage } from "../logger";
+import { errorMessage, infoMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
 import EventBus from "../utils/EventBus";
 import setConfig from "../utils/setConfig";
@@ -11,21 +11,32 @@ const Session = (baseConfig?: SessionConfig) => {
 
   const end = (): void => {
     store.end();
+    EventBus.removeAllListeners();
     infoMessage(t("session.end"));
   };
 
   const init = () => {
     store.init(config);
-    EventBus.on("END_SESSION", end);
+
+    EventBus.on("SESSION:ERROR", error);
 
     infoMessage(t("session.init"));
     return session;
   };
 
+  const error = (error: Error | undefined, isCritical?: boolean) => {
+    if (!error) return;
+    if (isCritical) end();
+
+    store.logError(error, isCritical);
+    errorMessage(error.message);
+  };
+
   const session = {
     init,
     end,
-    store: store.current(),
+    error,
+    store: store.current,
   };
 
   return session;
