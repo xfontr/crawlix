@@ -54,11 +54,9 @@ const SessionStore = () => {
     return sessionStore;
   };
 
-  const countAction = (speed: number, isItem?: boolean): void => {
+  const countAction = (speed: number): void => {
     store.session.totalActions! += 1;
     store.session.totalActionsJointLength! += speed * store.session.taskLength!;
-
-    store.session.items! += isItem ? 1 : 0;
   };
 
   const updateLocation = (item: string, page?: number): void => {
