@@ -7,17 +7,26 @@ import Session from "./Session";
 
 const mockInit = jest.fn();
 const mockEnd = jest.fn();
-const mockInfoMessage = jest.fn();
+const mockLogError = jest.fn();
 
 jest.mock("./SessionStore", () => () => ({
   init: (config: SessionConfig) => mockInit(config),
   end: () => mockEnd(),
   current: () => ({}),
+  logError: (...args: unknown[]) => mockLogError(...args),
 }));
+
+const mockInfoMessage = jest.fn();
+const mockErrorMessage = jest.fn();
 
 jest.mock("../logger.ts", () => ({
   infoMessage: (message: string) => mockInfoMessage(message),
+  errorMessage: (message: string) => mockErrorMessage(message),
 }));
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe("Given a Session.init function", () => {
   describe("When called", () => {
@@ -42,6 +51,18 @@ describe("Given a Session.init function", () => {
       cleanUpEnd();
     });
   });
+
+  describe("When called on an already inited session", () => {
+    test("Then it should throw an error", () => {
+      const { init, end: cleanUpEnd } = Session();
+
+      init();
+
+      expect(init).toThrow(t("session.error.initialized"))
+
+      cleanUpEnd();
+    })
+  })
 });
 
 describe("Given a Session.end function", () => {
@@ -58,4 +79,59 @@ describe("Given a Session.end function", () => {
       expect(mockInfoMessage).toHaveBeenCalledWith(t("session.end"));
     });
   });
+
+  describe("When called without the store being initiated", () => {
+    test("Then it should only send a warning message", () => {
+      Session(mockSessionConfig).end();
+
+      expect(mockInfoMessage).toHaveBeenCalledTimes(1);
+      expect(mockInfoMessage).toHaveBeenCalledWith(t("session.warning.not_initialized"));
+    });
+  });
+});
+
+describe("Given a session.error function", () => {
+  describe("When called with a critical error", () => {
+    test("It should log it, end the session and send an error message", () => {
+      const testError = new Error("error");
+      const isCritical = true;
+
+      const { error } = Session().init();
+
+      error(testError, isCritical);
+
+      expect(mockEnd).toHaveBeenCalledTimes(1);
+      expect(mockErrorMessage).toHaveBeenCalledTimes(1);
+      expect(mockLogError).toHaveBeenCalledWith(testError, isCritical);
+    });
+  });
+
+  describe("When called with a non critical error", () => {
+    test("It should log it and send an error message", () => {
+      const testError = new Error("error");
+      const isCritical = false;
+
+      const { error, end: cleanUpEnd } = Session().init();
+
+      error(testError, isCritical);
+
+      expect(mockEnd).not.toHaveBeenCalled();
+      expect(mockErrorMessage).toHaveBeenCalledTimes(1);
+      expect(mockLogError).toHaveBeenCalledWith(testError, isCritical);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called with no error", () => {
+    test("It should do nothing", () => {
+      const { error } = Session().init();
+
+      error(undefined);
+
+      expect(mockEnd).not.toHaveBeenCalled();
+      expect(mockErrorMessage).not.toHaveBeenCalled();
+      expect(mockLogError).not.toHaveBeenCalled();
+    })
+  })
 });
