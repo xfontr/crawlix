@@ -1,17 +1,21 @@
+import { randomUUID } from "crypto";
 import t from "../i18n";
 import type SessionConfig from "../types/SessionConfig";
 import type SessionData from "../types/SessionData";
 import EventBus from "../utils/EventBus";
+import DefaultItem from "../types/DefaultItem";
 
 let initialized = false;
 
 const SessionStore = () => {
   const store = {
     session: {
+      _id: randomUUID(),
       totalActions: 0,
       totalActionsJointLength: 0,
-      items: 0,
+      items: [],
       errorLog: [],
+      totalItems: 0,
     } as Partial<SessionData>,
   };
 
@@ -44,7 +48,8 @@ const SessionStore = () => {
       ...store.session,
       startDate: new Date(),
       ...config,
-      location: config.offset,
+      location: { ...config.offset } as Required<SessionConfig["offset"]>,
+      history: [config.offset.url!],
     };
 
     EventBus.on("ACTION:COUNT", countAction);
@@ -59,9 +64,26 @@ const SessionStore = () => {
     store.session.totalActionsJointLength! += speed * store.session.taskLength!;
   };
 
-  const updateLocation = (item: string, page?: number): void => {
-    store.session.location!.item = item;
+  const updateLocation = ({
+    page,
+    item,
+    url,
+  }: Partial<SessionData["location"]>): void => {
+    store.session.location!.item = item ?? store.session.location!.item;
     store.session.location!.page = page ?? store.session.location!.page;
+    store.session.location!.url = url ?? store.session.location!.url;
+  };
+
+  const nextPage = (url: string): void => {
+    store.session.location!.url = url;
+    store.session.location!.page += 1;
+    store.session.history!.push(url);
+  };
+
+  const previousPage = (url: string): void => {
+    store.session.location!.url = url;
+    store.session.location!.page -= 1;
+    store.session.history!.push(url);
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {
@@ -71,10 +93,29 @@ const SessionStore = () => {
       time: new Date(),
       location: {
         ...store.session.location!,
-        itemNumber: store.session.items!,
+        itemNumber: store.session.totalItems!,
       },
       actionNumber: store.session.totalActions!,
     });
+  };
+
+  const postItem = <T = DefaultItem>(item?: T, selector = ""): boolean => {
+    if (!item) return false;
+
+    store.session.items?.push({
+      ...item,
+      _meta: {
+        id: randomUUID(),
+        itemNumber: store.session.totalItems!,
+        page: store.session.location!.page,
+        posted: new Date(),
+        selector,
+      },
+    });
+
+    store.session.totalItems = store.session.items!.length;
+
+    return true;
   };
 
   const sessionStore = {
@@ -84,6 +125,9 @@ const SessionStore = () => {
     countAction,
     logError,
     updateLocation,
+    nextPage,
+    previousPage,
+    postItem,
   };
 
   return sessionStore;

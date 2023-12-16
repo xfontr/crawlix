@@ -29,6 +29,7 @@ const useAction = (taskLength: number) => {
     const [response, error] = await tryCatch(() => delay(callback, speed));
 
     EventBus.emit("ACTION:COUNT", speed);
+
     error && EventBus.emit("SESSION:ERROR", error, isCritical);
 
     return (response as T) ?? undefined;

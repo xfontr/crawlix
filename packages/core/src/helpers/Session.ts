@@ -7,7 +7,7 @@ import SessionStore from "./SessionStore";
 
 let initialized = false;
 
-const Session = (baseConfig?: SessionConfig) => {
+const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
 
@@ -57,6 +57,12 @@ const Session = (baseConfig?: SessionConfig) => {
     end,
     error,
     store: store.current,
+    hooks: {
+      updateLocation: store.updateLocation,
+      nextPage: store.nextPage,
+      previousPage: store.previousPage,
+      postItem: store.postItem,
+    },
   };
 
   return session;
