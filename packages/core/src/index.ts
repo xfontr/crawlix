@@ -3,27 +3,50 @@ import { launch } from "puppeteer";
 import ENVIRONMENT from "./configs/environment";
 import useAction from "./utils/useAction";
 
-const session = Session();
+const session = Session({
+  offset: {
+    page: 1,
+  },
+});
 
 void (async () => {
-  const { store } = session.init();
-  const { taskLength } = store();
+  const { store, hooks: { updateLocation, nextPage, postItem }, end } = session.init();
+  const { taskLength, timeout } = store();
 
-  const { $$a } = useAction(taskLength); // TODO: This is risky, how do we make sure we don't use this somewhere else and wrongly set another length?
+  const { $$a, $a } = useAction(taskLength);
 
   const browser = await launch({ headless: "new" });
   const page = await browser.newPage();
 
   await $$a(() => page.goto(ENVIRONMENT.baseUrl));
 
-  // await Promise.all([
-  //   () => page.waitForNavigation({ timeout }),
-  //   $a(() => page.click("#text_block-2314-7323"), 0.2),
-  // ]);
+  const scrapItems = async () => {
+    const articles = await $a(() => page.$$("#_dynamic_list-2058-7323 > .ct-div-block"));
 
-  await $$a(() => page.$$(".ct-headline.landingH3"));
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    await $a(() => Promise.all(articles!.map(async (item, index) => {
+      updateLocation({ item: `.ct-headline.landingH3{i${index}}` })
+  
+      const title = await item.$eval(".ct-headline.landingH3", (title) => title.textContent)
+      const categories = await item.$eval(".ct-text-block.etiquetas", (category) => category.textContent)
+  
+      postItem({ title, categories }, ".ct-headline.landingH3");
+      updateLocation({ item: title ?? "" });
+    })));
+  }
 
-  console.log(page.url());
+  await scrapItems();
+
+  await Promise.all([
+    () => page.waitForNavigation({ timeout }),
+    $$a(() => page.click("#_dynamic_list-2058-7323 > div.oxy-repeater-pages-wrap > div > a:nth-child(2)"), 0.2),
+  ]);
+
+  nextPage(page.url());
+
+  await scrapItems();
+
+  end();
 
   console.log(store());
 })();

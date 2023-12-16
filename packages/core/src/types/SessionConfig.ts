@@ -1,6 +1,7 @@
 interface SessionConfig {
   offset: {
-    page: number;
+    url?: string;
+    page?: number;
     /**
      * @description Unique identifier for the item that the scrape should start with
      */

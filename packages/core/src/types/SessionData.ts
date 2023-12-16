@@ -1,6 +1,13 @@
+import { UUID } from "crypto";
 import SessionConfig from "./SessionConfig";
+import DefaultItem from "./DefaultItem";
 
-interface SessionData extends SessionConfig {
+interface SessionData<T extends Record<string, string | number | object> = Record<string, string | number | object>>
+  extends SessionConfig {
+  /**
+   * @description Session's ID in UUID format
+   */
+  _id: UUID;
   /**
    * @description Session start date
    */
@@ -25,11 +32,19 @@ interface SessionData extends SessionConfig {
   /**
    * @description Current location of the script, meaning the page it's at and the item is scraping
    */
-  location: SessionConfig["offset"];
+  location: Required<SessionConfig["offset"]>;
   /**
    * @description Counter of actually scraped items
    */
-  items: number;
+  totalItems: number;
+  /**
+   * @description Scraped items
+   */
+  items: DefaultItem<T>[];
+  /**
+   * @description History of accessed URLs
+   */
+  history: string[];
   /**
    * @description History of registered errors, including critical and non-critical ones
    */
