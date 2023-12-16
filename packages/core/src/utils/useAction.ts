@@ -6,7 +6,7 @@ let isSessionOn = true;
 
 EventBus.on("SESSION:ACTIVE", (status: boolean) => {
   isSessionOn = status;
-})
+});
 
 const useAction = (taskLength: number) => {
   const delay = async <T>(
@@ -25,7 +25,7 @@ const useAction = (taskLength: number) => {
     isCritical: boolean,
   ): Promise<T | void> => {
     if (!isSessionOn) return;
-    
+
     const [response, error] = await tryCatch(() => delay(callback, speed));
 
     EventBus.emit("ACTION:COUNT", speed);
