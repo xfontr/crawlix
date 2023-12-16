@@ -100,7 +100,8 @@ const SessionStore = () => {
   };
 
   const postItem = <T = DefaultItem>(item?: T, selector = ""): boolean => {
-    if (!item) return false;
+    if (!item || store.session.totalItems! >= store.session.limit!)
+      return false;
 
     store.session.items?.push({
       ...item,
@@ -114,6 +115,10 @@ const SessionStore = () => {
     });
 
     store.session.totalItems = store.session.items!.length;
+
+    if (store.session.totalItems >= store.session.limit!) {
+      EventBus.emit("SESSION:ACTIVE", false);
+    }
 
     return true;
   };

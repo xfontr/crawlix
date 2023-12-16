@@ -9,8 +9,8 @@ export const defaultSessionConfig: SessionConfig = {
     page: 0,
     item: "",
   },
-  limit: 50,
-  timeout: 1_000,
+  limit: 150,
+  timeout: 1_500,
   taskLength: 800,
   globalTimeout: 10 * 30 * 1_000,
 };

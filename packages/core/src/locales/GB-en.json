@@ -1,8 +1,8 @@
 {
   "session_store": {
     "error": {
-      "initialized":"[DEV] The session store has already been instantiated",
-      "not_initialized":"[DEV] The session store has not been instantiated"
+      "initialized": "[DEV] The session store has already been instantiated",
+      "not_initialized": "[DEV] The session store has not been instantiated"
     }
   },
   "session": {

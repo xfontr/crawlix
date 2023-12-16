@@ -7,12 +7,12 @@ const mockEmit = jest.fn();
 const mockError = jest.fn();
 
 EventBus.on("SESSION:ERROR", (...args: unknown[]) => {
-  mockEmit("SESSION:ERROR", ...args)
-})
+  mockEmit("SESSION:ERROR", ...args);
+});
 
 EventBus.on("ACTION:COUNT", (...args: unknown[]) => {
-  mockEmit("ACTION:COUNT", ...args)
-})
+  mockEmit("ACTION:COUNT", ...args);
+});
 
 // const emitCopy = EventBus.emit.bind(EventBus.emit)
 
@@ -45,13 +45,17 @@ describe("Given an useAction function", () => {
       const normalStart = new Date().getTime();
       const normalResponse = (await $a(async () => await callback()))!;
 
-      expect(normalResponse().getTime() - normalStart).toBeLessThan(asyncMaxExpectedDelay);
+      expect(normalResponse().getTime() - normalStart).toBeLessThan(
+        asyncMaxExpectedDelay,
+      );
 
       const criticalStart = new Date().getTime();
       const criticalResponse = (await $$a(async () => await callback()))!;
 
-      expect(criticalResponse().getTime() - criticalStart).toBeLessThan(asyncMaxExpectedDelay);
-    })
+      expect(criticalResponse().getTime() - criticalStart).toBeLessThan(
+        asyncMaxExpectedDelay,
+      );
+    });
   });
 
   describe("When called its returned function $a with a callback and a random task length", () => {
@@ -81,7 +85,9 @@ describe("Given an useAction function", () => {
       await $a(callbackWithError, speed);
 
       expect(mockEmit).toHaveBeenCalledTimes(emitCalls);
-      expect((mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[2]).toBe(false);
+      expect(
+        (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[2],
+      ).toBe(false);
     });
 
     test("Then it should not do anything if the session is off", async () => {
@@ -93,9 +99,9 @@ describe("Given an useAction function", () => {
 
       // Clean up
       EventBus.emit("SESSION:ACTIVE", true);
-    })
+    });
   });
-  
+
   describe("When called its returned function $$a with a callback and a random task length", () => {
     test("Then it should behave as the $a function", async () => {
       const numberOfCalls = 1;
@@ -117,7 +123,9 @@ describe("Given an useAction function", () => {
       await criticalAction(callbackWithError, speed);
 
       expect(mockEmit).toHaveBeenCalledTimes(emitCalls);
-      expect((mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[2]).toBe(true);
+      expect(
+        (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[2],
+      ).toBe(true);
     });
   });
 });
