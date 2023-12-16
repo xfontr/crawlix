@@ -2,8 +2,12 @@ import { UUID } from "crypto";
 import SessionConfig from "./SessionConfig";
 import DefaultItem from "./DefaultItem";
 
-interface SessionData<T extends Record<string, string | number | object> = Record<string, string | number | object>>
-  extends SessionConfig {
+interface SessionData<
+  T extends Record<string, string | number | object> = Record<
+    string,
+    string | number | object
+  >,
+> extends SessionConfig {
   /**
    * @description Session's ID in UUID format
    */
