@@ -58,11 +58,11 @@ describe("Given a Session.init function", () => {
 
       init();
 
-      expect(init).toThrow(t("session.error.initialized"))
+      expect(init).toThrow(t("session.error.initialized"));
 
       cleanUpEnd();
-    })
-  })
+    });
+  });
 });
 
 describe("Given a Session.end function", () => {
@@ -85,7 +85,9 @@ describe("Given a Session.end function", () => {
       Session(mockSessionConfig).end();
 
       expect(mockInfoMessage).toHaveBeenCalledTimes(1);
-      expect(mockInfoMessage).toHaveBeenCalledWith(t("session.warning.not_initialized"));
+      expect(mockInfoMessage).toHaveBeenCalledWith(
+        t("session.warning.not_initialized"),
+      );
     });
   });
 });
@@ -132,6 +134,6 @@ describe("Given a session.error function", () => {
       expect(mockEnd).not.toHaveBeenCalled();
       expect(mockErrorMessage).not.toHaveBeenCalled();
       expect(mockLogError).not.toHaveBeenCalled();
-    })
-  })
+    });
+  });
 });

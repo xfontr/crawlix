@@ -35,6 +35,9 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.init(config);
 
     EventBus.on("SESSION:ERROR", error);
+    EventBus.on("SESSION:ACTIVE", (status: boolean) => {
+      if (!status) end();
+    });
     EventBus.emit("SESSION:ACTIVE", true);
 
     infoMessage(t("session.init"));

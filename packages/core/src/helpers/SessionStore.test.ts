@@ -57,7 +57,7 @@ describe("Given a SessionStore function", () => {
 
       expect(SessionStore().end).toThrow(new Error(expectedError));
     });
-  })
+  });
 
   describe("When started twice", () => {
     test("It should throw an error if the first session wasn't ended", () => {
@@ -110,7 +110,8 @@ describe("Given a SessionStore.countAction function", () => {
 describe("Given a SessionStore.updateLocation function", () => {
   describe("When called with an item 'test' and a page '2'", () => {
     test("Then it should set said values in the current location", () => {
-      const item = "test", page = 2;
+      const item = "test",
+        page = 2;
 
       const {
         updateLocation,
@@ -118,7 +119,7 @@ describe("Given a SessionStore.updateLocation function", () => {
         end: cleanUpEnd,
       } = SessionStore().init(mockSessionConfig);
 
-      updateLocation(item, page);
+      updateLocation({ item, page });
 
       expect(current().location).toStrictEqual({ item, page });
 
@@ -128,7 +129,9 @@ describe("Given a SessionStore.updateLocation function", () => {
 
   describe("When called only with an item 'test'", () => {
     test("Then it should set the item, but not update the page", () => {
-      const item = "test", page = 2, newItem = "second test";
+      const item = "test",
+        page = 2,
+        newItem = "second test";
 
       const {
         updateLocation,
@@ -136,17 +139,17 @@ describe("Given a SessionStore.updateLocation function", () => {
         end: cleanUpEnd,
       } = SessionStore().init(mockSessionConfig);
 
-      updateLocation(item, page);
+      updateLocation({ item, page });
 
       expect(current().location.page).toBe(page);
 
-      updateLocation(newItem);
+      updateLocation({ item: newItem });
 
       expect(current().location).toStrictEqual({ item: newItem, page });
 
       cleanUpEnd();
-    })
-  })
+    });
+  });
 });
 
 describe("Given a SessionStore.logError function", () => {
