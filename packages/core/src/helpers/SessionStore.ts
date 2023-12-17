@@ -68,7 +68,9 @@ const SessionStore = () => {
     page,
     item,
     url,
-  }: Partial<SessionData["location"]>): void => {
+  }: Partial<
+    Omit<Omit<SessionData["location"], "itemNumber">, "errorMargin">
+  >): void => {
     store.session.location!.item = item ?? store.session.location!.item;
     store.session.location!.page = page ?? store.session.location!.page;
     store.session.location!.url = url ?? store.session.location!.url;

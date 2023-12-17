@@ -1,7 +1,12 @@
+import { UUID } from "crypto";
 import t from "../i18n";
 import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionData from "../types/SessionData";
 import SessionStore from "./SessionStore";
+
+jest.mock("crypto", () => ({
+  randomUUID: () => "random-uuid",
+}));
 
 jest.useFakeTimers();
 
@@ -14,8 +19,11 @@ describe("Given a SessionStore function", () => {
         totalActions: 0,
         totalActionsJointLength: 0,
         errorLog: [],
-        items: 0,
-        location: mockSessionConfig.offset,
+        items: [],
+        location: mockSessionConfig.offset as Required<SessionData["offset"]>,
+        totalItems: 0,
+        history: [mockSessionConfig.offset.url ?? ""],
+        _id: "random-uuid" as UUID,
       };
 
       const { current, end: cleanUpEnd } =
@@ -37,8 +45,11 @@ describe("Given a SessionStore function", () => {
         totalActions: 0,
         totalActionsJointLength: 0,
         errorLog: [],
-        items: 0,
-        location: mockSessionConfig.offset,
+        items: [],
+        totalItems: 0,
+        history: [mockSessionConfig.offset.url ?? ""],
+        location: mockSessionConfig.offset as Required<SessionData["offset"]>,
+        _id: "random-uuid" as UUID,
       };
 
       const { end } = SessionStore().init(mockSessionConfig);
@@ -121,7 +132,11 @@ describe("Given a SessionStore.updateLocation function", () => {
 
       updateLocation({ item, page });
 
-      expect(current().location).toStrictEqual({ item, page });
+      expect(current().location).toStrictEqual({
+        ...mockSessionConfig.offset,
+        item,
+        page,
+      });
 
       cleanUpEnd();
     });
@@ -145,7 +160,11 @@ describe("Given a SessionStore.updateLocation function", () => {
 
       updateLocation({ item: newItem });
 
-      expect(current().location).toStrictEqual({ item: newItem, page });
+      expect(current().location).toStrictEqual({
+        ...mockSessionConfig.offset,
+        item: newItem,
+        page,
+      });
 
       cleanUpEnd();
     });
@@ -168,7 +187,7 @@ describe("Given a SessionStore.logError function", () => {
         time: new Date(),
         location: {
           ...current().location,
-          itemNumber: current().items,
+          itemNumber: current().items.length,
         },
         actionNumber: current().totalActions,
       };
@@ -196,7 +215,7 @@ describe("Given a SessionStore.logError function", () => {
         time: new Date(),
         location: {
           ...current().location,
-          itemNumber: current().items,
+          itemNumber: current().items.length,
         },
         actionNumber: current().totalActions,
       };
