@@ -17,12 +17,12 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       return;
     }
 
+    initialized = false;
+
     store.end();
 
     EventBus.emit("SESSION:ACTIVE", false);
     EventBus.removeAllListeners();
-
-    initialized = false;
 
     infoMessage(t("session.end"));
   };
@@ -35,10 +35,10 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.init(config);
 
     EventBus.on("SESSION:ERROR", error);
-    EventBus.on("SESSION:ACTIVE", (status: boolean) => {
-      if (!status) end();
-    });
     EventBus.emit("SESSION:ACTIVE", true);
+    EventBus.on("SESSION:ACTIVE", (status: boolean) => {
+      if (!status && initialized) end();
+    });
 
     infoMessage(t("session.init"));
 

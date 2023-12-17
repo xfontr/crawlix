@@ -2,6 +2,7 @@ import { LIMIT_MAX } from "../configs/session";
 import t from "../i18n";
 import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionConfig from "../types/SessionConfig";
+import EventBus from "../utils/EventBus";
 import setConfig from "../utils/setConfig";
 import Session from "./Session";
 
@@ -61,6 +62,16 @@ describe("Given a Session.init function", () => {
       expect(init).toThrow(t("session.error.initialized"));
 
       cleanUpEnd();
+    });
+  });
+
+  describe("When listening for a session end event", () => {
+    test("Then it should end the session if called with a status of 'false'", () => {
+      Session().init();
+
+      EventBus.emit("SESSION:ACTIVE", false);
+
+      expect(mockEnd).toHaveBeenCalledTimes(1);
     });
   });
 });
