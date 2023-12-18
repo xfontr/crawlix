@@ -19,10 +19,12 @@ jest.mock("./SessionStore", () => () => ({
 
 const mockInfoMessage = jest.fn();
 const mockErrorMessage = jest.fn();
+const mockWarningMessage = jest.fn();
 
 jest.mock("../logger.ts", () => ({
   infoMessage: (message: string) => mockInfoMessage(message),
   errorMessage: (message: string) => mockErrorMessage(message),
+  warningMessage: (message: string) => mockWarningMessage(message),
 }));
 
 beforeEach(() => {
@@ -95,8 +97,8 @@ describe("Given a Session.end function", () => {
     test("Then it should only send a warning message", () => {
       Session(mockSessionConfig).end();
 
-      expect(mockInfoMessage).toHaveBeenCalledTimes(1);
-      expect(mockInfoMessage).toHaveBeenCalledWith(
+      expect(mockWarningMessage).toHaveBeenCalledTimes(1);
+      expect(mockWarningMessage).toHaveBeenCalledWith(
         t("session.warning.not_initialized"),
       );
     });

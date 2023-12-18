@@ -4,6 +4,7 @@ import type SessionConfig from "../types/SessionConfig";
 import type SessionData from "../types/SessionData";
 import EventBus from "../utils/EventBus";
 import DefaultItem from "../types/DefaultItem";
+import { warningMessage } from "../logger";
 
 let initialized = false;
 
@@ -76,16 +77,22 @@ const SessionStore = () => {
     store.session.location!.url = url ?? store.session.location!.url;
   };
 
-  const nextPage = (url: string): void => {
-    store.session.location!.url = url;
+  const nextPage = (url?: string): void => {
+    store.session.location!.url = url ?? store.session.location!.url;
     store.session.location!.page += 1;
-    store.session.history!.push(url);
+    url && store.session.history!.push(url);
   };
 
-  const previousPage = (url: string): void => {
-    store.session.location!.url = url;
-    store.session.location!.page -= 1;
-    store.session.history!.push(url);
+  const previousPage = (url?: string): void => {
+    store.session.location!.url = url ?? store.session.location!.url;
+    url && store.session.history!.push(url);
+
+    if (!store.session.location?.page) {
+      warningMessage(t("session_store.warning.no_previous_page"));
+      return;
+    }
+
+    store.session.location.page -= 1;
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {

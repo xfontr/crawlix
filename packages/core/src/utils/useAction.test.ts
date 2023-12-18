@@ -14,10 +14,6 @@ EventBus.on("ACTION:COUNT", (...args: unknown[]) => {
   mockEmit("ACTION:COUNT", ...args);
 });
 
-// const emitCopy = EventBus.emit.bind(EventBus.emit)
-
-// EventBus.emit = mockEmit;
-
 jest.mock("pino", () => () => ({
   error: (message: string) => mockError(message),
 }));

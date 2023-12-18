@@ -1,5 +1,5 @@
 import t from "../i18n";
-import { errorMessage, infoMessage } from "../logger";
+import { errorMessage, infoMessage, warningMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
 import EventBus from "../utils/EventBus";
 import setConfig from "../utils/setConfig";
@@ -13,7 +13,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
   const end = (): void => {
     if (!initialized) {
-      infoMessage(t("session.warning.not_initialized"));
+      warningMessage(t("session.warning.not_initialized"));
       return;
     }
 

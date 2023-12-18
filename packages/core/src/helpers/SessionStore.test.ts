@@ -4,6 +4,12 @@ import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionData from "../types/SessionData";
 import SessionStore from "./SessionStore";
 
+const mockWarning = jest.fn();
+
+jest.mock("../logger", () => ({
+  warningMessage: (...args: unknown[]) => mockWarning(...args),
+}));
+
 jest.mock("crypto", () => ({
   randomUUID: () => "random-uuid",
 }));
@@ -165,6 +171,141 @@ describe("Given a SessionStore.updateLocation function", () => {
         item: newItem,
         page,
       });
+
+      cleanUpEnd();
+    });
+  });
+});
+
+describe("Given a SessionStore.nextPage function", () => {
+  describe("When called with a url", () => {
+    test("Then it should increase the current page, update the url and the history", () => {
+      const url = "www.test.com";
+      const expectedPage = (mockSessionConfig.offset.page ?? 0) + 1;
+      const expectedHistory = [mockSessionConfig.offset.url, url];
+
+      const {
+        end: cleanUpEnd,
+        nextPage,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      nextPage(url);
+
+      const currentStore = current();
+
+      expect(currentStore.location.url).toBe(url);
+      expect(currentStore.location.page).toBe(expectedPage);
+      expect(currentStore.history).toStrictEqual(expectedHistory);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called with no url", () => {
+    test("Then it should increase the current page, but not update anything url related", () => {
+      const expectedPage = (mockSessionConfig.offset.page ?? 0) + 1;
+      const expectedHistory = [mockSessionConfig.offset.url ?? ""];
+
+      const {
+        end: cleanUpEnd,
+        nextPage,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      nextPage();
+
+      const currentStore = current();
+
+      expect(currentStore.location.url).toBe(mockSessionConfig.offset.url);
+      expect(currentStore.location.page).toBe(expectedPage);
+      expect(currentStore.history).toStrictEqual(expectedHistory);
+
+      cleanUpEnd();
+    });
+  });
+});
+
+describe("Given a SessionStore.previousPage function", () => {
+  describe("When called with a url at the page '5'", () => {
+    test("Then it should decrease the current page, update the url and the history", () => {
+      const initialPage = 5;
+      const expectedPage = initialPage - 1;
+      const url = "www.test.com";
+      const expectedHistory = [mockSessionConfig.offset.url, url];
+
+      const {
+        end: cleanUpEnd,
+        previousPage,
+        current,
+      } = SessionStore().init({
+        ...mockSessionConfig,
+        offset: { ...mockSessionConfig.offset, page: initialPage },
+      });
+
+      previousPage(url);
+
+      const currentStore = current();
+
+      expect(currentStore.location.url).toBe(url);
+      expect(currentStore.location.page).toBe(expectedPage);
+      expect(currentStore.history).toStrictEqual(expectedHistory);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called with no url at the page '1'", () => {
+    test("Then it should not update anything url related, nor update the page, and send a warning message", () => {
+      const initialPage = 1,
+        expectedPage = 0;
+      const expectedHistory = [mockSessionConfig.offset.url];
+
+      const {
+        end: cleanUpEnd,
+        previousPage,
+        current,
+      } = SessionStore().init({
+        ...mockSessionConfig,
+        offset: { ...mockSessionConfig.offset, page: initialPage },
+      });
+
+      previousPage();
+      previousPage();
+
+      const currentStore = current();
+
+      expect(currentStore.location.url).toBe(mockSessionConfig.offset.url);
+      expect(currentStore.location.page).toBe(expectedPage);
+      expect(currentStore.history).toStrictEqual(expectedHistory);
+
+      expect(mockWarning).toHaveBeenCalledWith(
+        t("session_store.warning.no_previous_page"),
+      );
+      expect(mockWarning).toHaveBeenCalledTimes(1);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called with no url", () => {
+    test("Then it should increase the current page, but not update anything url related", () => {
+      const expectedPage = (mockSessionConfig.offset.page ?? 0) + 1;
+      const expectedHistory = [mockSessionConfig.offset.url ?? ""];
+
+      const {
+        end: cleanUpEnd,
+        nextPage,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      nextPage();
+
+      const currentStore = current();
+
+      expect(currentStore.location.url).toBe(mockSessionConfig.offset.url);
+      expect(currentStore.location.page).toBe(expectedPage);
+      expect(currentStore.history).toStrictEqual(expectedHistory);
 
       cleanUpEnd();
     });
