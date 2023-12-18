@@ -175,6 +175,25 @@ describe("Given a SessionStore.updateLocation function", () => {
       cleanUpEnd();
     });
   });
+
+  describe("When called with no item and an url", () => {
+    test("Then it should only update the url", () => {
+      const url = "www.test.com";
+
+      const {
+        updateLocation,
+        current,
+        end: cleanUpEnd,
+      } = SessionStore().init(mockSessionConfig);
+
+      updateLocation({ url });
+
+      expect(current().location.url).toBe(url);
+      expect(current().location.item).toBe(mockSessionConfig.offset.item);
+
+      cleanUpEnd();
+    });
+  });
 });
 
 describe("Given a SessionStore.nextPage function", () => {
