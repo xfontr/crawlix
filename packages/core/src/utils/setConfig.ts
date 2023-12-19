@@ -1,6 +1,11 @@
 import ENVIRONMENT from "../configs/environment";
 import { TASK_LENGTH_MAX } from "../configs/scraper";
-import { GLOBAL_TIMEOUT_MAX, LIMIT_MAX, TIMEOUT_MAX } from "../configs/session";
+import {
+  GLOBAL_TIMEOUT_MAX,
+  LIMIT_ITEMS_MAX,
+  LIMIT_PAGES_MAX,
+  TIMEOUT_MAX,
+} from "../configs/session";
 import SessionConfig from "../types/SessionConfig";
 
 /**
@@ -14,13 +19,16 @@ export const defaultSessionConfig: SessionConfig = {
     page: 0,
     item: "",
   },
-  limit: 150,
+  limit: {
+    items: 150,
+    page: 0,
+  },
   timeout: 1_500,
   taskLength: 800,
   globalTimeout: 10 * 30 * 1_000,
 };
 
-const getMax = (max: number, fallback: number, value?: number) =>
+const getMax = (max: number, fallback: number, value?: number): number =>
   ((value ?? 0) > max ? max : value) ?? fallback;
 
 export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => ({
@@ -30,7 +38,18 @@ export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => ({
     ...defaultSessionConfig.offset,
     ...config?.offset,
   },
-  limit: getMax(LIMIT_MAX, defaultSessionConfig.limit, config?.limit),
+  limit: {
+    items: getMax(
+      LIMIT_ITEMS_MAX,
+      defaultSessionConfig.limit.items!,
+      config?.limit?.items,
+    ),
+    page: getMax(
+      LIMIT_PAGES_MAX,
+      defaultSessionConfig.limit.page!,
+      config?.limit?.page,
+    ),
+  },
   globalTimeout: getMax(
     GLOBAL_TIMEOUT_MAX,
     defaultSessionConfig.globalTimeout,

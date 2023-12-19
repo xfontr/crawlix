@@ -1,4 +1,4 @@
-import { LIMIT_MAX } from "../configs/session";
+import { LIMIT_ITEMS_MAX } from "../configs/session";
 import t from "../i18n";
 import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionConfig from "../types/SessionConfig";
@@ -35,7 +35,9 @@ describe("Given a Session.init function", () => {
   describe("When called", () => {
     const config: SessionConfig = {
       ...mockSessionConfig,
-      limit: LIMIT_MAX + 1,
+      limit: {
+        items: LIMIT_ITEMS_MAX + 1,
+      },
     };
 
     test("Then it should start the store with curated passed configs", () => {

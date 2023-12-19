@@ -75,16 +75,19 @@ const SessionStore = () => {
     store.session.location!.item = item ?? store.session.location!.item;
     store.session.location!.page = page ?? store.session.location!.page;
     store.session.location!.url = url ?? store.session.location!.url;
+
+    if (page && store.session.limit!.page && page >= store.session.limit!.page)
+      EventBus.emit("SESSION:ACTIVE", false);
   };
 
   const nextPage = (url?: string): void => {
-    store.session.location!.url = url ?? store.session.location!.url;
-    store.session.location!.page += 1;
+    updateLocation({ page: store.session.location!.page + 1, url: url ?? "" });
     url && store.session.history!.push(url);
   };
 
   const previousPage = (url?: string): void => {
-    store.session.location!.url = url ?? store.session.location!.url;
+    updateLocation({ url: url ?? "" });
+
     url && store.session.history!.push(url);
 
     if (!store.session.location!.page) {
@@ -92,7 +95,7 @@ const SessionStore = () => {
       return;
     }
 
-    store.session.location!.page -= 1;
+    updateLocation({ page: store.session.location!.page - 1 });
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {
@@ -109,7 +112,8 @@ const SessionStore = () => {
   };
 
   const postItem = <T = DefaultItem>(item?: T, selector = ""): void => {
-    if (!item || store.session.totalItems! >= store.session.limit!) return;
+    if (!item || store.session.totalItems! >= store.session.limit!.items!)
+      return;
 
     store.session.items!.push({
       ...item,
@@ -124,7 +128,7 @@ const SessionStore = () => {
 
     store.session.totalItems = store.session.items!.length;
 
-    if (store.session.totalItems >= store.session.limit!)
+    if (store.session.totalItems >= store.session.limit!.items!)
       EventBus.emit("SESSION:ACTIVE", false);
   };
 

@@ -24,6 +24,10 @@ jest.mock("../utils/EventBus", () => ({
 
 jest.useFakeTimers();
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 describe("Given a SessionStore function", () => {
   describe("When started and getting the current store value", () => {
     test("Then it should return the current store value", () => {
@@ -230,6 +234,20 @@ describe("Given a SessionStore.nextPage function", () => {
       expect(currentStore.history).toStrictEqual(expectedHistory);
 
       cleanUpEnd();
+    });
+
+    test("Then it should increase the current page and end the session if it reached its limit", () => {
+      const { end: cleanUpEnd, nextPage } = SessionStore().init({
+        ...mockSessionConfig,
+        limit: { page: 1 },
+      });
+
+      nextPage();
+
+      expect(mockEmit).toHaveBeenCalledWith("SESSION:ACTIVE", false);
+      expect(mockEmit).toHaveBeenCalledTimes(1);
+
+      cleanUpEnd(); // We have to clean up anyways, since the emit action is mocked and has no real effect
     });
   });
 
@@ -446,7 +464,7 @@ describe("Given a SessionStore.postItem function", () => {
         postItem,
         end: cleanUpEnd,
         current,
-      } = SessionStore().init({ ...mockSessionConfig, limit: 0 });
+      } = SessionStore().init({ ...mockSessionConfig, limit: { items: 0 } });
 
       postItem(mockItem, selector);
 
@@ -488,7 +506,7 @@ describe("Given a SessionStore.postItem function", () => {
         postItem,
         end: cleanUpEnd,
         current,
-      } = SessionStore().init({ ...mockSessionConfig, limit: 1 });
+      } = SessionStore().init({ ...mockSessionConfig, limit: { items: 1 } });
 
       postItem(mockItem, selector);
 
