@@ -1,5 +1,8 @@
 {
   "session_store": {
+    "warning": {
+      "no_previous_page": "Tried to go a previous page while at page 0"
+    },
     "error": {
       "initialized": "[DEV] The session store has already been instantiated",
       "not_initialized": "[DEV] The session store has not been instantiated"
@@ -8,11 +11,11 @@
   "session": {
     "init": "Starting a new session",
     "end": "Session ended",
-    "error": {
-      "initialized": "[DEV] The session as already been initiated"
-    },
     "warning": {
       "not_initialized": "[DEV] Tried to end an inactive session"
+    },
+    "error": {
+      "initialized": "[DEV] The session as already been initiated"
     }
   }
 }

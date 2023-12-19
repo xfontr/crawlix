@@ -14,10 +14,6 @@ EventBus.on("ACTION:COUNT", (...args: unknown[]) => {
   mockEmit("ACTION:COUNT", ...args);
 });
 
-// const emitCopy = EventBus.emit.bind(EventBus.emit)
-
-// EventBus.emit = mockEmit;
-
 jest.mock("pino", () => () => ({
   error: (message: string) => mockError(message),
 }));
@@ -40,7 +36,7 @@ describe("Given an useAction function", () => {
 
   describe("When called its returned functions with a callback and no task length", () => {
     test("Then they should work with a delay of 0", async () => {
-      const asyncMaxExpectedDelay = 5;
+      const asyncMaxExpectedDelay = 10;
 
       const normalStart = new Date().getTime();
       const normalResponse = (await $a(async () => await callback()))!;

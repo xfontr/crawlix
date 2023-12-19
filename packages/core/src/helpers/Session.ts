@@ -1,5 +1,5 @@
 import t from "../i18n";
-import { errorMessage, infoMessage } from "../logger";
+import { errorMessage, infoMessage, warningMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
 import EventBus from "../utils/EventBus";
 import setConfig from "../utils/setConfig";
@@ -13,16 +13,16 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
   const end = (): void => {
     if (!initialized) {
-      infoMessage(t("session.warning.not_initialized"));
+      warningMessage(t("session.warning.not_initialized"));
       return;
     }
+
+    initialized = false;
 
     store.end();
 
     EventBus.emit("SESSION:ACTIVE", false);
     EventBus.removeAllListeners();
-
-    initialized = false;
 
     infoMessage(t("session.end"));
   };
@@ -35,10 +35,10 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.init(config);
 
     EventBus.on("SESSION:ERROR", error);
-    EventBus.on("SESSION:ACTIVE", (status: boolean) => {
-      if (!status) end();
-    });
     EventBus.emit("SESSION:ACTIVE", true);
+    EventBus.on("SESSION:ACTIVE", (status: boolean) => {
+      if (!status && initialized) end();
+    });
 
     infoMessage(t("session.init"));
 

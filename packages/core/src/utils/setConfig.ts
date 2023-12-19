@@ -3,6 +3,11 @@ import { TASK_LENGTH_MAX } from "../configs/scraper";
 import { GLOBAL_TIMEOUT_MAX, LIMIT_MAX, TIMEOUT_MAX } from "../configs/session";
 import SessionConfig from "../types/SessionConfig";
 
+/**
+ * TODO: If we allow this to be set outside of the script itself, add more checkers:
+ * - Verify they are actually numbers
+ * - Add minimum values
+ */
 export const defaultSessionConfig: SessionConfig = {
   offset: {
     url: ENVIRONMENT.baseUrl,

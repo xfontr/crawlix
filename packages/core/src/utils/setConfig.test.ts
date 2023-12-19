@@ -44,6 +44,10 @@ describe("Given a setConfig function", () => {
       expect(config).toStrictEqual({
         ...defaultSessionConfig,
         ...passedSessionConfig,
+        offset: {
+          ...defaultSessionConfig.offset,
+          ...passedSessionConfig.offset,
+        },
       });
     });
   });
