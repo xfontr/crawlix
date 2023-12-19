@@ -76,7 +76,7 @@ const SessionStore = () => {
     store.session.location!.page = page ?? store.session.location!.page;
     store.session.location!.url = url ?? store.session.location!.url;
 
-    if (page && store.session.limit?.page && page >= store.session.limit?.page)
+    if (page && store.session.limit!.page && page >= store.session.limit!.page)
       EventBus.emit("SESSION:ACTIVE", false);
   };
 
