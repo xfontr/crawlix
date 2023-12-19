@@ -446,7 +446,7 @@ describe("Given a SessionStore.postItem function", () => {
         postItem,
         end: cleanUpEnd,
         current,
-      } = SessionStore().init({ ...mockSessionConfig, limit: 0 });
+      } = SessionStore().init({ ...mockSessionConfig, limit: { items: 0 } });
 
       postItem(mockItem, selector);
 
@@ -488,7 +488,7 @@ describe("Given a SessionStore.postItem function", () => {
         postItem,
         end: cleanUpEnd,
         current,
-      } = SessionStore().init({ ...mockSessionConfig, limit: 1 });
+      } = SessionStore().init({ ...mockSessionConfig, limit: { items: 1 } });
 
       postItem(mockItem, selector);
 

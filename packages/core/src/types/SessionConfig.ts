@@ -32,10 +32,23 @@ interface SessionConfig {
     errorMargin?: number;
   };
   /**
-   * @description Maximum amount of items to read. Can't exceed 2.000 items
+   * @description Maximum amount of items or pages to read. Can't exceed 5.000 items in any case.
+   * If both pages and items are set, the scraper will read until it reaches the first limit, whichever
+   * it is
    * @default 150 items
    */
-  limit: number;
+  limit: {
+    /**
+     * @description Maximum amount of items to read. Can't exceed 2.000 items in any case.
+     * @default 150 items
+     */
+    items?: number;
+    /**
+     * @description Maximum amount of pages to read. If set to 0, the limit is the default maximum of 400
+     * @default 0
+     */
+    page?: number;
+  };
   /**
    * @description Maximum session length in milliseconds. Can't exceed 50 minutes
    * @default 300.000 ms // 5 minutes

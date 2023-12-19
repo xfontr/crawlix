@@ -1,4 +1,6 @@
-export const LIMIT_MAX = 2_000;
+export const LIMIT_ITEMS_MAX = 5_000;
+
+export const LIMIT_PAGES_MAX = 400;
 
 export const TIMEOUT_MAX = 30 * 1_000;
 
