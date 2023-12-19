@@ -3,8 +3,11 @@ import t from "../i18n";
 import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionData from "../types/SessionData";
 import SessionStore from "./SessionStore";
+import DefaultItem from "../types/DefaultItem";
 
 const mockWarning = jest.fn();
+const mockEmit = jest.fn();
+const mockOn = jest.fn();
 
 jest.mock("../logger", () => ({
   warningMessage: (...args: unknown[]) => mockWarning(...args),
@@ -12,6 +15,11 @@ jest.mock("../logger", () => ({
 
 jest.mock("crypto", () => ({
   randomUUID: () => "random-uuid",
+}));
+
+jest.mock("../utils/EventBus", () => ({
+  emit: (...args: unknown[]) => mockEmit(...args),
+  on: (...args: unknown[]) => mockOn(...args),
 }));
 
 jest.useFakeTimers();
@@ -32,10 +40,14 @@ describe("Given a SessionStore function", () => {
         _id: "random-uuid" as UUID,
       };
 
-      const { current, end: cleanUpEnd } =
-        SessionStore().init(mockSessionConfig);
+      const {
+        current,
+        end: cleanUpEnd,
+        countAction,
+      } = SessionStore().init(mockSessionConfig);
 
       expect(current()).toStrictEqual(expectedStore);
+      expect(mockOn).toHaveBeenCalledWith("ACTION:COUNT", countAction);
 
       cleanUpEnd();
     });
@@ -383,6 +395,106 @@ describe("Given a SessionStore.logError function", () => {
       logError(error, expectedLog.isCritical);
 
       expect(current().errorLog).toStrictEqual([expectedLog]);
+
+      cleanUpEnd();
+    });
+  });
+});
+
+describe("Given a SessionStore.postItem function", () => {
+  describe("When called with an item and a selector", () => {
+    const mockItem: Omit<DefaultItem, "_meta"> = {
+      author: "tester",
+      categories: ["one"],
+      posted: new Date(),
+      title: "test",
+      _meta: {},
+    };
+
+    const selector = "h3";
+
+    test("Then it should post said item with its corresponding meta data", () => {
+      const expectedMeta: Pick<DefaultItem, "_meta"> = {
+        _meta: {
+          id: "random-uuid" as UUID,
+          itemNumber: mockSessionConfig.offset.itemNumber ?? 0,
+          page: mockSessionConfig.offset.page ?? 0,
+          posted: new Date(),
+          selector,
+        },
+      };
+
+      const {
+        postItem,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      postItem(mockItem, selector);
+
+      const item = current().items[0];
+
+      expect({ ...item, _meta: {} }).toStrictEqual(mockItem);
+      expect(item?._meta).toStrictEqual(expectedMeta._meta);
+      expect(current().totalItems).toBe(1);
+
+      cleanUpEnd();
+    });
+
+    test("Then it should do nothing if the maximum amount of items was reached", () => {
+      const {
+        postItem,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init({ ...mockSessionConfig, limit: 0 });
+
+      postItem(mockItem, selector);
+
+      expect(current().items).toHaveLength(0);
+
+      cleanUpEnd();
+    });
+
+    test("Then it should do nothing if no item was passed", () => {
+      const {
+        postItem,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      postItem();
+
+      expect(current().items).toHaveLength(0);
+
+      cleanUpEnd();
+    });
+
+    test("Then it should set an empty selector if none was passed", () => {
+      const {
+        postItem,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      postItem(mockItem);
+
+      expect(current().items[0]?._meta.selector).toBe("");
+
+      cleanUpEnd();
+    });
+
+    test("Then it should post the item and call off the session if there are too many items", () => {
+      const {
+        postItem,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init({ ...mockSessionConfig, limit: 1 });
+
+      postItem(mockItem, selector);
+
+      expect(current().totalItems).toBe(1);
+      expect(mockEmit).toHaveBeenCalledWith("SESSION:ACTIVE", false);
+      expect(mockEmit).toHaveBeenCalledTimes(1);
 
       cleanUpEnd();
     });

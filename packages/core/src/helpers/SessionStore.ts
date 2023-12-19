@@ -87,12 +87,12 @@ const SessionStore = () => {
     store.session.location!.url = url ?? store.session.location!.url;
     url && store.session.history!.push(url);
 
-    if (!store.session.location?.page) {
+    if (!store.session.location!.page) {
       warningMessage(t("session_store.warning.no_previous_page"));
       return;
     }
 
-    store.session.location.page -= 1;
+    store.session.location!.page -= 1;
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {
@@ -108,11 +108,10 @@ const SessionStore = () => {
     });
   };
 
-  const postItem = <T = DefaultItem>(item?: T, selector = ""): boolean => {
-    if (!item || store.session.totalItems! >= store.session.limit!)
-      return false;
+  const postItem = <T = DefaultItem>(item?: T, selector = ""): void => {
+    if (!item || store.session.totalItems! >= store.session.limit!) return;
 
-    store.session.items?.push({
+    store.session.items!.push({
       ...item,
       _meta: {
         id: randomUUID(),
@@ -125,11 +124,8 @@ const SessionStore = () => {
 
     store.session.totalItems = store.session.items!.length;
 
-    if (store.session.totalItems >= store.session.limit!) {
+    if (store.session.totalItems >= store.session.limit!)
       EventBus.emit("SESSION:ACTIVE", false);
-    }
-
-    return true;
   };
 
   const sessionStore = {
