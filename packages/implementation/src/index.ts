@@ -1,19 +1,20 @@
-import Session from "./helpers/Session";
+import { Session, useAction } from "@scraper/core";
 import { launch } from "puppeteer";
-import useAction from "./utils/useAction";
-import { writeFile } from "fs/promises";
-import path from "path";
 
 const session = Session({
   offset: {
     page: 1,
   },
+  limit: {
+    page: 3,
+  },
 });
 
-void (async () => {
+const example = async () => {
   const {
     store,
-    hooks: { nextPage, postItem },
+    hooks: { updateLocation, nextPage, postItem },
+    end,
   } = session.init();
   const {
     taskLength,
@@ -47,6 +48,7 @@ void (async () => {
           );
 
           postItem({ title, categories }, ".ct-headline.landingH3");
+          updateLocation({ item: title ?? "" });
         }),
       ),
     );
@@ -69,10 +71,11 @@ void (async () => {
 
   await scrapItems();
 
-  await writeFile(
-    path.resolve(__dirname, "../data", `${Date.now()}.json`),
-    JSON.stringify(store()),
-  );
+  end();
 
-  process.exit(0);
+  console.log(store());
+};
+
+void (async () => {
+  await example();
 })();

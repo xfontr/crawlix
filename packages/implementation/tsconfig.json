@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "src/index.ts", "src/*", "index.ts"],
+  "include": ["src/**/*", "src/example.ts", "src/*"],
   "compilerOptions": {
     "target": "es2016",
     "module": "node16",
