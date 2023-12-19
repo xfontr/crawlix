@@ -141,10 +141,9 @@ describe("Given a SessionStore.countAction function", () => {
 });
 
 describe("Given a SessionStore.updateLocation function", () => {
-  describe("When called with an item 'test' and a page '2'", () => {
-    test("Then it should set said values in the current location", () => {
-      const item = "test",
-        page = 2;
+  describe("When called with a page '2'", () => {
+    test("Then it should set said value in the current location", () => {
+      const page = 2;
 
       const {
         updateLocation,
@@ -152,11 +151,10 @@ describe("Given a SessionStore.updateLocation function", () => {
         end: cleanUpEnd,
       } = SessionStore().init(mockSessionConfig);
 
-      updateLocation({ item, page });
+      updateLocation({ page });
 
       expect(current().location).toStrictEqual({
         ...mockSessionConfig.offset,
-        item,
         page,
       });
 
@@ -164,35 +162,7 @@ describe("Given a SessionStore.updateLocation function", () => {
     });
   });
 
-  describe("When called only with an item 'test'", () => {
-    test("Then it should set the item, but not update the page", () => {
-      const item = "test",
-        page = 2,
-        newItem = "second test";
-
-      const {
-        updateLocation,
-        current,
-        end: cleanUpEnd,
-      } = SessionStore().init(mockSessionConfig);
-
-      updateLocation({ item, page });
-
-      expect(current().location.page).toBe(page);
-
-      updateLocation({ item: newItem });
-
-      expect(current().location).toStrictEqual({
-        ...mockSessionConfig.offset,
-        item: newItem,
-        page,
-      });
-
-      cleanUpEnd();
-    });
-  });
-
-  describe("When called with no item and an url", () => {
+  describe("When called with an url", () => {
     test("Then it should only update the url", () => {
       const url = "www.test.com";
 
@@ -205,7 +175,7 @@ describe("Given a SessionStore.updateLocation function", () => {
       updateLocation({ url });
 
       expect(current().location.url).toBe(url);
-      expect(current().location.item).toBe(mockSessionConfig.offset.item);
+      expect(current().location.page).toBe(mockSessionConfig.offset.page);
 
       cleanUpEnd();
     });
@@ -435,7 +405,7 @@ describe("Given a SessionStore.postItem function", () => {
       const expectedMeta: Pick<DefaultItem, "_meta"> = {
         _meta: {
           id: "random-uuid" as UUID,
-          itemNumber: mockSessionConfig.offset.itemNumber ?? 0,
+          itemNumber: 0,
           page: mockSessionConfig.offset.page ?? 0,
           posted: new Date(),
           selector,

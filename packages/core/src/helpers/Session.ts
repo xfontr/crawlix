@@ -11,7 +11,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
 
-  const end = (): void => {
+  const end = (abruptEnd = false): void => {
     if (!initialized) {
       warningMessage(t("session.warning.not_initialized"));
       return;
@@ -19,9 +19,11 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
     initialized = false;
 
-    store.end();
+    store.end(!abruptEnd);
 
     EventBus.emit("SESSION:ACTIVE", false);
+    EventBus.emit("SESSION:SAVE", store.current());
+
     EventBus.removeAllListeners();
 
     infoMessage(t("session.end"));
@@ -49,10 +51,11 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
   const error = (error: Error | undefined, isCritical?: boolean) => {
     if (!error) return;
-    if (isCritical) end();
 
     store.logError(error, isCritical);
     errorMessage(error.message);
+
+    if (isCritical) end(true);
   };
 
   const session = {

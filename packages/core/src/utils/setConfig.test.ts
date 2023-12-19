@@ -46,7 +46,7 @@ describe("Given a setConfig function", () => {
   describe("When called with partial session configs", () => {
     test("Then it should return the default values to fill the blanks", () => {
       const passedSessionConfig: Partial<SessionConfig> = {
-        offset: { page: 2, item: "test" },
+        offset: { page: 2 },
       };
 
       const config = setConfig(passedSessionConfig);

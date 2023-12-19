@@ -74,6 +74,10 @@ interface SessionData<
      */
     actionNumber: number;
   }[];
+  /**
+   * @description Whether the session was abruptly ended before successfully finishing
+   */
+  success: boolean;
 }
 
 export default SessionData;

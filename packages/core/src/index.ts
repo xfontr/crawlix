@@ -1,7 +1,8 @@
 import Session from "./helpers/Session";
 import { launch } from "puppeteer";
-import ENVIRONMENT from "./configs/environment";
 import useAction from "./utils/useAction";
+import { writeFile } from "fs/promises";
+import path from "path";
 
 const session = Session({
   offset: {
@@ -12,17 +13,20 @@ const session = Session({
 void (async () => {
   const {
     store,
-    hooks: { updateLocation, nextPage, postItem },
-    end,
+    hooks: { nextPage, postItem },
   } = session.init();
-  const { taskLength, timeout } = store();
+  const {
+    taskLength,
+    timeout,
+    offset: { url },
+  } = store();
 
   const { $$a, $a } = useAction(taskLength);
 
   const browser = await launch({ headless: "new" });
   const page = await browser.newPage();
 
-  await $$a(() => page.goto(ENVIRONMENT.baseUrl));
+  await $$a(() => page.goto(url!));
 
   const scrapItems = async () => {
     const articles = await $a(() =>
@@ -32,9 +36,7 @@ void (async () => {
     await $a(() =>
       Promise.all(
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        articles!.map(async (item, index) => {
-          updateLocation({ item: `.ct-headline.landingH3{i${index}}` });
-
+        articles!.map(async (item) => {
           const title = await item.$eval(
             ".ct-headline.landingH3",
             (title) => title.textContent,
@@ -45,7 +47,6 @@ void (async () => {
           );
 
           postItem({ title, categories }, ".ct-headline.landingH3");
-          updateLocation({ item: title ?? "" });
         }),
       ),
     );
@@ -68,7 +69,10 @@ void (async () => {
 
   await scrapItems();
 
-  end();
+  await writeFile(
+    path.resolve(__dirname, "../data", `${Date.now()}.json`),
+    JSON.stringify(store()),
+  );
 
-  console.log(store());
+  process.exit(0);
 })();

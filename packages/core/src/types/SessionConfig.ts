@@ -1,3 +1,5 @@
+import SessionData from "./SessionData";
+
 interface SessionConfig {
   offset: {
     /**
@@ -6,30 +8,10 @@ interface SessionConfig {
      */
     url?: string;
     /**
-     * @description Won't have an actual impact on the script. Its purpose is to track the current page for
-     * more accurate session logs
+     * @description Tracks the current page
      * @default 0;
      */
     page?: number;
-    /**
-     * @description Unique identifier for the item that the scrape should start with
-     */
-    item?: string;
-    /**
-     * @description The scraper will read all the items at the selected initial URL and start posting from
-     * the chosen item number
-     *
-     * If unset, will scrape every item. If the value set is too high, will also scrape every item
-     *
-     * @default 0
-     */
-    itemNumber?: number;
-    /**
-     * @description If set, the scraper will also grab the defined number of items before the offset item
-     * Ideal if there are slight variations on each session
-     * @default 0
-     */
-    errorMargin?: number;
   };
   /**
    * @description Maximum amount of items or pages to read. Can't exceed 5.000 items in any case.

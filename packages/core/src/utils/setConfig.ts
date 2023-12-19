@@ -17,7 +17,6 @@ export const defaultSessionConfig: SessionConfig = {
   offset: {
     url: ENVIRONMENT.baseUrl,
     page: 0,
-    item: "",
   },
   limit: {
     items: 150,

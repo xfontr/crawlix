@@ -17,10 +17,11 @@ const SessionStore = () => {
       items: [],
       errorLog: [],
       totalItems: 0,
+      success: true,
     } as Partial<SessionData>,
   };
 
-  const end = () => {
+  const end = (success: boolean) => {
     if (!initialized) {
       throw new Error(t("session_store.error.not_initialized"));
     }
@@ -31,6 +32,7 @@ const SessionStore = () => {
       ...store.session,
       endDate,
       duration: endDate.getTime() - store.session.startDate!.getTime(),
+      success,
     };
 
     initialized = false;
@@ -67,12 +69,10 @@ const SessionStore = () => {
 
   const updateLocation = ({
     page,
-    item,
     url,
   }: Partial<
     Omit<Omit<SessionData["location"], "itemNumber">, "errorMargin">
   >): void => {
-    store.session.location!.item = item ?? store.session.location!.item;
     store.session.location!.page = page ?? store.session.location!.page;
     store.session.location!.url = url ?? store.session.location!.url;
 
