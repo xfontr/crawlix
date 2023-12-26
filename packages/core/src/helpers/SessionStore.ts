@@ -6,14 +6,9 @@ import EventBus from "../utils/EventBus";
 import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
 import { objectKeys, objectValues } from "@personal/utils";
+import isItemComplete from "../utils/isItemComplete";
 
 let initialized = false;
-
-const isComplete = <T = DefaultItem>(elements?: T): boolean =>
-  !!elements &&
-  !objectValues(elements).some(
-    (element) => element === undefined || element === null,
-  );
 
 const SessionStore = () => {
   const store = {
@@ -149,7 +144,7 @@ const SessionStore = () => {
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
         posted: new Date(),
-        isComplete: isComplete(item),
+        isComplete: isItemComplete(item),
         selector,
         errorLog,
         fails: item ? objectKeys(errorLog).filter((error) => !error).length : 1,
