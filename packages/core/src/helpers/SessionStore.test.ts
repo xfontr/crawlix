@@ -42,6 +42,7 @@ describe("Given a SessionStore function", () => {
         totalItems: 0,
         history: [mockSessionConfig.offset.url ?? ""],
         _id: "random-uuid" as UUID,
+        success: true,
       };
 
       const {
@@ -72,6 +73,8 @@ describe("Given a SessionStore function", () => {
         history: [mockSessionConfig.offset.url ?? ""],
         location: mockSessionConfig.offset as Required<SessionData["offset"]>,
         _id: "random-uuid" as UUID,
+        success: true,
+        incompleteItems: 0,
       };
 
       const { end } = SessionStore().init(mockSessionConfig);
@@ -409,6 +412,9 @@ describe("Given a SessionStore.postItem function", () => {
           page: mockSessionConfig.offset.page ?? 0,
           posted: new Date(),
           selector,
+          isComplete: true,
+          errorLog: {},
+          fails: 0,
         },
       };
 
@@ -418,7 +424,7 @@ describe("Given a SessionStore.postItem function", () => {
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      postItem(mockItem, selector);
+      postItem(mockItem, {}, selector);
 
       const item = current().items[0];
 
@@ -436,7 +442,7 @@ describe("Given a SessionStore.postItem function", () => {
         current,
       } = SessionStore().init({ ...mockSessionConfig, limit: { items: 0 } });
 
-      postItem(mockItem, selector);
+      postItem(mockItem, {}, selector);
 
       expect(current().items).toHaveLength(0);
 
@@ -450,7 +456,7 @@ describe("Given a SessionStore.postItem function", () => {
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      postItem();
+      postItem(undefined, {});
 
       expect(current().items).toHaveLength(0);
 
@@ -464,7 +470,7 @@ describe("Given a SessionStore.postItem function", () => {
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      postItem(mockItem);
+      postItem(mockItem, {});
 
       expect(current().items[0]?._meta.selector).toBe("");
 
@@ -478,7 +484,7 @@ describe("Given a SessionStore.postItem function", () => {
         current,
       } = SessionStore().init({ ...mockSessionConfig, limit: { items: 1 } });
 
-      postItem(mockItem, selector);
+      postItem(mockItem, {}, selector);
 
       expect(current().totalItems).toBe(1);
       expect(mockEmit).toHaveBeenCalledWith("SESSION:ACTIVE", false);

@@ -1,4 +1,4 @@
-import { CustomFunction, tryCatch } from "@personal/utils";
+import { CustomFunction, PromiseFunction, tryCatch } from "@personal/utils";
 import ScraperSpeed from "../types/ScraperSpeed";
 import EventBus from "./EventBus";
 
@@ -20,19 +20,19 @@ const useAction = (taskLength: number) => {
     });
 
   const action = async <T>(
-    callback: CustomFunction<T>,
+    callback: CustomFunction<T> | PromiseFunction<T>,
     speed: ScraperSpeed,
     isCritical: boolean,
-  ): Promise<T | void> => {
-    if (!isSessionOn) return;
+  ): Promise<[void | Awaited<T>, void | Error]> => {
+    if (!isSessionOn) return [undefined, undefined];
 
-    const [response, error] = await tryCatch(() => delay(callback, speed));
+    const [response, error] = await tryCatch<T>(delay, callback, speed);
 
     EventBus.emit("ACTION:COUNT", speed);
 
     error && EventBus.emit("SESSION:ERROR", error, isCritical);
 
-    return (response as T) ?? undefined;
+    return [response as Awaited<T>, error];
   };
 
   const $a = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>

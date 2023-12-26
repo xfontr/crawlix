@@ -78,6 +78,10 @@ interface SessionData<
    * @description Whether the session was abruptly ended before successfully finishing
    */
   success: boolean;
+  /**
+   * @description Number of items which data was not fulfilled as expected
+   */
+  incompleteItems: number;
 }
 
 export default SessionData;

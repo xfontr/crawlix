@@ -1,3 +1,5 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable jest/no-conditional-expect */
 import Events from "../types/Events";
 import ScraperSpeed from "../types/ScraperSpeed";
 import EventBus from "./EventBus";
@@ -39,18 +41,32 @@ describe("Given an useAction function", () => {
       const asyncMaxExpectedDelay = 10;
 
       const normalStart = new Date().getTime();
-      const normalResponse = (await $a(async () => await callback()))!;
+      const [normalResponse] = (await $a(async () => await callback()))!;
 
-      expect(normalResponse().getTime() - normalStart).toBeLessThan(
-        asyncMaxExpectedDelay,
-      );
+      if (normalResponse) {
+        expect(normalResponse().getTime() - normalStart).toBeLessThan(
+          asyncMaxExpectedDelay,
+        );
+      } else {
+        /**
+         * If the test gets here, it will always fail. This is intended to be like this.
+         */
+        expect(normalResponse).toBeTruthy();
+      }
 
       const criticalStart = new Date().getTime();
-      const criticalResponse = (await $$a(async () => await callback()))!;
+      const [criticalResponse] = (await $$a(async () => await callback()))!;
 
-      expect(criticalResponse().getTime() - criticalStart).toBeLessThan(
-        asyncMaxExpectedDelay,
-      );
+      if (criticalResponse) {
+        expect(criticalResponse().getTime() - criticalStart).toBeLessThan(
+          asyncMaxExpectedDelay,
+        );
+      } else {
+        /**
+         * If the test gets here, it will always fail. This is intended to be like this.
+         */
+        expect(normalResponse).toBeTruthy();
+      }
     });
   });
 
@@ -58,11 +74,18 @@ describe("Given an useAction function", () => {
     test("Then it should call the callback after the task length and return its value", async () => {
       const start = new Date().getTime();
 
-      const response = (await $a(async () => await callback(), speed))!;
+      const [response] = (await $a(async () => await callback(), speed))!;
 
-      expect(response().getTime() - start).toBeGreaterThanOrEqual(
-        speed * taskLength,
-      );
+      if (response) {
+        expect(response().getTime() - start).toBeGreaterThanOrEqual(
+          speed * taskLength,
+        );
+      } else {
+        /**
+         * If the test gets here, it will always fail. This is intended to be like this.
+         */
+        expect(response).toBeTruthy();
+      }
     });
 
     test("Then it should also count up the amount of actions", async () => {
@@ -104,11 +127,19 @@ describe("Given an useAction function", () => {
       const start = new Date().getTime();
       const expectedEvent: Events = "ACTION:COUNT";
 
-      const response = (await $$a(async () => await callback(), speed))!;
+      const [response] = (await $$a(async () => await callback(), speed))!;
 
-      expect(response().getTime() - start).toBeGreaterThanOrEqual(
-        speed * taskLength,
-      );
+      if (response) {
+        expect(response().getTime() - start).toBeGreaterThanOrEqual(
+          speed * taskLength,
+        );
+      } else {
+        /**
+         * If the test gets here, it will always fail. This is intended to be like this.
+         */
+        expect(response).toBeTruthy();
+      }
+
       expect(mockEmit).toHaveBeenCalledWith(expectedEvent, speed);
       expect(mockEmit).toHaveBeenCalledTimes(numberOfCalls);
     });

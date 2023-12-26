@@ -1,5 +1,5 @@
 import Session from "./helpers/Session";
-import { launch } from "puppeteer";
+import { ElementHandle, Page, launch } from "puppeteer";
 import useAction from "./utils/useAction";
 import { writeFile } from "fs/promises";
 import path from "path";
@@ -14,6 +14,7 @@ void (async () => {
   const {
     store,
     hooks: { nextPage, postItem },
+    end,
   } = session.init();
   const {
     taskLength,
@@ -23,51 +24,71 @@ void (async () => {
 
   const { $$a, $a } = useAction(taskLength);
 
-  const browser = await launch({ headless: "new" });
-  const page = await browser.newPage();
+  // UTILS
+  const getElement = async (parent: ElementHandle<Element>, selector: string) =>
+    $a(() => parent.$eval(selector, (category) => category.textContent));
 
-  await $$a(() => page.goto(url!));
+  const scrapItems = async (page: Page, selector: string) => {
+    const [articles, error] = await $a(() => page.$$(selector));
 
-  const scrapItems = async () => {
-    const articles = await $a(() =>
-      page.$$("#_dynamic_list-2058-7323 > .ct-div-block"),
-    );
+    if (!articles || error) return;
 
     await $a(() =>
       Promise.all(
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        articles!.map(async (item) => {
-          const title = await item.$eval(
+        articles.map(async (item) => {
+          const [title, titleError] = await getElement(
+            item,
             ".ct-headline.landingH3",
-            (title) => title.textContent,
           );
-          const categories = await item.$eval(
+          const [categories, categoriesError] = await getElement(
+            item,
             ".ct-text-block.etiquetas",
-            (category) => category.textContent,
           );
+          const finalItem = { title, categories };
 
-          postItem({ title, categories }, ".ct-headline.landingH3");
+          postItem(
+            finalItem,
+            {
+              title: titleError,
+              categories: categoriesError,
+            },
+            ".ct-headline.landingH3",
+          );
         }),
       ),
     );
   };
 
-  await scrapItems();
+  const pageUp = async (selector: string) => {
+    await Promise.all([
+      () => page.waitForNavigation({ timeout }),
+      $$a(() => page.click(selector), 0.2),
+    ]);
 
-  await Promise.all([
-    () => page.waitForNavigation({ timeout }),
-    $$a(
-      () =>
-        page.click(
-          "#_dynamic_list-2058-7323 > div.oxy-repeater-pages-wrap > div > a:nth-child(2)",
-        ),
-      0.2,
-    ),
-  ]);
+    nextPage(page.url());
+  };
 
-  nextPage(page.url());
+  const init = async () => {
+    const browser = await launch({ headless: "new" });
+    const page = await browser.newPage();
+    await $$a(() => page.goto(url!));
 
-  await scrapItems();
+    return page;
+  };
+
+  // ACTIONS
+
+  const page = await init();
+
+  await scrapItems(page, "#_dynamic_list-2058-7323 > .ct-div-block");
+
+  await pageUp(
+    "#_dynamic_list-2058-7323 > div.oxy-repeater-pages-wrap > div > a:nth-child(2)",
+  );
+
+  await scrapItems(page, "#_dynamic_list-2058-7323 > .ct-div-block");
+
+  end(true);
 
   await writeFile(
     path.resolve(__dirname, "../data", `${Date.now()}.json`),
