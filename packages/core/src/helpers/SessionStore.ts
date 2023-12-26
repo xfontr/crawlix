@@ -9,7 +9,8 @@ import { objectKeys, objectValues } from "@personal/utils";
 
 let initialized = false;
 
-const isComplete = (elements: Record<string, string | number>): boolean =>
+const isComplete = <T = DefaultItem>(elements?: T): boolean =>
+  !!elements &&
   !objectValues(elements).some(
     (element) => element === undefined || element === null,
   );
@@ -139,13 +140,7 @@ const SessionStore = () => {
     errorLog: Record<string, Error | void>,
     selector = "",
   ): void => {
-    if (
-      !item ||
-      // TODO: Test "{}"" case
-      JSON.stringify(item) === "{}" ||
-      store.session.totalItems! >= store.session.limit!.items!
-    )
-      return;
+    if (store.session.totalItems! >= store.session.limit!.items!) return;
 
     store.session.items!.push({
       ...item,
@@ -157,7 +152,7 @@ const SessionStore = () => {
         isComplete: isComplete(item),
         selector,
         errorLog,
-        fails: objectKeys(errorLog).filter((error) => !error).length,
+        fails: item ? objectKeys(errorLog).filter((error) => !error).length : 1,
       },
     });
 
