@@ -5,7 +5,7 @@ import type SessionData from "../types/SessionData";
 import EventBus from "../utils/EventBus";
 import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
-import { objectKeys, objectValues } from "@personal/utils";
+import { objectKeys } from "@personal/utils";
 import isItemComplete from "../utils/isItemComplete";
 
 let initialized = false;
@@ -144,7 +144,7 @@ const SessionStore = () => {
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
         posted: new Date(),
-        isComplete: isItemComplete(item),
+        isComplete: objectKeys(errorLog).length ? true : isItemComplete(item),
         selector,
         errorLog,
         fails: item ? objectKeys(errorLog).filter((error) => !error).length : 1,
