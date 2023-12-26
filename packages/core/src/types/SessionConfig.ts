@@ -1,5 +1,3 @@
-import SessionData from "./SessionData";
-
 interface SessionConfig {
   offset: {
     /**
@@ -47,6 +45,19 @@ interface SessionConfig {
    * @default 80 0ms
    */
   taskLength: number;
+  /**
+   * @description Minimum amount of full items the scraper needs in order to consider the session
+   * successful. An item is considered "not full" when one or more fields are missing due to an error.
+   * Naturally empty fields will not be computed.
+   *
+   * @param < 1 If less than one, it will be computed relatively to the total amount of expected items.
+   * If the result is a non-absolute number, it will be rounded to the floor
+   * @param > 1 If more than one, it will be computed as an absolute number
+   *
+   * @default 0.99
+   */
+  // TODO
+  minimumItemsToSuccess: number;
 }
 
 export default SessionConfig;

@@ -23,11 +23,45 @@ type DefaultItem<
 > = T &
   TypicalData & {
     _meta: {
+      /**
+       * @description Automatically assigned unique ID
+       */
       id: UUID;
+      /**
+       * @description CSS selector used to pick this item
+       */
       selector: string;
+      /**
+       * @description Page where this item was found at
+       */
       page: number;
+      /**
+       * @description Date when this item was scraped
+       */
       posted: Date;
+      /**
+       * @description Automatically assigned number, corresponding to the latest scraped item plus one
+       */
       itemNumber: number;
+      /**
+       * @description Whether all the elements of this items were successfully scraped or not
+       */
+      isComplete: boolean;
+      /**
+       * @description Object including all the item's elements where there was an error
+       * @example
+       * {
+       *  title: {
+       *    name: "Wrong selector",
+       *    message: "The item used an invalid selector",
+       *  }
+       * }
+       */
+      errorLog: Record<string, Error | void>;
+      /**
+       * @description Simply counts the number of errors logged
+       */
+      fails: number;
     };
   };
 
