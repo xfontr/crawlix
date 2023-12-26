@@ -5,8 +5,14 @@ import type SessionData from "../types/SessionData";
 import EventBus from "../utils/EventBus";
 import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
+import { objectKeys, objectValues } from "@personal/utils";
 
 let initialized = false;
+
+const isComplete = (elements: Record<string, string | number>): boolean =>
+  !objectValues(elements).some(
+    (element) => element === undefined || element === null,
+  );
 
 const SessionStore = () => {
   const store = {
@@ -21,7 +27,7 @@ const SessionStore = () => {
     } as Partial<SessionData>,
   };
 
-  const end = (success: boolean) => {
+  const end = (success = true) => {
     if (!initialized) {
       throw new Error(t("session_store.error.not_initialized"));
     }
@@ -33,7 +39,24 @@ const SessionStore = () => {
       endDate,
       duration: endDate.getTime() - store.session.startDate!.getTime(),
       success,
+      incompleteItems: store.session.items!.reduce(
+        (total, { _meta: { fails } }) => (total + fails > 0 ? 1 : 0),
+        0,
+      ),
     };
+
+    if (store.session.success) {
+      const minimumItemsToSuccess =
+        store.session.minimumItemsToSuccess! <= 1
+          ? store.session.minimumItemsToSuccess! * store.session.items!.length +
+            store.session.incompleteItems!
+          : store.session.minimumItemsToSuccess!;
+
+      store.session.success =
+        store.session.items!.length <= minimumItemsToSuccess
+          ? store.session.success
+          : false;
+    }
 
     initialized = false;
 
@@ -111,8 +134,17 @@ const SessionStore = () => {
     });
   };
 
-  const postItem = <T = DefaultItem>(item?: T, selector = ""): void => {
-    if (!item || store.session.totalItems! >= store.session.limit!.items!)
+  const postItem = <T = DefaultItem>(
+    item: T | undefined,
+    errorLog: Record<string, Error | void>,
+    selector = "",
+  ): void => {
+    if (
+      !item ||
+      // TODO: Test "{}"" case
+      JSON.stringify(item) === "{}" ||
+      store.session.totalItems! >= store.session.limit!.items!
+    )
       return;
 
     store.session.items!.push({
@@ -122,7 +154,10 @@ const SessionStore = () => {
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
         posted: new Date(),
+        isComplete: isComplete(item),
         selector,
+        errorLog,
+        fails: objectKeys(errorLog).filter((error) => !error).length,
       },
     });
 
