@@ -25,6 +25,7 @@ export const defaultSessionConfig: SessionConfig = {
   timeout: 1_500,
   taskLength: 800,
   globalTimeout: 10 * 30 * 1_000,
+  minimumItemsToSuccess: 0.99,
 };
 
 const getMax = (max: number, fallback: number, value?: number): number =>
