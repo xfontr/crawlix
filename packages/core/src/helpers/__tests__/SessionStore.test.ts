@@ -1,16 +1,16 @@
 import { UUID } from "crypto";
-import t from "../i18n";
-import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
-import SessionData from "../types/SessionData";
-import SessionStore from "./SessionStore";
-import DefaultItem from "../types/DefaultItem";
+import t from "../../i18n";
+import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
+import SessionData from "../../types/SessionData";
+import SessionStore from "../SessionStore";
+import DefaultItem from "../../types/DefaultItem";
 
 const mockWarning = jest.fn();
 const mockEmit = jest.fn();
 const mockOn = jest.fn();
 const mockUsageDataLogError = jest.fn();
 
-jest.mock("../logger", () => ({
+jest.mock("../../logger", () => ({
   warningMessage: (...args: unknown[]) => mockWarning(...args),
 }));
 
@@ -18,12 +18,12 @@ jest.mock("crypto", () => ({
   randomUUID: () => "random-uuid",
 }));
 
-jest.mock("../utils/EventBus", () => ({
+jest.mock("../../utils/EventBus", () => ({
   emit: (...args: unknown[]) => mockEmit(...args),
   on: (...args: unknown[]) => mockOn(...args),
 }));
 
-jest.mock("../utils/usageData", () => ({
+jest.mock("../../utils/usageData", () => ({
   usageDataLogError: (...args: unknown[]) => mockUsageDataLogError(...args),
 }));
 

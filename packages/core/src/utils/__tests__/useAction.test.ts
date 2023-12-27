@@ -1,9 +1,9 @@
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable jest/no-conditional-expect */
-import Events from "../types/Events";
-import ScraperSpeed from "../types/ScraperSpeed";
-import EventBus from "./EventBus";
-import useAction from "./useAction";
+import Events from "../../types/Events";
+import ScraperSpeed from "../../types/ScraperSpeed";
+import EventBus from "../EventBus";
+import useAction from "../useAction";
 
 const mockEmit = jest.fn();
 const mockError = jest.fn();
