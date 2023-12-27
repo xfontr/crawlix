@@ -44,28 +44,22 @@ const setDefault = (allowDefaults: boolean | "true" | "false" | undefined) => {
   const checkNumber = <T extends string | number | boolean>(
     value: T | undefined,
     defaultValue: number,
-  ): number => {
-    if (!value || typeof +value !== "number" || +value < 0 || isNaN(+value))
-      return warnAndDefault(defaultValue);
-
-    return +value;
-  };
+  ): number =>
+    !value || +value < 0 || Number.isNaN(+value)
+      ? warnAndDefault(defaultValue)
+      : +value;
 
   const checkBoolean = <T extends string | number | boolean>(
     value: T | undefined,
     defaultValue: boolean,
-  ): boolean => {
-    if (!value) return warnAndDefault(defaultValue);
-
-    return value === "true";
-  };
+  ): boolean =>
+    value === undefined ? warnAndDefault(defaultValue) : value === "true";
 
   return {
     $b: checkBoolean,
     $n: checkNumber,
   };
 };
-
 
 export const defaultSessionConfig = (
   defaultConfigs: boolean | undefined,
