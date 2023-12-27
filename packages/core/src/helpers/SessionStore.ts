@@ -5,7 +5,6 @@ import type SessionData from "../types/SessionData";
 import EventBus from "../utils/EventBus";
 import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
-import { objectKeys } from "@personal/utils";
 import isItemComplete from "../utils/isItemComplete";
 import { usageDataLogError } from "../utils/usageData";
 
@@ -37,7 +36,7 @@ const SessionStore = () => {
       duration: endDate.getTime() - store.session.startDate!.getTime(),
       success,
       incompleteItems: store.session.items!.reduce(
-        (total, { _meta: { fails } }) => (total + fails > 0 ? 1 : 0),
+        (total, { _meta: { isComplete } }) => total + (isComplete ? 0 : 1),
         0,
       ),
     };
@@ -45,12 +44,14 @@ const SessionStore = () => {
     if (store.session.success) {
       const minimumItemsToSuccess =
         store.session.minimumItemsToSuccess! <= 1
-          ? store.session.minimumItemsToSuccess! * store.session.items!.length +
-            store.session.incompleteItems!
+          ? Math.ceil(
+              store.session.minimumItemsToSuccess! * store.session.totalItems!,
+            )
           : store.session.minimumItemsToSuccess!;
 
       store.session.success =
-        store.session.items!.length <= minimumItemsToSuccess
+        store.session.totalItems! - store.session.incompleteItems! >=
+        minimumItemsToSuccess
           ? store.session.success
           : false;
     }
@@ -133,12 +134,12 @@ const SessionStore = () => {
       actionNumber: store.session.totalActions!,
     });
 
-    usageDataLogError(store.session.errorLog?.at(-1));
+    store.session.usageData && usageDataLogError(store.session.errorLog!.at(-1));
   };
 
   const postItem = <T = DefaultItem>(
     item: T | undefined,
-    errorLog: Record<string, Error>,
+    errorLog: Partial<Record<keyof T, Error>>,
     selector = "",
   ): void => {
     if (store.session.totalItems! >= store.session.limit!.items!) return;
@@ -150,10 +151,9 @@ const SessionStore = () => {
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
         posted: new Date(),
-        isComplete: objectKeys(errorLog).length ? true : isItemComplete(item),
+        isComplete: isItemComplete(item),
         selector,
         errorLog,
-        fails: item ? objectKeys(errorLog).filter((error) => !error).length : 1,
       },
     });
 

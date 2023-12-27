@@ -7,7 +7,7 @@ import t from "../i18n";
 const usageDataFileName = "usage-data.json";
 
 export const usageDataLogError = (error?: SessionData["errorLog"][number]) => {
-  if (!error) return;
+  if (process.env["NODE_ENV"] === "test" || !error) return;
   
   readFile(
     resolve(__dirname, "../../", usageDataFileName),

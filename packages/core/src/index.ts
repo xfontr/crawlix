@@ -7,7 +7,7 @@ import { objectEntries } from "@personal/utils";
 import { infoMessage } from "./logger";
 import t from "./i18n";
 
-const session = Session();
+const session = Session({ usageData: true });
 
 const ITEM_DATA = {
   title: ".ct-headline.landingH3",
