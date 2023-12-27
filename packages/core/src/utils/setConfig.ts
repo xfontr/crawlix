@@ -1,10 +1,10 @@
 import ENVIRONMENT from "../configs/environment";
-import { TASK_LENGTH_MAX } from "../configs/scraper";
 import {
   GLOBAL_TIMEOUT_MAX,
   LIMIT_ITEMS_MAX,
   LIMIT_PAGES_MAX,
   TIMEOUT_MAX,
+  TASK_LENGTH_MAX,
 } from "../configs/session";
 import SessionConfig from "../types/SessionConfig";
 
@@ -16,13 +16,13 @@ import SessionConfig from "../types/SessionConfig";
 export const defaultSessionConfig: SessionConfig = {
   offset: {
     url: ENVIRONMENT.baseUrl,
-    page: 0,
+    page: 1,
   },
   limit: {
     items: 150,
     page: 0,
   },
-  timeout: 1_500,
+  timeout: 3_000,
   taskLength: 800,
   globalTimeout: 10 * 30 * 1_000,
   minimumItemsToSuccess: 0.99,

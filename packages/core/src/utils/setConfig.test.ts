@@ -1,8 +1,8 @@
-import { TASK_LENGTH_MAX } from "../configs/scraper";
 import {
   GLOBAL_TIMEOUT_MAX,
   LIMIT_ITEMS_MAX,
   TIMEOUT_MAX,
+  TASK_LENGTH_MAX,
 } from "../configs/session";
 import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import SessionConfig from "../types/SessionConfig";

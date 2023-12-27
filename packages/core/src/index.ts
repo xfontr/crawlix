@@ -1,14 +1,18 @@
 import Session from "./helpers/Session";
 import { ElementHandle, Page, launch } from "puppeteer";
 import useAction from "./utils/useAction";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { readdir, writeFile, unlink } from "fs/promises";
+import { resolve } from "path";
+import { objectEntries } from "@personal/utils";
+import { infoMessage } from "./logger";
+import t from "./i18n";
 
-const session = Session({
-  offset: {
-    page: 1,
-  },
-});
+const session = Session();
+
+const ITEM_DATA = {
+  title: ".ct-headline.landingH3",
+  categories: ".ct-text-block.etiquetas",
+};
 
 void (async () => {
   const {
@@ -33,39 +37,58 @@ void (async () => {
 
     if (!articles || error) return;
 
-    await $a(() =>
+    const [fullItems] = await $a(() =>
       Promise.all(
-        articles.map(async (item) => {
-          const [title, titleError] = await getElement(
-            item,
-            ".ct-headline.landingH3",
-          );
-          const [categories, categoriesError] = await getElement(
-            item,
-            ".ct-text-block.etiquetas",
-          );
-          const finalItem = { title, categories };
+        articles.map(
+          async (item) =>
+            await Promise.all(
+              objectEntries(ITEM_DATA).map(async ([key, itemSelector]) => {
+                const [element, error] = await getElement(item, itemSelector);
 
-          postItem(
-            finalItem,
-            {
-              title: titleError,
-              categories: categoriesError,
-            },
-            ".ct-headline.landingH3",
-          );
-        }),
+                return [
+                  { [key]: element },
+                  error ? { [key]: error } : undefined,
+                ];
+              }),
+            ),
+        ),
       ),
     );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (fullItems as any[]).forEach((item) => {
+      const [finalItem, finalErrors] = (
+        item as unknown as [
+          Record<string, string>,
+          undefined | Record<string, Error>,
+        ][]
+      ).reduce(
+        ([allElements, allErrors], [value, error]) => [
+          { ...allElements, ...value },
+          { ...allErrors, ...(error ? error : {}) },
+        ],
+        [{}, {}],
+      );
+
+      postItem(finalItem, finalErrors!);
+    });
+
+    infoMessage(t("session_actions.package_complete"));
   };
 
-  const pageUp = async (selector: string) => {
-    await Promise.all([
-      () => page.waitForNavigation({ timeout }),
-      $$a(() => page.click(selector), 0.2),
-    ]);
+  const pageUp = async (selector: string): Promise<void> => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, error] = await $$a(async () => {
+      await Promise.all([
+        page.click(selector),
+        page.waitForNavigation({ timeout }),
+      ]);
+    }, 0.2);
 
+    if (error) return;
+    
     nextPage(page.url());
+    infoMessage(t("session_actions.page_up"));
   };
 
   const init = async () => {
@@ -90,9 +113,20 @@ void (async () => {
 
   end(true);
 
+  const dataPath = resolve(__dirname, "../data");
+
+  const dataDir = await readdir(dataPath);
+
   await writeFile(
-    path.resolve(__dirname, "../data", `${Date.now()}.json`),
+    resolve(dataPath, `${Date.now()}.json`),
     JSON.stringify(store()),
+  );
+
+  await Promise.all(
+    dataDir.map(
+      async (file, index, list) =>
+        index >= list.length - 3 ?? (await unlink(resolve(dataPath, file))),
+    ),
   );
 
   process.exit(0);

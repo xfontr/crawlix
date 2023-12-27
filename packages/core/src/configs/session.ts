@@ -5,3 +5,5 @@ export const LIMIT_PAGES_MAX = 400;
 export const TIMEOUT_MAX = 30 * 1_000;
 
 export const GLOBAL_TIMEOUT_MAX = 10 * 30 * 10_000;
+
+export const TASK_LENGTH_MAX = 10 * 1_000;
