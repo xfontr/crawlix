@@ -3,10 +3,10 @@ import {
   LIMIT_ITEMS_MAX,
   TIMEOUT_MAX,
   TASK_LENGTH_MAX,
-} from "../configs/session";
-import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
-import SessionConfig from "../types/SessionConfig";
-import setConfig, { defaultSessionConfig } from "./setConfig";
+} from "../../configs/session";
+import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
+import SessionConfig from "../../types/SessionConfig";
+import setConfig, { defaultSessionConfig } from "../setConfig";
 
 describe("Given a setConfig function", () => {
   describe("When called with full and valid session configs", () => {

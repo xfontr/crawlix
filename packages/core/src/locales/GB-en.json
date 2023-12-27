@@ -12,10 +12,12 @@
     "init": "Starting a new session",
     "end": "Session ended",
     "warning": {
-      "not_initialized": "[DEV] Tried to end an inactive session"
+      "not_initialized": "[DEV] Tried to end an inactive session",
+      "invalid_env_config": "[DEV] Error while parsing environment variables. If allowed, default values will be applied for the failed variables. Recommended action: look for spelling errors and check the type of each variable"
     },
     "error": {
-      "initialized": "[DEV] The session as already been initiated"
+      "initialized": "[DEV] The session as already been initiated",
+      "no_defaults": "The app cannot start without setting all the configuration variables. Please, check that all the required configs are being correctly passed"
     }
   },
   "session_actions": {

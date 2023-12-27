@@ -1,4 +1,4 @@
-import isItemComplete from "./isItemComplete";
+import isItemComplete from "../isItemComplete";
 
 describe("Given an isItemComplete function", () => {
   describe("When called with no items", () => {

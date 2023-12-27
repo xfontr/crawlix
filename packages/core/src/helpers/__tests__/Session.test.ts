@@ -1,16 +1,16 @@
-import { LIMIT_ITEMS_MAX } from "../configs/session";
-import t from "../i18n";
-import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
-import SessionConfig from "../types/SessionConfig";
-import EventBus from "../utils/EventBus";
-import setConfig from "../utils/setConfig";
-import Session from "./Session";
+import { LIMIT_ITEMS_MAX } from "../../configs/session";
+import t from "../../i18n";
+import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
+import SessionConfig from "../../types/SessionConfig";
+import EventBus from "../../utils/EventBus";
+import setConfig from "../../utils/setConfig";
+import Session from "../Session";
 
 const mockInit = jest.fn();
 const mockEnd = jest.fn();
 const mockLogError = jest.fn();
 
-jest.mock("./SessionStore", () => () => ({
+jest.mock("../SessionStore", () => () => ({
   init: (config: SessionConfig) => mockInit(config),
   end: (...args: unknown[]) => mockEnd(...args),
   current: () => ({}),
@@ -21,7 +21,7 @@ const mockInfoMessage = jest.fn();
 const mockErrorMessage = jest.fn();
 const mockWarningMessage = jest.fn();
 
-jest.mock("../logger.ts", () => ({
+jest.mock("../../logger.ts", () => ({
   infoMessage: (message: string) => mockInfoMessage(message),
   errorMessage: (message: string) => mockErrorMessage(message),
   warningMessage: (message: string) => mockWarningMessage(message),
