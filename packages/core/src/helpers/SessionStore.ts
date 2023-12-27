@@ -134,7 +134,7 @@ const SessionStore = () => {
       actionNumber: store.session.totalActions!,
     });
 
-    usageDataLogError(store.session.errorLog?.at(-1));
+    store.session.usageData && usageDataLogError(store.session.errorLog!.at(-1));
   };
 
   const postItem = <T = DefaultItem>(

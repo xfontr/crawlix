@@ -8,6 +8,7 @@ import DefaultItem from "../types/DefaultItem";
 const mockWarning = jest.fn();
 const mockEmit = jest.fn();
 const mockOn = jest.fn();
+const mockUsageDataLogError = jest.fn();
 
 jest.mock("../logger", () => ({
   warningMessage: (...args: unknown[]) => mockWarning(...args),
@@ -20,6 +21,10 @@ jest.mock("crypto", () => ({
 jest.mock("../utils/EventBus", () => ({
   emit: (...args: unknown[]) => mockEmit(...args),
   on: (...args: unknown[]) => mockOn(...args),
+}));
+
+jest.mock("../utils/usageData", () => ({
+  usageDataLogError: (...args: unknown[]) => mockUsageDataLogError(...args),
 }));
 
 jest.useFakeTimers();
@@ -457,6 +462,47 @@ describe("Given a SessionStore.logError function", () => {
       logError(error, expectedLog.isCritical);
 
       expect(current().errorLog).toStrictEqual([expectedLog]);
+
+      cleanUpEnd();
+    });
+
+    test("Then it should update the usage data with the last error, if the feature is on", () => {
+      const {
+        end: cleanUpEnd,
+        logError,
+        current,
+      } = SessionStore().init({ ...mockSessionConfig, usageData: true });
+
+      const firstError = new Error("test");
+      const secondError = new Error("test 2");
+
+      logError(firstError);
+      logError(secondError);
+
+      expect(mockUsageDataLogError).toHaveBeenCalledWith(
+        current().errorLog.at(-1),
+      );
+
+      const lastCallErrorMessage = (
+        mockUsageDataLogError.mock.calls[1] as SessionData["errorLog"][number][]
+      )[0]?.error.message;
+
+      expect(lastCallErrorMessage).toBe(secondError.message);
+
+      cleanUpEnd();
+    });
+
+    test("Then it should not update the usage data if the feature is off", () => {
+      const { end: cleanUpEnd, logError } = SessionStore().init({
+        ...mockSessionConfig,
+        usageData: false,
+      });
+
+      const error = new Error("test");
+
+      logError(error);
+
+      expect(mockUsageDataLogError).not.toHaveBeenCalled();
 
       cleanUpEnd();
     });

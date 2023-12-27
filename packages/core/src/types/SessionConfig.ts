@@ -56,8 +56,11 @@ interface SessionConfig {
    *
    * @default 0.99
    */
-  // TODO
   minimumItemsToSuccess: number;
+  /**
+   * @description If false, will not save the usage data
+   */
+  usageData: boolean;
 }
 
 export default SessionConfig;

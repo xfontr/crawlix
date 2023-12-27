@@ -10,6 +10,7 @@ const mockSessionConfig: SessionConfig = {
   globalTimeout: 10 * 30 * 1_000,
   taskLength: 800,
   minimumItemsToSuccess: 0.99,
+  usageData: false,
 };
 
 export default mockSessionConfig;
