@@ -25,57 +25,52 @@ const {
 
 const setDefault = (allowDefaults: boolean | "true" | "false" | undefined) => {
   const parsedAllowDefaults =
-    (typeof allowDefaults === "boolean"
+    typeof allowDefaults === "boolean"
       ? allowDefaults
-      : allowDefaults && (JSON.parse(allowDefaults) as boolean)) ?? false;
+      : allowDefaults === "true";
 
-  return <T extends string | number | boolean>(
-    value: string | number | boolean | undefined,
-    expectedType: "string" | "number" | "boolean",
+  const warnAndDefault = <T extends string | number | boolean>(
     defaultValue: T,
   ): T => {
-    const warnAndDefault = () => {
-      warningMessage(t("session.warning.invalid_env_config"));
+    warningMessage(t("session.warning.invalid_env_config"));
 
-      if (!parsedAllowDefaults) {
-        throw new Error(t("session.error.no_defaults"));
-      }
-
-      return defaultValue;
-    };
-
-    if (!value) return warnAndDefault();
-
-    if (
-      expectedType === "number" &&
-      (typeof +value !== "number" || +value < 0 || isNaN(+value))
-    ) {
-      return warnAndDefault();
+    if (!parsedAllowDefaults) {
+      throw new Error(t("session.error.no_defaults"));
     }
 
-    if (expectedType === "number") return +value as T;
+    return defaultValue;
+  };
 
-    if (expectedType === "boolean") {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const finalValue =
-          typeof value === "string" ? JSON.parse(value) : value;
-        return typeof finalValue === "boolean"
-          ? (finalValue as T)
-          : warnAndDefault();
-      } catch (e) {
-        return warnAndDefault();
-      }
-    }
+  const checkNumber = <T extends string | number | boolean>(
+    value: T | undefined,
+    defaultValue: number,
+  ): number => {
+    if (!value || typeof +value !== "number" || +value < 0 || isNaN(+value))
+      return warnAndDefault(defaultValue);
 
-    return typeof value === expectedType ? (value as T) : warnAndDefault();
+    return +value;
+  };
+
+  const checkBoolean = <T extends string | number | boolean>(
+    value: T | undefined,
+    defaultValue: boolean,
+  ): boolean => {
+    if (!value) return warnAndDefault(defaultValue);
+
+    return value === "true";
+  };
+
+  return {
+    $b: checkBoolean,
+    $n: checkNumber,
   };
 };
 
+
 export const defaultSessionConfig = (
-  defaultConfigs?: boolean,
+  defaultConfigs: boolean | undefined,
 ): SessionConfig => {
-  const $tc = setDefault(
+  const { $b, $n } = setDefault(
     defaultConfigs ??
       (allowDefaultConfigs as boolean | "true" | "false" | undefined),
   );
@@ -83,18 +78,18 @@ export const defaultSessionConfig = (
   return {
     offset: {
       url: baseUrl,
-      page: $tc(offsetPage, "number", 1),
+      page: $n(offsetPage, 1),
     },
     limit: {
-      items: $tc(limitItems, "number", 150),
-      page: $tc(limitPage, "number", 0),
+      items: $n(limitItems, 150),
+      page: $n(limitPage, 0),
     },
-    timeout: $tc(timeout, "number", 3_000),
-    taskLength: $tc(taskLength, "number", 800),
-    globalTimeout: $tc(globalTimeout, "number", 10 * 30 * 1_000),
-    minimumItemsToSuccess: $tc(minimumItemsToSuccess, "number", 0.99),
-    usageData: $tc(usageData, "boolean", false),
-    allowDefaultConfigs: $tc(allowDefaultConfigs, "boolean", true),
+    timeout: $n(timeout, 3_000),
+    taskLength: $n(taskLength, 800),
+    globalTimeout: $n(globalTimeout, 10 * 30 * 1_000),
+    minimumItemsToSuccess: $n(minimumItemsToSuccess, 0.99),
+    usageData: $b(usageData, false),
+    allowDefaultConfigs: $b(allowDefaultConfigs, true),
   };
 };
 
