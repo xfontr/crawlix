@@ -5,14 +5,11 @@ import type SessionData from "../types/SessionData";
 import EventBus from "../utils/EventBus";
 import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
-import { objectKeys, objectValues } from "@personal/utils";
+import { objectKeys } from "@personal/utils";
+import isItemComplete from "../utils/isItemComplete";
+import { usageDataLogError } from "../utils/usageData";
 
 let initialized = false;
-
-const isComplete = (elements: Record<string, string | number>): boolean =>
-  !objectValues(elements).some(
-    (element) => element === undefined || element === null,
-  );
 
 const SessionStore = () => {
   const store = {
@@ -123,7 +120,10 @@ const SessionStore = () => {
 
   const logError = (error: Error, isCritical?: boolean): void => {
     store.session.errorLog!.push({
-      error,
+      error: {
+        name: error.name,
+        message: error.message,
+      },
       isCritical: !!isCritical,
       time: new Date(),
       location: {
@@ -132,20 +132,16 @@ const SessionStore = () => {
       },
       actionNumber: store.session.totalActions!,
     });
+
+    usageDataLogError(store.session.errorLog?.at(-1));
   };
 
   const postItem = <T = DefaultItem>(
     item: T | undefined,
-    errorLog: Record<string, Error | void>,
+    errorLog: Record<string, Error>,
     selector = "",
   ): void => {
-    if (
-      !item ||
-      // TODO: Test "{}"" case
-      JSON.stringify(item) === "{}" ||
-      store.session.totalItems! >= store.session.limit!.items!
-    )
-      return;
+    if (store.session.totalItems! >= store.session.limit!.items!) return;
 
     store.session.items!.push({
       ...item,
@@ -154,10 +150,10 @@ const SessionStore = () => {
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
         posted: new Date(),
-        isComplete: isComplete(item),
+        isComplete: objectKeys(errorLog).length ? true : isItemComplete(item),
         selector,
         errorLog,
-        fails: objectKeys(errorLog).filter((error) => !error).length,
+        fails: item ? objectKeys(errorLog).filter((error) => !error).length : 1,
       },
     });
 

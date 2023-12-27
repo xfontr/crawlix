@@ -17,5 +17,12 @@
     "error": {
       "initialized": "[DEV] The session as already been initiated"
     }
+  },
+  "session_actions": {
+    "page_up": "Page increased",
+    "package_complete": "Package of items scraped"
+  },
+  "usage_data": {
+    "error": "[DEV]: Couldn't save the requested usage data"
   }
 }

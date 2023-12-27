@@ -12,7 +12,7 @@ const mockLogError = jest.fn();
 
 jest.mock("./SessionStore", () => () => ({
   init: (config: SessionConfig) => mockInit(config),
-  end: () => mockEnd(),
+  end: (...args: unknown[]) => mockEnd(...args),
   current: () => ({}),
   logError: (...args: unknown[]) => mockLogError(...args),
 }));
@@ -81,11 +81,19 @@ describe("Given a Session.init function", () => {
 });
 
 describe("Given a Session.end function", () => {
-  describe("When called", () => {
-    test("Then it should end the store", () => {
+  describe("When called with no parameters", () => {
+    test("Then it should softly end the store", () => {
       Session(mockSessionConfig).init().end();
 
-      expect(mockEnd).toHaveBeenCalled();
+      expect(mockEnd).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe("When called with a parameter of true", () => {
+    test("Then it should abruptly end the store", () => {
+      Session(mockSessionConfig).init().end(true);
+
+      expect(mockEnd).toHaveBeenCalledWith(false);
     });
 
     test("Then it should send a info message", () => {

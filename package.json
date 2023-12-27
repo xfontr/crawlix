@@ -4,5 +4,9 @@
   "description": "",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "scripts": {
+    "dev": "pnpm --filter @scraper/core run dev",
+    "test": "pnpm --filter @scraper/core run test"
+  }
 }

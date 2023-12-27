@@ -449,7 +449,7 @@ describe("Given a SessionStore.postItem function", () => {
       cleanUpEnd();
     });
 
-    test("Then it should do nothing if no item was passed", () => {
+    test("Then it should add a failed item if no item was passed", () => {
       const {
         postItem,
         end: cleanUpEnd,
@@ -458,7 +458,8 @@ describe("Given a SessionStore.postItem function", () => {
 
       postItem(undefined, {});
 
-      expect(current().items).toHaveLength(0);
+      expect(current().items[0]?._meta.fails).toBe(1);
+      expect(current().items[0]?._meta.isComplete).toBe(false);
 
       cleanUpEnd();
     });
