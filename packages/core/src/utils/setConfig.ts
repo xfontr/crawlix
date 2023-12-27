@@ -23,7 +23,7 @@ const {
   allowDefaultConfigs,
 } = ENVIRONMENT;
 
-const setDefault = (allowDefaults: boolean | "true" | "false" | undefined) => {
+export const setDefault = (allowDefaults: boolean | "true" | "false" | undefined) => {
   const parsedAllowDefaults =
     typeof allowDefaults === "boolean"
       ? allowDefaults
@@ -41,16 +41,16 @@ const setDefault = (allowDefaults: boolean | "true" | "false" | undefined) => {
     return defaultValue;
   };
 
-  const checkNumber = <T extends string | number | boolean>(
-    value: T | undefined,
+  const checkNumber = (
+    value: string | undefined,
     defaultValue: number,
   ): number =>
     !value || +value < 0 || Number.isNaN(+value)
       ? warnAndDefault(defaultValue)
       : +value;
 
-  const checkBoolean = <T extends string | number | boolean>(
-    value: T | undefined,
+  const checkBoolean = (
+    value: string | undefined,
     defaultValue: boolean,
   ): boolean =>
     value === undefined ? warnAndDefault(defaultValue) : value === "true";
@@ -62,7 +62,7 @@ const setDefault = (allowDefaults: boolean | "true" | "false" | undefined) => {
 };
 
 export const defaultSessionConfig = (
-  defaultConfigs: boolean | undefined,
+  defaultConfigs?: boolean | undefined,
 ): SessionConfig => {
   const { $b, $n } = setDefault(
     defaultConfigs ??
