@@ -81,6 +81,102 @@ describe("Given a SessionStore function", () => {
 
       expect(end()).toStrictEqual(expectedStore);
     });
+
+    test("It should update the number of incomplete items and total items", () => {
+      const expectedIncompleteItems = 3;
+
+      const { end, postItem } = SessionStore().init(mockSessionConfig);
+
+      postItems(
+        expectedIncompleteItems,
+        { name: "Test", surname: undefined },
+        postItem,
+      );
+
+      const { incompleteItems, totalItems } = end();
+
+      expect(incompleteItems).toBe(expectedIncompleteItems);
+      expect(totalItems).toBe(expectedIncompleteItems);
+    });
+
+    test("It should set success as 'false' if the relative minimum of items wasn't reached", () => {
+      const incompleteItems = 3;
+      const completeItems = 2;
+
+      const { end, postItem } = SessionStore().init({
+        ...mockSessionConfig,
+        minimumItemsToSuccess: 0.5,
+      });
+
+      postItems(
+        incompleteItems,
+        { name: "Test", surname: undefined },
+        postItem,
+      );
+      postItems(completeItems, { name: "Test", surname: "Test" }, postItem);
+
+      expect(end().success).toBe(false);
+    });
+
+    test("It should set success as 'true' if the relative minimum of items was reached", () => {
+      const incompleteItems = 3;
+      const completeItems = 3;
+
+      const { end, postItem } = SessionStore().init({
+        ...mockSessionConfig,
+        limit: { items: 10 },
+        minimumItemsToSuccess: 0.5,
+      });
+
+      postItems(
+        incompleteItems,
+        { name: "Test", surname: undefined },
+        postItem,
+      );
+      postItems(completeItems, { name: "Test", surname: "Test" }, postItem);
+
+      expect(end().success).toBe(true);
+    });
+
+    test("It should set success as 'false' if the absolute minimum of items was not reached", () => {
+      const incompleteItems = 10;
+      const completeItems = 2;
+
+      const { end, postItem } = SessionStore().init({
+        ...mockSessionConfig,
+        limit: { items: 15 },
+        minimumItemsToSuccess: 3,
+      });
+
+      postItems(
+        incompleteItems,
+        { name: "Test", surname: undefined },
+        postItem,
+      );
+      postItems(completeItems, { name: "Test", surname: "Test" }, postItem);
+
+      expect(end().success).toBe(false);
+    });
+
+    test("It should set success as 'true' if the absolute minimum of items was reached", () => {
+      const incompleteItems = 10;
+      const completeItems = 3;
+
+      const { end, postItem } = SessionStore().init({
+        ...mockSessionConfig,
+        limit: { items: 15 },
+        minimumItemsToSuccess: 3,
+      });
+
+      postItems(
+        incompleteItems,
+        { name: "Test", surname: undefined },
+        postItem,
+      );
+      postItems(completeItems, { name: "Test", surname: "Test" }, postItem);
+
+      expect(end().success).toBe(true);
+    });
   });
 
   describe("When ended twice", () => {
@@ -345,7 +441,10 @@ describe("Given a SessionStore.logError function", () => {
 
       const error = new Error("test");
       const expectedLog = {
-        error,
+        error: {
+          name: error.name,
+          message: error.message,
+        },
         isCritical: true,
         time: new Date(),
         location: {
@@ -373,7 +472,10 @@ describe("Given a SessionStore.logError function", () => {
 
       const error = new Error("test");
       const expectedLog = {
-        error,
+        error: {
+          name: error.name,
+          message: error.message,
+        },
         isCritical: false,
         time: new Date(),
         location: {
@@ -414,7 +516,6 @@ describe("Given a SessionStore.postItem function", () => {
           selector,
           isComplete: true,
           errorLog: {},
-          fails: 0,
         },
       };
 
@@ -449,35 +550,6 @@ describe("Given a SessionStore.postItem function", () => {
       cleanUpEnd();
     });
 
-    test("Then it should add a failed item if no item was passed", () => {
-      const {
-        postItem,
-        end: cleanUpEnd,
-        current,
-      } = SessionStore().init(mockSessionConfig);
-
-      postItem(undefined, {});
-
-      expect(current().items[0]?._meta.fails).toBe(1);
-      expect(current().items[0]?._meta.isComplete).toBe(false);
-
-      cleanUpEnd();
-    });
-
-    test("Then it should set an empty selector if none was passed", () => {
-      const {
-        postItem,
-        end: cleanUpEnd,
-        current,
-      } = SessionStore().init(mockSessionConfig);
-
-      postItem(mockItem, {});
-
-      expect(current().items[0]?._meta.selector).toBe("");
-
-      cleanUpEnd();
-    });
-
     test("Then it should post the item and call off the session if there are too many items", () => {
       const {
         postItem,
@@ -493,5 +565,88 @@ describe("Given a SessionStore.postItem function", () => {
 
       cleanUpEnd();
     });
+
+    describe("When called with no item and no selector", () => {
+      test("Then it mark the item as incomplete", () => {
+        const {
+          postItem,
+          end: cleanUpEnd,
+          current,
+        } = SessionStore().init(mockSessionConfig);
+
+        postItem(undefined, {});
+
+        expect(current().items[0]?._meta.isComplete).toBe(false);
+
+        cleanUpEnd();
+      });
+
+      test("Then it should set an empty selector", () => {
+        const {
+          postItem,
+          end: cleanUpEnd,
+          current,
+        } = SessionStore().init(mockSessionConfig);
+
+        postItem(mockItem, {});
+
+        expect(current().items[0]?._meta.selector).toBe("");
+
+        cleanUpEnd();
+      });
+    });
+  });
+
+  describe("When called with an incomplete item", () => {
+    test("Then it should mark the item as incomplete", () => {
+      const {
+        postItem,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      postItem({ name: "test", surname: undefined, age: undefined }, {});
+
+      expect(current().items[0]?._meta.isComplete).toBe(false);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called with an error log", () => {
+    test("Then it should register said log", () => {
+      const {
+        postItem,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      const errorLog = {
+        surname: Error("Selector not found"),
+        age: Error("Selector not found"),
+      };
+
+      postItem({ name: "test", surname: undefined, age: undefined }, errorLog);
+
+      expect(current().items[0]?._meta.errorLog).toStrictEqual(errorLog);
+
+      cleanUpEnd();
+    });
   });
 });
+
+// UTILS
+
+const postItems = (
+  numberOfItems: number,
+  body: Partial<DefaultItem>,
+  postItem: (
+    item: Omit<DefaultItem, "_meta"> | undefined,
+    errorLog: Record<string, Error>,
+    selector?: string,
+  ) => void,
+): void => {
+  new Array(numberOfItems).fill(body).forEach((item) => {
+    postItem(item as DefaultItem, {});
+  });
+};

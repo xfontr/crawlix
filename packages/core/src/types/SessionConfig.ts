@@ -51,7 +51,7 @@ interface SessionConfig {
    * Naturally empty fields will not be computed.
    *
    * @param < 1 If less than one, it will be computed relatively to the total amount of expected items.
-   * If the result is a non-absolute number, it will be rounded to the floor
+   * If the result is a non-absolute number, it will be rounded to the ceil
    * @param > 1 If more than one, it will be computed as an absolute number
    *
    * @default 0.99

@@ -1,1 +1,1 @@
-[]
+[{"error":{"name":"Error","message":"test"},"isCritical":true,"time":"2023-12-27T12:48:13.847Z","location":{"page":4,"url":"","itemNumber":0},"actionNumber":0},{"error":{"name":"Error","message":"test"},"isCritical":true,"time":"2023-12-27T12:49:08.184Z","location":{"page":4,"url":"","itemNumber":0},"actionNumber":0}]]

@@ -58,10 +58,6 @@ type DefaultItem<
        * }
        */
       errorLog: Record<string, Error | void>;
-      /**
-       * @description Simply counts the number of errors logged
-       */
-      fails: number;
     };
   };
 
