@@ -59,8 +59,14 @@ interface SessionConfig {
   minimumItemsToSuccess: number;
   /**
    * @description If false, will not save the usage data
+   * @default false
    */
   usageData: boolean;
+  /**
+   * @description If false, the app will break on start if any config is missing
+   * @default true
+   */
+  allowDefaultConfigs: boolean;
 }
 
 export default SessionConfig;
