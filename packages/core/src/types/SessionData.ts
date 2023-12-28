@@ -15,11 +15,11 @@ interface SessionData<
   /**
    * @description Session start date
    */
-  startDate: string;
+  startDate: number;
   /**
    * @description Session end date
    */
-  endDate: string;
+  endDate: number;
   /**
    * @description Session length in ms
    */
@@ -56,7 +56,7 @@ interface SessionData<
     /**
      * @description Date and time the error was caught at
      */
-    date: string;
+    date: number;
     /**
      * @description Moment of the session where the error happened, counted in miliseconds
      */

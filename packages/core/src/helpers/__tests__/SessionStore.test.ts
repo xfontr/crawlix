@@ -9,7 +9,6 @@ const mockWarning = jest.fn();
 const mockEmit = jest.fn();
 const mockOn = jest.fn();
 const mockUsageDataLogError = jest.fn();
-const mockDurationCalc = 0;
 
 jest.mock("../../logger", () => ({
   warningMessage: (...args: unknown[]) => mockWarning(...args),
@@ -28,8 +27,6 @@ jest.mock("../../utils/usageData", () => ({
   usageDataLogError: (...args: unknown[]) => mockUsageDataLogError(...args),
 }));
 
-jest.mock("../../utils/getTimeDifference", () => () => mockDurationCalc)
-
 jest.useFakeTimers();
 
 beforeEach(() => {
@@ -41,7 +38,7 @@ describe("Given a SessionStore function", () => {
     test("Then it should return the current store value", () => {
       const expectedStore: Partial<SessionData> = {
         ...mockSessionConfig,
-        startDate: new Date().toString(),
+        startDate: new Date().getTime(),
         totalActions: 0,
         totalActionsJointLength: 0,
         errorLog: [],
@@ -68,11 +65,12 @@ describe("Given a SessionStore function", () => {
 
   describe("When ended", () => {
     test("It should return all the store data, updated with the end values", () => {
+      const advancedTime = 10;
       const expectedStore: Partial<SessionData> = {
         ...mockSessionConfig,
-        startDate: new Date().toString(),
-        endDate: new Date().toString(),
-        duration: mockDurationCalc,
+        startDate: new Date().getTime(),
+        endDate: new Date().getTime() + advancedTime,
+        duration: advancedTime,
         totalActions: 0,
         totalActionsJointLength: 0,
         errorLog: [],
@@ -86,6 +84,8 @@ describe("Given a SessionStore function", () => {
       };
 
       const { end } = SessionStore().init(mockSessionConfig);
+
+      jest.advanceTimersByTime(advancedTime);
 
       expect(end()).toStrictEqual(expectedStore);
     });
@@ -441,15 +441,17 @@ describe("Given a SessionStore.previousPage function", () => {
 describe("Given a SessionStore.logError function", () => {
   describe("When called with a critical error", () => {
     test("Then it should register the error with the current session data", () => {
+      const advancedTime = 10;
+
       const {
         current,
         end: cleanUpEnd,
         logError,
       } = SessionStore().init(mockSessionConfig);
 
-      const error = new Error("test");
+      jest.advanceTimersByTime(advancedTime);
 
-      const date = new Date();
+      const error = new Error("test");
 
       const expectedLog: SessionData["errorLog"][number] = {
         error: {
@@ -457,8 +459,8 @@ describe("Given a SessionStore.logError function", () => {
           message: error.message,
         },
         isCritical: true,
-        date: date.toString(),
-        moment: mockDurationCalc,
+        date: new Date().getTime(),
+        moment: advancedTime,
         location: {
           ...current().location,
           itemNumber: current().items.length,
@@ -531,8 +533,8 @@ describe("Given a SessionStore.logError function", () => {
           message: error.message,
         },
         isCritical: false,
-        date: date.toString(),
-        moment: mockDurationCalc,
+        date: date.getTime(),
+        moment: 0,
         location: {
           ...current().location,
           itemNumber: current().items.length,
@@ -562,19 +564,23 @@ describe("Given a SessionStore.postItem function", () => {
     const selector = "h3";
 
     test("Then it should post said item with its corresponding meta data", () => {
+      const advancedTime = 10;
+
       const {
         postItem,
         end: cleanUpEnd,
         current,
       } = SessionStore().init(mockSessionConfig);
 
+      jest.advanceTimersByTime(advancedTime);
+
       const expectedMeta: Pick<DefaultItem, "_meta"> = {
         _meta: {
           id: "random-uuid" as UUID,
           itemNumber: 0,
           page: mockSessionConfig.offset.page ?? 0,
-          posted: new Date().toString(),
-          moment: mockDurationCalc,
+          posted: new Date().getTime(),
+          moment: advancedTime,
           selector,
           isComplete: true,
           errorLog: {},

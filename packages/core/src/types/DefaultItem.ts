@@ -38,7 +38,7 @@ type DefaultItem<
       /**
        * @description Date when this item was scraped
        */
-      posted: string;
+      posted: number;
       /**
        * @description Automatically assigned number, corresponding to the latest scraped item plus one
        */
