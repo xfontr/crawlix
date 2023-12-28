@@ -14,7 +14,7 @@ void (async () => {
   );
 
   await run(
-    async ({ scrapItems, pageUp, saveSession }) => {
+    async ({ scrapItems, pageUp, saveAsJson }) => {
       await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
       await pageUp(
@@ -23,7 +23,7 @@ void (async () => {
 
       await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
-      await saveSession();
+      await saveAsJson();
     },
   );
 
