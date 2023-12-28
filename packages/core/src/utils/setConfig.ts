@@ -5,6 +5,14 @@ import {
   LIMIT_PAGES_MAX,
   TIMEOUT_MAX,
   TASK_LENGTH_MAX,
+  LIMIT_ITEMS_DEFAULT,
+  LIMIT_PAGES_DEFAULT,
+  TIMEOUT_DEFAULT,
+  TASK_LENGTH_DEFAULT,
+  GLOBAL_TIMEOUT_DEFAULT,
+  MINIMUM_ITEMS_TO_SUCCESS_DEFAULT,
+  USAGE_DATA_DEFAULT,
+  ALLOW_DEFAULT_CONFIGS_DEFAULT,
 } from "../configs/session";
 import t from "../i18n";
 import { warningMessage } from "../logger";
@@ -23,7 +31,9 @@ const {
   allowDefaultConfigs,
 } = ENVIRONMENT;
 
-export const setDefault = (allowDefaults: boolean | "true" | "false" | undefined) => {
+export const setDefault = (
+  allowDefaults: boolean | "true" | "false" | undefined,
+) => {
   const parsedAllowDefaults =
     typeof allowDefaults === "boolean"
       ? allowDefaults
@@ -66,7 +76,8 @@ export const defaultSessionConfig = (
 ): SessionConfig => {
   const { $b, $n } = setDefault(
     defaultConfigs ??
-      (allowDefaultConfigs as boolean | "true" | "false" | undefined),
+      (allowDefaultConfigs as boolean | "true" | "false" | undefined) ??
+      ALLOW_DEFAULT_CONFIGS_DEFAULT,
   );
 
   return {
@@ -75,15 +86,18 @@ export const defaultSessionConfig = (
       page: $n(offsetPage, 1),
     },
     limit: {
-      items: $n(limitItems, 150),
-      page: $n(limitPage, 0),
+      items: $n(limitItems, LIMIT_ITEMS_DEFAULT),
+      page: $n(limitPage, LIMIT_PAGES_DEFAULT),
     },
-    timeout: $n(timeout, 3_000),
-    taskLength: $n(taskLength, 800),
-    globalTimeout: $n(globalTimeout, 10 * 30 * 1_000),
-    minimumItemsToSuccess: $n(minimumItemsToSuccess, 0.99),
-    usageData: $b(usageData, false),
-    allowDefaultConfigs: $b(allowDefaultConfigs, true),
+    timeout: $n(timeout, TIMEOUT_DEFAULT),
+    taskLength: $n(taskLength, TASK_LENGTH_DEFAULT),
+    globalTimeout: $n(globalTimeout, GLOBAL_TIMEOUT_DEFAULT),
+    minimumItemsToSuccess: $n(
+      minimumItemsToSuccess,
+      MINIMUM_ITEMS_TO_SUCCESS_DEFAULT,
+    ),
+    usageData: $b(usageData, USAGE_DATA_DEFAULT),
+    allowDefaultConfigs: $b(allowDefaultConfigs, ALLOW_DEFAULT_CONFIGS_DEFAULT),
   };
 };
 

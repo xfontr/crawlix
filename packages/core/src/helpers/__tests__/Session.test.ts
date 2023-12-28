@@ -24,11 +24,15 @@ const mockWarningMessage = jest.fn();
 jest.mock("../../logger.ts", () => ({
   infoMessage: (message: string) => mockInfoMessage(message),
   errorMessage: (message: string) => mockErrorMessage(message),
-  warningMessage: (message: string) => mockWarningMessage(message),
+  warningMessage: (message: string) => {
+    if (message === t("session.warning.invalid_env_config")) return;
+    mockWarningMessage(message)
+  },
 }));
 
 beforeEach(() => {
   jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 describe("Given a Session.init function", () => {
