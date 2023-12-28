@@ -108,18 +108,16 @@ describe("Given a Session.end function", () => {
   });
 
   describe("When called without the store being initiated", () => {
-    test("Then it should only send a warning message", () => {
+    test("Then it should do nothing", () => {
       Session(mockSessionConfig).end();
 
-      expect(mockWarningMessage).toHaveBeenCalledTimes(1);
-      expect(mockWarningMessage).toHaveBeenCalledWith(
-        t("session.warning.not_initialized"),
-      );
+      expect(mockEnd).not.toHaveBeenCalled();
+      expect(mockInfoMessage).not.toHaveBeenCalled();
     });
   });
 });
 
-describe("Given a session.error function", () => {
+describe("Given a Session.error function", () => {
   describe("When called with a critical error", () => {
     test("It should log it, end the session and send an error message", () => {
       const testError = new Error("error");
@@ -164,3 +162,11 @@ describe("Given a session.error function", () => {
     });
   });
 });
+
+describe("Given a Session.setGlobalTimeout function", () => {
+  describe("When called with a promise function with a running time lower than the global timeout", () => {
+    test("Then it should complete said function", () => {
+      //
+    })
+  })
+})

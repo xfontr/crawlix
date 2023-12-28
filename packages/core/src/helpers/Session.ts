@@ -1,5 +1,5 @@
 import t from "../i18n";
-import { errorMessage, infoMessage, warningMessage } from "../logger";
+import { errorMessage, infoMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
 import EventBus from "../utils/EventBus";
 import setConfig from "../utils/setConfig";
@@ -12,10 +12,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   const store = SessionStore();
 
   const end = (abruptEnd = false): void => {
-    if (!initialized) {
-      warningMessage(t("session.warning.not_initialized"));
-      return;
-    }
+    if (!initialized) return;
 
     initialized = false;
 
@@ -66,7 +63,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
    *  // Actions
    *  cleanUp();
    * });
-   * 
+   *
    */
   const setGlobalTimeout = async <T>(
     callback: (cleanUp: () => void) => Promise<T>,
@@ -75,12 +72,13 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
     const cleanUp = () => {
       clearInterval(storedTimeout);
-    }
+    };
 
     return await Promise.race<T | "ABRUPT_ENDING">([
       new Promise(
         (resolve) =>
           (storedTimeout = setTimeout(() => {
+            error(Error(t("session.error.global_timeout")), true);
             resolve("ABRUPT_ENDING");
           }, store.current().globalTimeout)),
       ),

@@ -20,7 +20,6 @@ const Scraper = async (
     store,
     hooks: { nextPage, postItem, ...hooks },
     end,
-    error,
     setGlobalTimeout,
   } = Session(baseConfig).init();
 
@@ -44,7 +43,7 @@ const Scraper = async (
   const scrapItems = async (selector: string): Promise<void> => {
     const [articles, error] = await $a(() => page.$$(selector));
 
-    if (!articles || error) return;
+    if (!articles?.length || error) return;
 
     const [fullItems] = await $a(() =>
       Promise.all(
@@ -148,7 +147,6 @@ const Scraper = async (
     });
 
     if (result === "ABRUPT_ENDING") {
-      error(Error(t("session.error.global_timeout")), true);
       saveSessionOnError && (await saveSession());
     }
   };

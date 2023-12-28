@@ -13,7 +13,6 @@
     "end": "Session ended",
     "saved": "Session successfully saved",
     "warning": {
-      "not_initialized": "[DEV] Tried to end an inactive session",
       "invalid_env_config": "[DEV] Error while parsing environment variables. If allowed, default values will be applied for the failed variables. Recommended action: look for spelling errors and check the type of each variable"
     },
     "error": {
