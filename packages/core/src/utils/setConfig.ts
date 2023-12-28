@@ -13,6 +13,7 @@ import {
   MINIMUM_ITEMS_TO_SUCCESS_DEFAULT,
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
+  SAVE_SESSION_ON_ERROR,
 } from "../configs/session";
 import t from "../i18n";
 import { warningMessage } from "../logger";
@@ -29,6 +30,7 @@ const {
   timeout,
   usageData,
   allowDefaultConfigs,
+  saveSessionOnError
 } = ENVIRONMENT;
 
 export const setDefault = (
@@ -98,6 +100,7 @@ export const defaultSessionConfig = (
     ),
     usageData: $b(usageData, USAGE_DATA_DEFAULT),
     allowDefaultConfigs: $b(allowDefaultConfigs, ALLOW_DEFAULT_CONFIGS_DEFAULT),
+    saveSessionOnError: $b(saveSessionOnError, SAVE_SESSION_ON_ERROR)
   };
 };
 

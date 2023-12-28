@@ -11,6 +11,7 @@ import {
   TIMEOUT_DEFAULT,
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
+  SAVE_SESSION_ON_ERROR,
 } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
@@ -213,6 +214,7 @@ describe("Given a defaultSessionConfig function", () => {
     process.env["SCRAPER_MINIMUM_ITEMS_TO_SUCCESS"] = undefined;
     process.env["SCRAPER_USAGE_DATA"] = "999"; // Expects a boolean
     process.env["SCRAPER_ALLOW_DEFAULT_CONFIGS"] = undefined;
+    process.env["SCRAPER_SAVE_ALWAYS"] = undefined;
 
     test("Then it should set all the default values, if allowed", () => {
       const expectedDefaultConfig: SessionConfig = {
@@ -230,6 +232,7 @@ describe("Given a defaultSessionConfig function", () => {
         taskLength: TASK_LENGTH_DEFAULT,
         timeout: TIMEOUT_DEFAULT,
         usageData: USAGE_DATA_DEFAULT,
+        saveSessionOnError: SAVE_SESSION_ON_ERROR,
       };
 
       const result = defaultSessionConfig(true);

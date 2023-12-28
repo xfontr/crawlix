@@ -1,10 +1,15 @@
 import type { PuppeteerNode, ElementHandle } from "puppeteer";
-import { type DefaultItem, Session, type SessionConfig, useAction } from "../..";
+import {
+  type DefaultItem,
+  Session,
+  type SessionConfig,
+  useAction,
+} from "../..";
 import t from "../i18n";
 import { infoMessage } from "../logger";
 import { readdir, unlink, writeFile } from "fs/promises";
 import { resolve } from "path";
-import { objectEntries } from "@personal/utils";
+import { objectEntries, tryCatch } from "@personal/utils";
 
 const Scraper = async (
   puppeteer: PuppeteerNode,
@@ -13,14 +18,17 @@ const Scraper = async (
 ) => {
   const {
     store,
-    hooks: { nextPage, postItem },
+    hooks: { nextPage, postItem, ...hooks },
     end,
+    error,
+    setGlobalTimeout,
   } = Session(baseConfig).init();
 
   const {
     taskLength,
     timeout,
     offset: { url },
+    saveSessionOnError,
   } = store();
 
   const { $$a, $a } = useAction(taskLength);
@@ -28,8 +36,6 @@ const Scraper = async (
   // INIT
   const browser = await puppeteer.launch({ headless: "new" });
   const page = await browser.newPage();
-
-  await $$a(() => page.goto(url!));
 
   // UTILS
   const getElement = async (parent: ElementHandle<Element>, selector: string) =>
@@ -95,22 +101,26 @@ const Scraper = async (
   const saveSession = async (): Promise<void> => {
     const dataPath = resolve(__dirname, "../../data");
 
-    const dataDir = await readdir(dataPath);
+    const result = await tryCatch(async () => {
+      const dataDir = await readdir(dataPath);
 
-    await writeFile(
-      resolve(dataPath, `${Date.now()}.json`),
-      JSON.stringify(store()),
-    );
+      await writeFile(
+        resolve(dataPath, `${Date.now()}.json`),
+        JSON.stringify(store()),
+      );
 
-    await Promise.all(
-      dataDir.map(
-        async (file, index, list) =>
-          index >= list.length - 3 ?? (await unlink(resolve(dataPath, file))),
-      ),
-    );
+      await Promise.all(
+        dataDir.map(
+          async (file, index, list) =>
+            index >= list.length - 3 ?? (await unlink(resolve(dataPath, file))),
+        ),
+      );
+    });
+
+    infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
   };
 
-  return {
+  const tools = {
     pageUp,
     scrapItems,
     saveSession,
@@ -120,6 +130,26 @@ const Scraper = async (
     },
     forceEnd: (abrupt = true) => end(abrupt),
     store,
+    hooks: {
+      nextPage,
+      postItem,
+      ...hooks,
+    },
+  };
+
+  return async <R, T extends (scraper: typeof tools) => Promise<R>>(
+    callback: T,
+  ): Promise<void> => {
+    const result = await setGlobalTimeout(async () => {
+      await $$a(() => page.goto(url!));
+      await callback(tools);
+      end(false);
+    });
+
+    if (result === "ABRUPT_ENDING") {
+      error(Error(t("session.error.global_timeout")), true);
+      saveSessionOnError && (await saveSession());
+    }
   };
 };
 

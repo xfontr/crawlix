@@ -11,13 +11,16 @@
   "session": {
     "init": "Starting a new session",
     "end": "Session ended",
+    "saved": "Session successfully saved",
     "warning": {
       "not_initialized": "[DEV] Tried to end an inactive session",
       "invalid_env_config": "[DEV] Error while parsing environment variables. If allowed, default values will be applied for the failed variables. Recommended action: look for spelling errors and check the type of each variable"
     },
     "error": {
       "initialized": "[DEV] The session as already been initiated",
-      "no_defaults": "The app cannot start without setting all the configuration variables. Please, check that all the required configs are being correctly passed"
+      "no_defaults": "The app cannot start without setting all the configuration variables. Please, check that all the required configs are being correctly passed",
+      "global_timeout": "Maximum timeout exceeded. Shutting the app down",
+      "not_saved": "Error while trying to save the session"
     }
   },
   "session_actions": {

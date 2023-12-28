@@ -18,3 +18,5 @@ export const MINIMUM_ITEMS_TO_SUCCESS_DEFAULT = 0.99;
 export const USAGE_DATA_DEFAULT = false;
 
 export const ALLOW_DEFAULT_CONFIGS_DEFAULT = true;
+
+export const SAVE_SESSION_ON_ERROR = true;

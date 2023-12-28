@@ -22,7 +22,6 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.end(!abruptEnd);
 
     EventBus.emit("SESSION:ACTIVE", false);
-    EventBus.emit("SESSION:SAVE", store.current());
 
     EventBus.removeAllListeners();
 
@@ -58,6 +57,18 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     if (isCritical) end(true);
   };
 
+  const setGlobalTimeout = async <T>(
+    callback: () => Promise<T>,
+  ): Promise<T | "ABRUPT_ENDING"> =>
+    await Promise.race<T | "ABRUPT_ENDING">([
+      new Promise((resolve) =>
+        setTimeout(() => {
+          resolve("ABRUPT_ENDING");
+        }, store.current().globalTimeout),
+      ),
+      callback(),
+    ]);
+
   const session = {
     init,
     end,
@@ -69,6 +80,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       previousPage: store.previousPage,
       postItem: store.postItem,
     },
+    setGlobalTimeout,
   };
 
   return session;
