@@ -9,6 +9,7 @@ const mockWarning = jest.fn();
 const mockEmit = jest.fn();
 const mockOn = jest.fn();
 const mockUsageDataLogError = jest.fn();
+const mockDurationCalc = 0;
 
 jest.mock("../../logger", () => ({
   warningMessage: (...args: unknown[]) => mockWarning(...args),
@@ -26,6 +27,8 @@ jest.mock("../../utils/EventBus", () => ({
 jest.mock("../../utils/usageData", () => ({
   usageDataLogError: (...args: unknown[]) => mockUsageDataLogError(...args),
 }));
+
+jest.mock("../../utils/getTimeDifference", () => () => mockDurationCalc)
 
 jest.useFakeTimers();
 
@@ -69,7 +72,7 @@ describe("Given a SessionStore function", () => {
         ...mockSessionConfig,
         startDate: new Date().toString(),
         endDate: new Date().toString(),
-        duration: 0,
+        duration: mockDurationCalc,
         totalActions: 0,
         totalActionsJointLength: 0,
         errorLog: [],
@@ -455,7 +458,7 @@ describe("Given a SessionStore.logError function", () => {
         },
         isCritical: true,
         date: date.toString(),
-        moment: date.getTime() - new Date(current().startDate).getTime(),
+        moment: mockDurationCalc,
         location: {
           ...current().location,
           itemNumber: current().items.length,
@@ -529,7 +532,7 @@ describe("Given a SessionStore.logError function", () => {
         },
         isCritical: false,
         date: date.toString(),
-        moment: date.getTime() - new Date(current().startDate).getTime(),
+        moment: mockDurationCalc,
         location: {
           ...current().location,
           itemNumber: current().items.length,
@@ -559,30 +562,32 @@ describe("Given a SessionStore.postItem function", () => {
     const selector = "h3";
 
     test("Then it should post said item with its corresponding meta data", () => {
-      const expectedMeta: Pick<DefaultItem, "_meta"> = {
-        _meta: {
-          id: "random-uuid" as UUID,
-          itemNumber: 0,
-          page: mockSessionConfig.offset.page ?? 0,
-          posted: new Date().toString(),
-          selector,
-          isComplete: true,
-          errorLog: {},
-        },
-      };
-
       const {
         postItem,
         end: cleanUpEnd,
         current,
       } = SessionStore().init(mockSessionConfig);
 
+      const expectedMeta: Pick<DefaultItem, "_meta"> = {
+        _meta: {
+          id: "random-uuid" as UUID,
+          itemNumber: 0,
+          page: mockSessionConfig.offset.page ?? 0,
+          posted: new Date().toString(),
+          moment: mockDurationCalc,
+          selector,
+          isComplete: true,
+          errorLog: {},
+          url: current().history.at(-1)!,
+        },
+      };
+
       postItem(mockItem, {}, selector);
 
       const item = current().items[0];
 
       expect({ ...item, _meta: {} }).toStrictEqual(mockItem);
-      expect(item?._meta).toStrictEqual(expectedMeta._meta);
+      expect(item!._meta).toStrictEqual(expectedMeta._meta);
       expect(current().totalItems).toBe(1);
 
       cleanUpEnd();
