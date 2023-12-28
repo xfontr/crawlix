@@ -8,36 +8,21 @@ const usageDataFileName = "usage-data.json";
 
 export const usageDataLogError = (error?: SessionData["errorLog"][number]) => {
   if (process.env["NODE_ENV"] === "test" || !error) return;
-  
-  readFile(
-    resolve(__dirname, "../../", usageDataFileName),
-    {
-      encoding: "ascii",
-    },
-    (_error, usageData) => {
-      if (_error) {
-        warningMessage(t("usage_data.error"));
-        return;
-      }
 
-      const currentData = JSON.parse(usageData) as SessionData["errorLog"][];
+  const path = resolve(__dirname, "../../", usageDataFileName);
 
-      const newData = [...currentData, error];
+  readFile(path, { encoding: "ascii" }, (_error, usageData) => {
+    if (_error) return warningMessage(t("usage_data.error"));
 
-      writeFile(
-        resolve(__dirname, "../../", usageDataFileName),
-        JSON.stringify(newData),
-        (error) => {
-          if (!error) return;
-          warningMessage(t("usage_data.error"));
+    const currentData = JSON.parse(usageData) as SessionData["errorLog"][];
 
-          writeFile(
-            resolve(__dirname, "../../", usageDataFileName),
-            JSON.stringify(currentData),
-            () => undefined,
-          );
-        },
-      );
-    },
-  );
+    const newData = [...currentData, error];
+
+    writeFile(path, JSON.stringify(newData), (error) => {
+      if (!error) return;
+      warningMessage(t("usage_data.error"));
+
+      writeFile(path, JSON.stringify(currentData), () => undefined);
+    });
+  });
 };
