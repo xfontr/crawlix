@@ -15,11 +15,11 @@ interface SessionData<
   /**
    * @description Session start date
    */
-  startDate: Date;
+  startDate: string;
   /**
    * @description Session end date
    */
-  endDate: Date;
+  endDate: string;
   /**
    * @description Session length in ms
    */
@@ -54,9 +54,13 @@ interface SessionData<
    */
   errorLog: {
     /**
-     * Moment the error was caught at
+     * @description Date and time the error was caught at
      */
-    time: Date;
+    date: string;
+    /**
+     * @description Moment of the session where the error happened, counted in miliseconds
+     */
+    moment: number;
     /**
      * @description If critical, the app will break
      */

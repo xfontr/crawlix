@@ -38,7 +38,7 @@ describe("Given a SessionStore function", () => {
     test("Then it should return the current store value", () => {
       const expectedStore: Partial<SessionData> = {
         ...mockSessionConfig,
-        startDate: new Date(),
+        startDate: new Date().toString(),
         totalActions: 0,
         totalActionsJointLength: 0,
         errorLog: [],
@@ -67,8 +67,8 @@ describe("Given a SessionStore function", () => {
     test("It should return all the store data, updated with the end values", () => {
       const expectedStore: Partial<SessionData> = {
         ...mockSessionConfig,
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: new Date().toString(),
+        endDate: new Date().toString(),
         duration: 0,
         totalActions: 0,
         totalActionsJointLength: 0,
@@ -445,13 +445,17 @@ describe("Given a SessionStore.logError function", () => {
       } = SessionStore().init(mockSessionConfig);
 
       const error = new Error("test");
-      const expectedLog = {
+
+      const date = new Date();
+
+      const expectedLog: SessionData["errorLog"][number] = {
         error: {
           name: error.name,
           message: error.message,
         },
         isCritical: true,
-        time: new Date(),
+        date: date.toString(),
+        moment: date.getTime() - new Date(current().startDate).getTime(),
         location: {
           ...current().location,
           itemNumber: current().items.length,
@@ -517,13 +521,15 @@ describe("Given a SessionStore.logError function", () => {
       } = SessionStore().init(mockSessionConfig);
 
       const error = new Error("test");
-      const expectedLog = {
+      const date = new Date();
+      const expectedLog: SessionData["errorLog"][number] = {
         error: {
           name: error.name,
           message: error.message,
         },
         isCritical: false,
-        time: new Date(),
+        date: date.toString(),
+        moment: date.getTime() - new Date(current().startDate).getTime(),
         location: {
           ...current().location,
           itemNumber: current().items.length,
@@ -558,7 +564,7 @@ describe("Given a SessionStore.postItem function", () => {
           id: "random-uuid" as UUID,
           itemNumber: 0,
           page: mockSessionConfig.offset.page ?? 0,
-          posted: new Date(),
+          posted: new Date().toString(),
           selector,
           isComplete: true,
           errorLog: {},

@@ -7,6 +7,7 @@ import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
 import isItemComplete from "../utils/isItemComplete";
 import { usageDataLogError } from "../utils/usageData";
+import getTimeDifference from "../utils/getTimeDifference";
 
 let initialized = false;
 
@@ -32,8 +33,8 @@ const SessionStore = () => {
 
     store.session = {
       ...store.session,
-      endDate,
-      duration: endDate.getTime() - store.session.startDate!.getTime(),
+      endDate: endDate.toString(),
+      duration: getTimeDifference(store.session.startDate!, endDate),
       success,
       incompleteItems: store.session.items!.reduce(
         (total, { _meta: { isComplete } }) => total + (isComplete ? 0 : 1),
@@ -70,7 +71,7 @@ const SessionStore = () => {
 
     store.session = {
       ...store.session,
-      startDate: new Date(),
+      startDate: new Date().toString(),
       ...config,
       location: { ...config.offset } as Required<SessionConfig["offset"]>,
       history: [config.offset.url!],
@@ -120,13 +121,16 @@ const SessionStore = () => {
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {
+    const endDate = new Date();
+
     store.session.errorLog!.push({
       error: {
         name: error.name,
         message: error.message,
       },
       isCritical: !!isCritical,
-      time: new Date(),
+      date: endDate.toString(),
+      moment: getTimeDifference(store.session.startDate!, endDate),
       location: {
         ...store.session.location!,
         itemNumber: store.session.totalItems!,
@@ -151,10 +155,12 @@ const SessionStore = () => {
         id: randomUUID(),
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
-        posted: new Date(),
+        posted: new Date().toString(),
+        moment: getTimeDifference(store.session.startDate!),
         isComplete: isItemComplete(item),
         selector,
         errorLog,
+        url: current().history.at(-1)!,
       },
     });
 

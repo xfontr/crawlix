@@ -119,8 +119,9 @@ const Scraper = async (
     const result = await setGlobalTimeout(async (cleanUp) => {
       await $$a(() => page.goto(url!));
       await callback(tools);
-      cleanUp();
       end(false);
+      await saveAsJson();
+      cleanUp();
     });
 
     if (result === "ABRUPT_ENDING") {

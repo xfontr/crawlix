@@ -38,11 +38,15 @@ type DefaultItem<
       /**
        * @description Date when this item was scraped
        */
-      posted: Date;
+      posted: string;
       /**
        * @description Automatically assigned number, corresponding to the latest scraped item plus one
        */
       itemNumber: number;
+      /**
+       * @description Moment of the session where the item was posted, counted in miliseconds
+       */
+      moment: number;
       /**
        * @description Whether all the elements of this items were successfully scraped or not
        */
@@ -58,6 +62,10 @@ type DefaultItem<
        * }
        */
       errorLog: Record<string, Error | void>;
+      /**
+       * @description The URL where the item was obtained from
+       */
+      url: string;
     };
   };
 
