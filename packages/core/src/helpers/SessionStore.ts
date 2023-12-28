@@ -7,6 +7,8 @@ import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
 import isItemComplete from "../utils/isItemComplete";
 import { usageDataLogError } from "../utils/usageData";
+import getTimeDifference from "../utils/getTimeDifference";
+import deepClone from "clone-deep";
 
 let initialized = false;
 
@@ -32,8 +34,9 @@ const SessionStore = () => {
 
     store.session = {
       ...store.session,
-      endDate,
-      duration: endDate.getTime() - store.session.startDate!.getTime(),
+      endDate: endDate,
+      startDate: new Date(store.session.startDate!),
+      duration: getTimeDifference(store.session.startDate!, endDate),
       success,
       incompleteItems: store.session.items!.reduce(
         (total, { _meta: { isComplete } }) => total + (isComplete ? 0 : 1),
@@ -61,7 +64,7 @@ const SessionStore = () => {
     return current();
   };
 
-  const current = (): SessionData => store.session as SessionData;
+  const current = (): SessionData => deepClone(store.session) as SessionData;
 
   const init = (config: SessionConfig) => {
     if (initialized) {
@@ -120,13 +123,16 @@ const SessionStore = () => {
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {
+    const errorDate = new Date();
+
     store.session.errorLog!.push({
       error: {
         name: error.name,
         message: error.message,
       },
       isCritical: !!isCritical,
-      time: new Date(),
+      date: errorDate,
+      moment: getTimeDifference(store.session.startDate!, errorDate),
       location: {
         ...store.session.location!,
         itemNumber: store.session.totalItems!,
@@ -152,9 +158,11 @@ const SessionStore = () => {
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
         posted: new Date(),
+        moment: getTimeDifference(store.session.startDate!),
         isComplete: isItemComplete(item),
         selector,
         errorLog,
+        url: current().history.at(-1)!,
       },
     });
 

@@ -54,9 +54,13 @@ interface SessionData<
    */
   errorLog: {
     /**
-     * Moment the error was caught at
+     * @description Date and time the error was caught at
      */
-    time: Date;
+    date: Date;
+    /**
+     * @description Moment of the session where the error happened, counted in miliseconds
+     */
+    moment: number;
     /**
      * @description If critical, the app will break
      */

@@ -65,11 +65,12 @@ describe("Given a SessionStore function", () => {
 
   describe("When ended", () => {
     test("It should return all the store data, updated with the end values", () => {
+      const advancedTime = 10;
       const expectedStore: Partial<SessionData> = {
         ...mockSessionConfig,
         startDate: new Date(),
-        endDate: new Date(),
-        duration: 0,
+        endDate: new Date(new Date().getTime() + advancedTime),
+        duration: advancedTime,
         totalActions: 0,
         totalActionsJointLength: 0,
         errorLog: [],
@@ -83,6 +84,8 @@ describe("Given a SessionStore function", () => {
       };
 
       const { end } = SessionStore().init(mockSessionConfig);
+
+      jest.advanceTimersByTime(advancedTime);
 
       expect(end()).toStrictEqual(expectedStore);
     });
@@ -215,6 +218,30 @@ describe("Given a SessionStore function", () => {
       const { init, end: cleanUpEnd } = SessionStore();
 
       expect(() => init(mockSessionConfig)).not.toThrow();
+
+      cleanUpEnd();
+    });
+  });
+});
+
+describe("Given a SessionStore.current function", () => {
+  describe("When trying to alter its returned value", () => {
+    test("It should not alter the actual store values", () => {
+      const randomNumber = Math.floor(Math.random() * 1_000);
+      const randomString = "test" + Math.floor(Math.random() * 1_000).toString();
+
+      const { current, end: cleanUpEnd } =
+        SessionStore().init(mockSessionConfig);
+
+      const currentStore = current();
+
+      currentStore.limit.items = randomNumber;
+      currentStore.history.push(randomString);
+
+      const updatedCurrentStore = current();
+
+      expect(updatedCurrentStore.limit.items).not.toBe(randomNumber);
+      expect(updatedCurrentStore.limit.items).not.toBe(randomString);
 
       cleanUpEnd();
     });
@@ -438,20 +465,26 @@ describe("Given a SessionStore.previousPage function", () => {
 describe("Given a SessionStore.logError function", () => {
   describe("When called with a critical error", () => {
     test("Then it should register the error with the current session data", () => {
+      const advancedTime = 10;
+
       const {
         current,
         end: cleanUpEnd,
         logError,
       } = SessionStore().init(mockSessionConfig);
 
+      jest.advanceTimersByTime(advancedTime);
+
       const error = new Error("test");
-      const expectedLog = {
+
+      const expectedLog: SessionData["errorLog"][number] = {
         error: {
           name: error.name,
           message: error.message,
         },
         isCritical: true,
-        time: new Date(),
+        date: new Date(),
+        moment: advancedTime,
         location: {
           ...current().location,
           itemNumber: current().items.length,
@@ -517,13 +550,15 @@ describe("Given a SessionStore.logError function", () => {
       } = SessionStore().init(mockSessionConfig);
 
       const error = new Error("test");
-      const expectedLog = {
+      const date = new Date();
+      const expectedLog: SessionData["errorLog"][number] = {
         error: {
           name: error.name,
           message: error.message,
         },
         isCritical: false,
-        time: new Date(),
+        date: date,
+        moment: 0,
         location: {
           ...current().location,
           itemNumber: current().items.length,
@@ -545,7 +580,7 @@ describe("Given a SessionStore.postItem function", () => {
     const mockItem: Omit<DefaultItem, "_meta"> = {
       author: "tester",
       categories: ["one"],
-      posted: new Date(),
+      posted: new Date().toString(),
       title: "test",
       _meta: {},
     };
@@ -553,17 +588,7 @@ describe("Given a SessionStore.postItem function", () => {
     const selector = "h3";
 
     test("Then it should post said item with its corresponding meta data", () => {
-      const expectedMeta: Pick<DefaultItem, "_meta"> = {
-        _meta: {
-          id: "random-uuid" as UUID,
-          itemNumber: 0,
-          page: mockSessionConfig.offset.page ?? 0,
-          posted: new Date(),
-          selector,
-          isComplete: true,
-          errorLog: {},
-        },
-      };
+      const advancedTime = 10;
 
       const {
         postItem,
@@ -571,12 +596,28 @@ describe("Given a SessionStore.postItem function", () => {
         current,
       } = SessionStore().init(mockSessionConfig);
 
+      jest.advanceTimersByTime(advancedTime);
+
+      const expectedMeta: Pick<DefaultItem, "_meta"> = {
+        _meta: {
+          id: "random-uuid" as UUID,
+          itemNumber: 0,
+          page: mockSessionConfig.offset.page ?? 0,
+          posted: new Date(),
+          moment: advancedTime,
+          selector,
+          isComplete: true,
+          errorLog: {},
+          url: current().history.at(-1)!,
+        },
+      };
+
       postItem(mockItem, {}, selector);
 
       const item = current().items[0];
 
       expect({ ...item, _meta: {} }).toStrictEqual(mockItem);
-      expect(item?._meta).toStrictEqual(expectedMeta._meta);
+      expect(item!._meta).toStrictEqual(expectedMeta._meta);
       expect(current().totalItems).toBe(1);
 
       cleanUpEnd();

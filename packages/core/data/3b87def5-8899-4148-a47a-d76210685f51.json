@@ -1,0 +1,331 @@
+{
+  "_id": "3b87def5-8899-4148-a47a-d76210685f51",
+  "totalActions": 46,
+  "totalActionsJointLength": 160,
+  "items": [
+    {
+      "title": "Civilización Tipo I de Kardashev, en términos iushumanísticos",
+      "categories": "Teoría del Derecho",
+      "_meta": {
+        "id": "2fafa447-c1f2-4a7f-b9f0-b66d3e1e591a",
+        "itemNumber": 0,
+        "page": 1,
+        "posted": 1703781449265,
+        "moment": 2752,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "El Tribunal del Jurado: la sociedad en el Derecho",
+      "categories": "Varios",
+      "_meta": {
+        "id": "39fb2f21-fd42-486a-a040-d079bd436d6e",
+        "itemNumber": 1,
+        "page": 1,
+        "posted": 1703781449265,
+        "moment": 2752,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "Fecundación post mortem en Argentina",
+      "categories": "Derecho comparado",
+      "_meta": {
+        "id": "8bf96bd1-c0ef-4c03-a7d9-7e451dfcedc1",
+        "itemNumber": 2,
+        "page": 1,
+        "posted": 1703781449266,
+        "moment": 2753,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "¿Cómo desaprovechar una oportunidad? Modificación de la \"Ley del sí es sí\" por la reciente Ley Orgánica 4/23, de 27 de abril",
+      "categories": "Derecho penal",
+      "_meta": {
+        "id": "30600443-c596-4841-ac24-975f234c81c0",
+        "itemNumber": 3,
+        "page": 1,
+        "posted": 1703781449266,
+        "moment": 2753,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "Análisis del fallo “Pogonza”",
+      "categories": "Derecho comparado",
+      "_meta": {
+        "id": "9acf99a3-d500-4acb-8047-fe36991cd345",
+        "itemNumber": 4,
+        "page": 1,
+        "posted": 1703781449266,
+        "moment": 2753,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "Principios dialécticos del “historicismo” y del “determinismo” aplicables en materia jurídica",
+      "categories": "Teoría del Derecho",
+      "_meta": {
+        "id": "69e62acf-3f46-4780-9fbe-a1c59981dc46",
+        "itemNumber": 5,
+        "page": 1,
+        "posted": 1703781449266,
+        "moment": 2753,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "Diferencias entre los profesionales del derecho del sistema jurídico en España y Francia",
+      "categories": "Abogacía",
+      "_meta": {
+        "id": "1729af28-ca86-4ece-b4e0-a09fd6090a20",
+        "itemNumber": 6,
+        "page": 1,
+        "posted": 1703781449266,
+        "moment": 2753,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "Integración de los conceptos de cúmulo, grupo y campo normativos, y complementos",
+      "categories": "Teoría del Derecho",
+      "_meta": {
+        "id": "403577fc-dff4-4211-bf99-e20046732287",
+        "itemNumber": 7,
+        "page": 1,
+        "posted": 1703781449266,
+        "moment": 2753,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "La problemática del ruido en el derecho urbanístico chileno y comparado y los mecanismos jurídicos de resguardo y protección",
+      "categories": "Varios",
+      "_meta": {
+        "id": "573f7c4c-e0c7-4c3f-b0c3-2319c42a272a",
+        "itemNumber": 8,
+        "page": 1,
+        "posted": 1703781449266,
+        "moment": 2753,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "Análisis de las directivas 2019/770 y 2019/771. Defectos de conformidad",
+      "categories": "Derecho civil",
+      "_meta": {
+        "id": "661d85a7-a6ea-430b-8020-55e98134c3bd",
+        "itemNumber": 9,
+        "page": 1,
+        "posted": 1703781449266,
+        "moment": 2753,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones"
+      }
+    },
+    {
+      "title": "Cuestiones en torno a la denominada Ley del sí es sí",
+      "categories": "Derecho penal",
+      "_meta": {
+        "id": "1857217f-571f-426e-8077-00a34afead2b",
+        "itemNumber": 10,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "El arbitraje internacional en Italia",
+      "categories": "Derecho comparado",
+      "_meta": {
+        "id": "fddcd252-0f7c-420a-bb02-06b0a66b0a0e",
+        "itemNumber": 11,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "Accidentes de trabajo: teletrabajo",
+      "categories": "Derecho laboral",
+      "_meta": {
+        "id": "ebabf217-8ab5-4ee9-9201-f06b63bd98f3",
+        "itemNumber": 12,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "La reversión de las donaciones en el derecho sucesorio español",
+      "categories": "Varios",
+      "_meta": {
+        "id": "09bede8b-2017-4023-a108-695df32da7fb",
+        "itemNumber": 13,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "Los saberes tecnoproductivos tradicionales en la comunidad Castillo jagua-perché",
+      "categories": "Ensayos",
+      "_meta": {
+        "id": "591bcc66-0c2f-475f-8042-3b72ee7473cc",
+        "itemNumber": 14,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "Impago de pensiones y violencia económica",
+      "categories": "Derecho penal",
+      "_meta": {
+        "id": "0eb97274-0862-424d-a900-8057430fdd28",
+        "itemNumber": 15,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "Principios, normas, principios normativos",
+      "categories": "Teoría del Derecho",
+      "_meta": {
+        "id": "12abe9f2-c5f7-41cd-b444-c3637e1468b7",
+        "itemNumber": 16,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "El art. 765 del Código Civil y Comercial de la Nación (Argentina)",
+      "categories": "Derecho comparado",
+      "_meta": {
+        "id": "a21f10e0-dd8c-4bd2-9952-9367bc8a643d",
+        "itemNumber": 17,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "Arbitraje internacional en Colombia",
+      "categories": "Derecho civil",
+      "_meta": {
+        "id": "e84fac0a-29ed-4041-8d6f-5bb112b18a53",
+        "itemNumber": 18,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    },
+    {
+      "title": "Delito de sustracción de menores en la STS 1514/2022, 24 de abril de 2022",
+      "categories": "Derecho penal",
+      "_meta": {
+        "id": "1b534ae0-c1bd-41c2-8b0f-d9a5f555badc",
+        "itemNumber": 19,
+        "page": 2,
+        "posted": 1703781449867,
+        "moment": 3354,
+        "isComplete": true,
+        "selector": "",
+        "errorLog": {},
+        "url": "https://www.huellalegal.com/publicaciones/page/2/"
+      }
+    }
+  ],
+  "errorLog": [],
+  "totalItems": 20,
+  "success": true,
+  "startDate": 1703781446513,
+  "offset": { "url": "https://www.huellalegal.com/publicaciones", "page": 1 },
+  "limit": { "items": 150, "page": 0 },
+  "timeout": 3000,
+  "taskLength": 800,
+  "globalTimeout": 300000,
+  "minimumItemsToSuccess": 0.99,
+  "usageData": true,
+  "allowDefaultConfigs": true,
+  "saveSessionOnError": true,
+  "location": {
+    "url": "https://www.huellalegal.com/publicaciones/page/2/",
+    "page": 2
+  },
+  "history": [
+    "https://www.huellalegal.com/publicaciones",
+    "https://www.huellalegal.com/publicaciones/page/2/"
+  ],
+  "endDate": 1703781449867,
+  "duration": 3354,
+  "incompleteItems": 0
+}

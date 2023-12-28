@@ -44,6 +44,10 @@ type DefaultItem<
        */
       itemNumber: number;
       /**
+       * @description Moment of the session where the item was posted, counted in miliseconds
+       */
+      moment: number;
+      /**
        * @description Whether all the elements of this items were successfully scraped or not
        */
       isComplete: boolean;
@@ -58,6 +62,10 @@ type DefaultItem<
        * }
        */
       errorLog: Record<string, Error | void>;
+      /**
+       * @description The URL where the item was obtained from
+       */
+      url: string;
     };
   };
 
