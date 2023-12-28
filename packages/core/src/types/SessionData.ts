@@ -13,13 +13,13 @@ interface SessionData<
    */
   _id: UUID;
   /**
-   * @description Session start date in ms
+   * @description Session start date
    */
-  startDate: number;
+  startDate: Date;
   /**
-   * @description Session end date in ms
+   * @description Session end date
    */
-  endDate: number;
+  endDate: Date;
   /**
    * @description Session length in ms
    */
@@ -56,7 +56,7 @@ interface SessionData<
     /**
      * @description Date and time the error was caught at
      */
-    date: number;
+    date: Date;
     /**
      * @description Moment of the session where the error happened, counted in miliseconds
      */

@@ -34,7 +34,8 @@ const SessionStore = () => {
 
     store.session = {
       ...store.session,
-      endDate: endDate.getTime(),
+      endDate: endDate,
+      startDate: new Date(store.session.startDate!),
       duration: getTimeDifference(store.session.startDate!, endDate),
       success,
       incompleteItems: store.session.items!.reduce(
@@ -72,7 +73,7 @@ const SessionStore = () => {
 
     store.session = {
       ...store.session,
-      startDate: new Date().getTime(),
+      startDate: new Date(),
       ...config,
       location: { ...config.offset } as Required<SessionConfig["offset"]>,
       history: [config.offset.url!],
@@ -122,7 +123,7 @@ const SessionStore = () => {
   };
 
   const logError = (error: Error, isCritical?: boolean): void => {
-    const endDate = new Date();
+    const errorDate = new Date();
 
     store.session.errorLog!.push({
       error: {
@@ -130,8 +131,8 @@ const SessionStore = () => {
         message: error.message,
       },
       isCritical: !!isCritical,
-      date: endDate.getTime(),
-      moment: getTimeDifference(store.session.startDate!, endDate),
+      date: errorDate,
+      moment: getTimeDifference(store.session.startDate!, errorDate),
       location: {
         ...store.session.location!,
         itemNumber: store.session.totalItems!,
@@ -156,7 +157,7 @@ const SessionStore = () => {
         id: randomUUID(),
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
-        posted: new Date().getTime(),
+        posted: new Date(),
         moment: getTimeDifference(store.session.startDate!),
         isComplete: isItemComplete(item),
         selector,

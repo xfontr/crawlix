@@ -38,7 +38,7 @@ describe("Given a SessionStore function", () => {
     test("Then it should return the current store value", () => {
       const expectedStore: Partial<SessionData> = {
         ...mockSessionConfig,
-        startDate: new Date().getTime(),
+        startDate: new Date(),
         totalActions: 0,
         totalActionsJointLength: 0,
         errorLog: [],
@@ -68,8 +68,8 @@ describe("Given a SessionStore function", () => {
       const advancedTime = 10;
       const expectedStore: Partial<SessionData> = {
         ...mockSessionConfig,
-        startDate: new Date().getTime(),
-        endDate: new Date().getTime() + advancedTime,
+        startDate: new Date(),
+        endDate: new Date(new Date().getTime() + advancedTime),
         duration: advancedTime,
         totalActions: 0,
         totalActionsJointLength: 0,
@@ -483,7 +483,7 @@ describe("Given a SessionStore.logError function", () => {
           message: error.message,
         },
         isCritical: true,
-        date: new Date().getTime(),
+        date: new Date(),
         moment: advancedTime,
         location: {
           ...current().location,
@@ -557,7 +557,7 @@ describe("Given a SessionStore.logError function", () => {
           message: error.message,
         },
         isCritical: false,
-        date: date.getTime(),
+        date: date,
         moment: 0,
         location: {
           ...current().location,
@@ -603,7 +603,7 @@ describe("Given a SessionStore.postItem function", () => {
           id: "random-uuid" as UUID,
           itemNumber: 0,
           page: mockSessionConfig.offset.page ?? 0,
-          posted: new Date().getTime(),
+          posted: new Date(),
           moment: advancedTime,
           selector,
           isComplete: true,
