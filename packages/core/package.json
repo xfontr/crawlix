@@ -20,6 +20,7 @@
     "@personal/i18n": "workspace:*",
     "@personal/utils": "workspace:*",
     "clone-deep": "^4.0.1",
+    "nodemailer": "^6.9.7",
     "pino": "^8.16.2",
     "puppeteer": "^21.6.0"
   },
@@ -27,6 +28,7 @@
     "@types/clone-deep": "^4.0.4",
     "@types/jest": "^29.5.4",
     "@types/node": "^20.6.0",
+    "@types/nodemailer": "^6.4.14",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.7.0",
     "dotenv": "^16.3.1",

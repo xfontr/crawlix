@@ -12,7 +12,7 @@ import {
   TIMEOUT_DEFAULT,
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
-  SAVE_SESSION_ON_ERROR,
+  SAVE_SESSION_ON_ERROR_DEFAULT,
 } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
@@ -233,7 +233,7 @@ describe("Given a defaultSessionConfig function", () => {
         taskLength: TASK_LENGTH_DEFAULT,
         timeout: TIMEOUT_DEFAULT,
         usageData: USAGE_DATA_DEFAULT,
-        saveSessionOnError: SAVE_SESSION_ON_ERROR,
+        saveSessionOnError: SAVE_SESSION_ON_ERROR_DEFAULT,
       };
 
       const result = defaultSessionConfig(true);

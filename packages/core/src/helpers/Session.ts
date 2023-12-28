@@ -8,12 +8,15 @@ import SessionStore from "./SessionStore";
 import { tryCatch } from "@personal/utils";
 import { resolve } from "path";
 import ENVIRONMENT from "../configs/environment";
+// import Email from "./Email";
+import { SessionData } from "../..";
 
 let initialized = false;
 
 const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
+  // let sendEmail: ReturnType<typeof Email> | undefined = undefined;
 
   const end = (abruptEnd = false): void => {
     if (!initialized) return;
@@ -36,6 +39,11 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
     store.init(config);
 
+    // sendEmail = Email(
+    //   store.current().emailNotifications,
+    //   store.current().emailing,
+    // );
+
     EventBus.on("SESSION:ERROR", error);
     EventBus.emit("SESSION:ACTIVE", true);
     EventBus.on("SESSION:ACTIVE", (status: boolean) => {
@@ -55,7 +63,10 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.logError(error, isCritical);
     errorMessage(error.message);
 
-    if (isCritical) end(true);
+    if (isCritical) {
+      // sendEmail!("SCRAPER ERROR", error.message);
+      end(true);
+    }
   };
 
   /**
@@ -90,19 +101,21 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     ]);
   };
 
-  const saveAsJson = async (): Promise<void> => {
-    const dataPath = resolve(__dirname, "../../data");
+  const saveAsJson = async (route = "../../data"): Promise<void> => {
+    const dataPath = resolve(__dirname, route);
 
     const result = await tryCatch(async () => {
-      const dataDir = await readdir(dataPath);
-
-      if (ENVIRONMENT.nodeEnv === "dev" && dataDir[0]) {
-        await unlink(resolve(dataPath, dataDir[0]));
+      if (ENVIRONMENT.nodeEnv === "dev") {
+        const dataDir = await readdir(dataPath);
+        dataDir[0] && (await unlink(resolve(dataPath, dataDir[0])));
       }
 
       await writeFile(
         resolve(dataPath, `${store.current()._id}.json`),
-        JSON.stringify(store.current()),
+        JSON.stringify({
+          ...store.current(),
+          emailing: {},
+        } as SessionData),
       );
     });
 

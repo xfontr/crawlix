@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import Scraper from "./helpers/Scraper";
+import Email from "./helpers/Email";
 
 const ITEM_DATA = {
   title: ".ct-headline.landingH3",
@@ -14,7 +15,7 @@ void (async () => {
   );
 
   await run(
-    async ({ scrapItems, pageUp }) => {
+    async ({ scrapItems, pageUp, store }) => {
       await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
       await pageUp(
@@ -22,8 +23,11 @@ void (async () => {
       );
 
       await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+
+      const a = await Email(true, store().emailing)("haha", "hoho");
+      console.log({ a })
     },
   );
 
-  process.exit(0);
+  // process.exit(0);
 })();
