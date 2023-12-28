@@ -9,7 +9,7 @@ const ITEM_DATA = {
 void (async () => {
   const run = await Scraper(
     puppeteer,
-    { usageData: true, allowDefaultConfigs: true },
+    { usageData: true, allowDefaultConfigs: true, globalTimeout: 1 },
     ITEM_DATA,
   );
 
