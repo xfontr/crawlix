@@ -6,14 +6,20 @@ import EventBus from "../../utils/EventBus";
 import setConfig from "../../utils/setConfig";
 import Session from "../Session";
 
+jest.useFakeTimers();
+
 const mockInit = jest.fn();
 const mockEnd = jest.fn();
 const mockLogError = jest.fn();
 
+const mockGlobalTimeout = 10;
+
 jest.mock("../SessionStore", () => () => ({
   init: (config: SessionConfig) => mockInit(config),
   end: (...args: unknown[]) => mockEnd(...args),
-  current: () => ({}),
+  current: () => ({
+    globalTimeout: 10,
+  }),
   logError: (...args: unknown[]) => mockLogError(...args),
 }));
 
@@ -26,9 +32,19 @@ jest.mock("../../logger.ts", () => ({
   errorMessage: (message: string) => mockErrorMessage(message),
   warningMessage: (message: string) => {
     if (message === t("session.warning.invalid_env_config")) return;
-    mockWarningMessage(message)
+    mockWarningMessage(message);
   },
 }));
+
+const promiseFunction = async (timeout: number): Promise<true> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, timeout);
+
+    jest.advanceTimersByTime(timeout);
+  });
+};
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -108,18 +124,16 @@ describe("Given a Session.end function", () => {
   });
 
   describe("When called without the store being initiated", () => {
-    test("Then it should only send a warning message", () => {
+    test("Then it should do nothing", () => {
       Session(mockSessionConfig).end();
 
-      expect(mockWarningMessage).toHaveBeenCalledTimes(1);
-      expect(mockWarningMessage).toHaveBeenCalledWith(
-        t("session.warning.not_initialized"),
-      );
+      expect(mockEnd).not.toHaveBeenCalled();
+      expect(mockInfoMessage).not.toHaveBeenCalled();
     });
   });
 });
 
-describe("Given a session.error function", () => {
+describe("Given a Session.error function", () => {
   describe("When called with a critical error", () => {
     test("It should log it, end the session and send an error message", () => {
       const testError = new Error("error");
@@ -154,13 +168,52 @@ describe("Given a session.error function", () => {
 
   describe("When called with no error", () => {
     test("It should do nothing", () => {
-      const { error } = Session().init();
+      const { error, end: cleanUpEnd } = Session().init();
 
       error(undefined);
 
       expect(mockEnd).not.toHaveBeenCalled();
       expect(mockErrorMessage).not.toHaveBeenCalled();
       expect(mockLogError).not.toHaveBeenCalled();
+
+      cleanUpEnd();
     });
+  });
+});
+
+describe("Given a Session.setGlobalTimeout function", () => {
+  describe("When called with a promise function with a running time lower than the global timeout", () => {
+    test("Then it should complete said function", async () => {
+      const promiseTimeout = mockGlobalTimeout - 1;
+      const { setGlobalTimeout, end: cleanUpEnd } = Session(mockSessionConfig).init();
+
+      const response = await setGlobalTimeout(async (cleanUp) => {
+        const result = await promiseFunction(promiseTimeout);
+        cleanUp();
+        return result;
+      });
+
+      expect(response).toBe(true);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called with a promise function with a running time higher than the global timeout", () => {
+    test("Then it should log an error and resolve 'ABRUPT_ENDING'", async () => {
+      const promiseTimeout = mockGlobalTimeout + 1;
+      const { setGlobalTimeout } = Session(mockSessionConfig).init();
+
+      const response = await setGlobalTimeout(async (cleanUp) => {
+        const result = await promiseFunction(promiseTimeout);
+        cleanUp();
+        return result;
+      });
+
+      expect(response).toBe("ABRUPT_ENDING");
+      expect(mockLogError).toHaveBeenCalledWith(Error(t("session.error.global_timeout")), true);
+    });
+
+    // test("Then it should not complete the passed function", () => {});
   });
 });

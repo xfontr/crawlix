@@ -1,3 +1,4 @@
+import ENVIRONMENT from "../../configs/environment";
 import {
   GLOBAL_TIMEOUT_MAX,
   LIMIT_ITEMS_MAX,
@@ -11,6 +12,7 @@ import {
   TIMEOUT_DEFAULT,
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
+  SAVE_SESSION_ON_ERROR,
 } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
@@ -19,20 +21,20 @@ import setConfig, { defaultSessionConfig, setDefault } from "../setConfig";
 
 const mockWarn = jest.fn();
 
-/**
- * Source of this .env solution:
- * https://stackoverflow.com/questions/48033841/test-process-env-with-jest
- */
-const OLD_ENV = process.env;
+// /**
+//  * Source of this .env solution:
+//  * https://stackoverflow.com/questions/48033841/test-process-env-with-jest
+//  */
+// const OLD_ENV = process.env;
 
-beforeEach(() => {
-  jest.resetModules();
-  process.env = { ...OLD_ENV };
-});
+// beforeEach(() => {
+//   jest.resetModules();
+//   process.env = { ...OLD_ENV };
+// });
 
-afterAll(() => {
-  process.env = OLD_ENV;
-});
+// afterAll(() => {
+//   process.env = OLD_ENV;
+// });
 
 jest.mock("pino", () => () => ({
   warn: (message: string) => mockWarn(message),
@@ -203,16 +205,17 @@ describe("Given a setDefault.checkBoolean function", () => {
 
 describe("Given a defaultSessionConfig function", () => {
   describe("When called with no env variables set (or invalid ones)", () => {
-    process.env["SCRAPER_URL"] = undefined;
-    process.env["SCRAPER_OFFSET_PAGE"] = undefined;
-    process.env["SCRAPER_LIMIT_ITEMS"] = undefined;
-    process.env["SCRAPER_LIMIT_PAGE"] = undefined;
-    process.env["SCRAPER_TIMEOUT"] = undefined;
-    process.env["SCRAPER_TASK_LENGTH"] = undefined;
-    process.env["SCRAPER_GLOBAL_TIMEOUT"] = "aaa"; // Expects a number
-    process.env["SCRAPER_MINIMUM_ITEMS_TO_SUCCESS"] = undefined;
-    process.env["SCRAPER_USAGE_DATA"] = "999"; // Expects a boolean
-    process.env["SCRAPER_ALLOW_DEFAULT_CONFIGS"] = undefined;
+    ENVIRONMENT.baseUrl = undefined as unknown as string;
+    ENVIRONMENT.offsetPage = undefined;
+    ENVIRONMENT.limitItems = undefined;
+    ENVIRONMENT.limitPage = undefined;
+    ENVIRONMENT.timeout = undefined;
+    ENVIRONMENT.taskLength = undefined;
+    ENVIRONMENT.globalTimeout = "aaa"; // Expects a number;
+    ENVIRONMENT.minimumItemsToSuccess = undefined;
+    ENVIRONMENT.usageData = "999"; // Expects a boolean;
+    ENVIRONMENT.allowDefaultConfigs = undefined;
+    ENVIRONMENT.saveSessionOnError = undefined;
 
     test("Then it should set all the default values, if allowed", () => {
       const expectedDefaultConfig: SessionConfig = {
@@ -230,6 +233,7 @@ describe("Given a defaultSessionConfig function", () => {
         taskLength: TASK_LENGTH_DEFAULT,
         timeout: TIMEOUT_DEFAULT,
         usageData: USAGE_DATA_DEFAULT,
+        saveSessionOnError: SAVE_SESSION_ON_ERROR,
       };
 
       const result = defaultSessionConfig(true);

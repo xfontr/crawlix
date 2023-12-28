@@ -7,23 +7,25 @@ const ITEM_DATA = {
 };
 
 void (async () => {
-  const { pageUp, saveSession, scrapItems, forceEnd } = await Scraper(
+  const run = await Scraper(
     puppeteer,
-    { usageData: true, allowDefaultConfigs: false },
+    { usageData: true, allowDefaultConfigs: true },
     ITEM_DATA,
   );
 
-  await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+  await run(
+    async ({ scrapItems, pageUp, saveSession }) => {
+      await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
-  await pageUp(
-    "#_dynamic_list-2058-7323 > div.oxy-repeater-pages-wrap > div > a:nth-child(2)",
+      await pageUp(
+        "#_dynamic_list-2058-7323 > div.oxy-repeater-pages-wrap > div > a:nth-child(2)",
+      );
+
+      await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+
+      await saveSession();
+    },
   );
-
-  await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
-
-  forceEnd();
-
-  await saveSession();
 
   process.exit(0);
 })();

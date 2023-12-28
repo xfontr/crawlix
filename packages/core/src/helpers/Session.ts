@@ -1,5 +1,5 @@
 import t from "../i18n";
-import { errorMessage, infoMessage, warningMessage } from "../logger";
+import { errorMessage, infoMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
 import EventBus from "../utils/EventBus";
 import setConfig from "../utils/setConfig";
@@ -12,17 +12,13 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   const store = SessionStore();
 
   const end = (abruptEnd = false): void => {
-    if (!initialized) {
-      warningMessage(t("session.warning.not_initialized"));
-      return;
-    }
+    if (!initialized) return;
 
     initialized = false;
 
     store.end(!abruptEnd);
 
     EventBus.emit("SESSION:ACTIVE", false);
-    EventBus.emit("SESSION:SAVE", store.current());
 
     EventBus.removeAllListeners();
 
@@ -58,6 +54,38 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     if (isCritical) end(true);
   };
 
+  /**
+   *
+   * @param callback The function will pass a "cleanUp" parameter to the callback, so that the timer can be ended and avoid
+   * unexpected behaviours.
+   * @example
+   * await setGlobalTimeout((cleanUp) => {
+   *  // Actions
+   *  cleanUp();
+   * });
+   *
+   */
+  const setGlobalTimeout = async <T>(
+    callback: (cleanUp: () => void) => Promise<T>,
+  ): Promise<T | "ABRUPT_ENDING"> => {
+    let storedTimeout: NodeJS.Timeout | undefined = undefined;
+
+    const cleanUp = () => {
+      clearInterval(storedTimeout);
+    };
+
+    return await Promise.race<T | "ABRUPT_ENDING">([
+      new Promise(
+        (resolve) =>
+          (storedTimeout = setTimeout(() => {
+            error(Error(t("session.error.global_timeout")), true);
+            resolve("ABRUPT_ENDING");
+          }, store.current().globalTimeout)),
+      ),
+      callback(cleanUp),
+    ]);
+  };
+
   const session = {
     init,
     end,
@@ -69,6 +97,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       previousPage: store.previousPage,
       postItem: store.postItem,
     },
+    setGlobalTimeout,
   };
 
   return session;

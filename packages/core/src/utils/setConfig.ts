@@ -1,4 +1,4 @@
-import ENVIRONMENT from "../configs/environment";
+import env from "../configs/environment";
 import {
   GLOBAL_TIMEOUT_MAX,
   LIMIT_ITEMS_MAX,
@@ -13,23 +13,11 @@ import {
   MINIMUM_ITEMS_TO_SUCCESS_DEFAULT,
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
+  SAVE_SESSION_ON_ERROR,
 } from "../configs/session";
 import t from "../i18n";
 import { warningMessage } from "../logger";
 import SessionConfig from "../types/SessionConfig";
-
-const {
-  baseUrl,
-  globalTimeout,
-  limitItems,
-  limitPage,
-  minimumItemsToSuccess,
-  offsetPage,
-  taskLength,
-  timeout,
-  usageData,
-  allowDefaultConfigs,
-} = ENVIRONMENT;
 
 export const setDefault = (
   allowDefaults: boolean | "true" | "false" | undefined,
@@ -76,28 +64,32 @@ export const defaultSessionConfig = (
 ): SessionConfig => {
   const { $b, $n } = setDefault(
     defaultConfigs ??
-      (allowDefaultConfigs as boolean | "true" | "false" | undefined) ??
+      (env.allowDefaultConfigs as boolean | "true" | "false" | undefined) ??
       ALLOW_DEFAULT_CONFIGS_DEFAULT,
   );
 
   return {
     offset: {
-      url: baseUrl,
-      page: $n(offsetPage, 1),
+      url: env.baseUrl ?? "",
+      page: $n(env.offsetPage, 1),
     },
     limit: {
-      items: $n(limitItems, LIMIT_ITEMS_DEFAULT),
-      page: $n(limitPage, LIMIT_PAGES_DEFAULT),
+      items: $n(env.limitItems, LIMIT_ITEMS_DEFAULT),
+      page: $n(env.limitPage, LIMIT_PAGES_DEFAULT),
     },
-    timeout: $n(timeout, TIMEOUT_DEFAULT),
-    taskLength: $n(taskLength, TASK_LENGTH_DEFAULT),
-    globalTimeout: $n(globalTimeout, GLOBAL_TIMEOUT_DEFAULT),
+    timeout: $n(env.timeout, TIMEOUT_DEFAULT),
+    taskLength: $n(env.taskLength, TASK_LENGTH_DEFAULT),
+    globalTimeout: $n(env.globalTimeout, GLOBAL_TIMEOUT_DEFAULT),
     minimumItemsToSuccess: $n(
-      minimumItemsToSuccess,
+      env.minimumItemsToSuccess,
       MINIMUM_ITEMS_TO_SUCCESS_DEFAULT,
     ),
-    usageData: $b(usageData, USAGE_DATA_DEFAULT),
-    allowDefaultConfigs: $b(allowDefaultConfigs, ALLOW_DEFAULT_CONFIGS_DEFAULT),
+    usageData: $b(env.usageData, USAGE_DATA_DEFAULT),
+    allowDefaultConfigs: $b(
+      env.allowDefaultConfigs,
+      ALLOW_DEFAULT_CONFIGS_DEFAULT,
+    ),
+    saveSessionOnError: $b(env.saveSessionOnError, SAVE_SESSION_ON_ERROR),
   };
 };
 

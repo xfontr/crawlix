@@ -67,6 +67,11 @@ interface SessionConfig {
    * @default true
    */
   allowDefaultConfigs: boolean;
+  /**
+   * @description If true, will store the session store even if it ended abruptly
+   * @default true
+   */
+  saveSessionOnError: boolean;
 }
 
 export default SessionConfig;

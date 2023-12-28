@@ -12,6 +12,7 @@ const mockSessionConfig: SessionConfig = {
   minimumItemsToSuccess: 0.99,
   usageData: false,
   allowDefaultConfigs: true,
+  saveSessionOnError: true,
 };
 
 export default mockSessionConfig;
