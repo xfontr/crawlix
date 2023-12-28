@@ -19,10 +19,12 @@
   "dependencies": {
     "@personal/i18n": "workspace:*",
     "@personal/utils": "workspace:*",
+    "clone-deep": "^4.0.1",
     "pino": "^8.16.2",
     "puppeteer": "^21.6.0"
   },
   "devDependencies": {
+    "@types/clone-deep": "^4.0.4",
     "@types/jest": "^29.5.4",
     "@types/node": "^20.6.0",
     "@typescript-eslint/eslint-plugin": "^6.6.0",

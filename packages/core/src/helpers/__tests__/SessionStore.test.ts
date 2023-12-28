@@ -224,6 +224,30 @@ describe("Given a SessionStore function", () => {
   });
 });
 
+describe("Given a SessionStore.current function", () => {
+  describe("When trying to alter its returned value", () => {
+    test("It should not alter the actual store values", () => {
+      const randomNumber = Math.floor(Math.random() * 1_000);
+      const randomString = "test" + Math.floor(Math.random() * 1_000).toString();
+
+      const { current, end: cleanUpEnd } =
+        SessionStore().init(mockSessionConfig);
+
+      const currentStore = current();
+
+      currentStore.limit.items = randomNumber;
+      currentStore.history.push(randomString);
+
+      const updatedCurrentStore = current();
+
+      expect(updatedCurrentStore.limit.items).not.toBe(randomNumber);
+      expect(updatedCurrentStore.limit.items).not.toBe(randomString);
+
+      cleanUpEnd();
+    });
+  });
+});
+
 describe("Given a SessionStore.countAction function", () => {
   describe("When called with a speed of '1'", () => {
     test(`Then it should increase the total amount of actions by '1' and the time by '${mockSessionConfig.taskLength}'`, () => {
@@ -556,7 +580,7 @@ describe("Given a SessionStore.postItem function", () => {
     const mockItem: Omit<DefaultItem, "_meta"> = {
       author: "tester",
       categories: ["one"],
-      posted: new Date(),
+      posted: new Date().toString(),
       title: "test",
       _meta: {},
     };

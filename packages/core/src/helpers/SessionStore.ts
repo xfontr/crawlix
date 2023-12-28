@@ -8,6 +8,7 @@ import { warningMessage } from "../logger";
 import isItemComplete from "../utils/isItemComplete";
 import { usageDataLogError } from "../utils/usageData";
 import getTimeDifference from "../utils/getTimeDifference";
+import deepClone from "clone-deep";
 
 let initialized = false;
 
@@ -62,7 +63,7 @@ const SessionStore = () => {
     return current();
   };
 
-  const current = (): SessionData => store.session as SessionData;
+  const current = (): SessionData => deepClone(store.session) as SessionData;
 
   const init = (config: SessionConfig) => {
     if (initialized) {

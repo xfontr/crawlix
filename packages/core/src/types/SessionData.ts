@@ -13,11 +13,11 @@ interface SessionData<
    */
   _id: UUID;
   /**
-   * @description Session start date
+   * @description Session start date in ms
    */
   startDate: number;
   /**
-   * @description Session end date
+   * @description Session end date in ms
    */
   endDate: number;
   /**
