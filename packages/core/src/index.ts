@@ -9,12 +9,12 @@ const ITEM_DATA = {
 void (async () => {
   const run = await Scraper(
     puppeteer,
-    { usageData: true, allowDefaultConfigs: true },
+    { usageData: true, allowDefaultConfigs: true, globalTimeout: 1 },
     ITEM_DATA,
   );
 
   await run(
-    async ({ scrapItems, pageUp, saveSession }) => {
+    async ({ scrapItems, pageUp, saveAsJson }) => {
       await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
       await pageUp(
@@ -23,7 +23,7 @@ void (async () => {
 
       await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
-      await saveSession();
+      await saveAsJson();
     },
   );
 

@@ -27,8 +27,15 @@ export const usageDataLogError = (error?: SessionData["errorLog"][number]) => {
       writeFile(
         resolve(__dirname, "../../", usageDataFileName),
         JSON.stringify(newData),
-        () => {
+        (error) => {
+          if (!error) return;
           warningMessage(t("usage_data.error"));
+
+          writeFile(
+            resolve(__dirname, "../../", usageDataFileName),
+            JSON.stringify(currentData),
+            () => undefined,
+          );
         },
       );
     },

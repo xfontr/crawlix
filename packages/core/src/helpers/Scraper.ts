@@ -7,9 +7,7 @@ import {
 } from "../..";
 import t from "../i18n";
 import { infoMessage } from "../logger";
-import { readdir, unlink, writeFile } from "fs/promises";
-import { resolve } from "path";
-import { objectEntries, tryCatch } from "@personal/utils";
+import { objectEntries } from "@personal/utils";
 
 const Scraper = async (
   puppeteer: PuppeteerNode,
@@ -20,6 +18,7 @@ const Scraper = async (
     store,
     hooks: { nextPage, postItem, ...hooks },
     end,
+    saveAsJson,
     setGlobalTimeout,
   } = Session(baseConfig).init();
 
@@ -97,32 +96,10 @@ const Scraper = async (
     infoMessage(t("session_actions.page_up"));
   };
 
-  const saveSession = async (): Promise<void> => {
-    const dataPath = resolve(__dirname, "../../data");
-
-    const result = await tryCatch(async () => {
-      const dataDir = await readdir(dataPath);
-
-      await writeFile(
-        resolve(dataPath, `${Date.now()}.json`),
-        JSON.stringify(store()),
-      );
-
-      await Promise.all(
-        dataDir.map(
-          async (file, index, list) =>
-            index >= list.length - 3 ?? (await unlink(resolve(dataPath, file))),
-        ),
-      );
-    });
-
-    infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
-  };
-
   const tools = {
     pageUp,
     scrapItems,
-    saveSession,
+    saveAsJson,
     useAction: {
       $$a,
       $a,
@@ -147,7 +124,7 @@ const Scraper = async (
     });
 
     if (result === "ABRUPT_ENDING") {
-      saveSessionOnError && (await saveSession());
+      saveSessionOnError && (await saveAsJson());
     }
   };
 };

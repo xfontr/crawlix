@@ -1,9 +1,13 @@
+import { readdir, unlink, writeFile } from "fs/promises";
 import t from "../i18n";
 import { errorMessage, infoMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
 import EventBus from "../utils/EventBus";
 import setConfig from "../utils/setConfig";
 import SessionStore from "./SessionStore";
+import { tryCatch } from "@personal/utils";
+import { resolve } from "path";
+import ENVIRONMENT from "../configs/environment";
 
 let initialized = false;
 
@@ -86,6 +90,25 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     ]);
   };
 
+  const saveAsJson = async (): Promise<void> => {
+    const dataPath = resolve(__dirname, "../../data");
+
+    const result = await tryCatch(async () => {
+      const dataDir = await readdir(dataPath);
+
+      if (ENVIRONMENT.nodeEnv === "dev" && dataDir[0]) {
+        await unlink(resolve(dataPath, dataDir[0]));
+      }
+
+      await writeFile(
+        resolve(dataPath, `${store.current()._id}.json`),
+        JSON.stringify(store.current()),
+      );
+    });
+
+    infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
+  };
+
   const session = {
     init,
     end,
@@ -98,6 +121,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       postItem: store.postItem,
     },
     setGlobalTimeout,
+    saveAsJson,
   };
 
   return session;
