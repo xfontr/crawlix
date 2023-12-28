@@ -11,6 +11,7 @@ const mockSessionConfig: SessionConfig = {
   taskLength: 800,
   minimumItemsToSuccess: 0.99,
   usageData: false,
+  allowDefaultConfigs: true,
 };
 
 export default mockSessionConfig;
