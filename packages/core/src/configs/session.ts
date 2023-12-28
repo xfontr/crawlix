@@ -3,8 +3,8 @@ import type { SessionConfig as T } from "../..";
 export const LIMIT_ITEMS_DEFAULT: NonNullable<T["limit"]["items"]> = 150;
 export const LIMIT_ITEMS_MAX: NonNullable<T["limit"]["items"]> = 5_000;
 
-export const LIMIT_PAGES_DEFAULT: T["limit"]["page"] = 0;
-export const LIMIT_PAGES_MAX: T["limit"]["page"] = 400;
+export const LIMIT_PAGES_DEFAULT: NonNullable<T["limit"]["page"]> = 0;
+export const LIMIT_PAGES_MAX: NonNullable<T["limit"]["page"]> = 400;
 
 export const TIMEOUT_DEFAULT: T["timeout"] = 3 * 1_000;
 export const TIMEOUT_MAX: T["timeout"] = 30 * 1_000;

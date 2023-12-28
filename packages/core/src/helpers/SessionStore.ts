@@ -61,7 +61,7 @@ const SessionStore = () => {
     return current();
   };
 
-  const current = (): SessionData => ({ ...store.session }) as SessionData;
+  const current = (): SessionData => store.session as SessionData;
 
   const init = (config: SessionConfig) => {
     if (initialized) {
@@ -134,7 +134,8 @@ const SessionStore = () => {
       actionNumber: store.session.totalActions!,
     });
 
-    store.session.usageData && usageDataLogError(store.session.errorLog!.at(-1));
+    store.session.usageData &&
+      usageDataLogError(store.session.errorLog!.at(-1));
   };
 
   const postItem = <T = DefaultItem>(
