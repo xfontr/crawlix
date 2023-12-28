@@ -57,17 +57,36 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     if (isCritical) end(true);
   };
 
+  /**
+   *
+   * @param callback The function will pass a "cleanUp" parameter to the callback, so that the timer can be ended and avoid
+   * unexpected behaviours.
+   * @example
+   * await setGlobalTimeout((cleanUp) => {
+   *  // Actions
+   *  cleanUp();
+   * });
+   * 
+   */
   const setGlobalTimeout = async <T>(
-    callback: () => Promise<T>,
-  ): Promise<T | "ABRUPT_ENDING"> =>
-    await Promise.race<T | "ABRUPT_ENDING">([
-      new Promise((resolve) =>
-        setTimeout(() => {
-          resolve("ABRUPT_ENDING");
-        }, store.current().globalTimeout),
+    callback: (cleanUp: () => void) => Promise<T>,
+  ): Promise<T | "ABRUPT_ENDING"> => {
+    let storedTimeout: NodeJS.Timeout | undefined = undefined;
+
+    const cleanUp = () => {
+      clearInterval(storedTimeout);
+    }
+
+    return await Promise.race<T | "ABRUPT_ENDING">([
+      new Promise(
+        (resolve) =>
+          (storedTimeout = setTimeout(() => {
+            resolve("ABRUPT_ENDING");
+          }, store.current().globalTimeout)),
       ),
-      callback(),
+      callback(cleanUp),
     ]);
+  };
 
   const session = {
     init,

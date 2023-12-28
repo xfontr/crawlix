@@ -140,9 +140,10 @@ const Scraper = async (
   return async <R, T extends (scraper: typeof tools) => Promise<R>>(
     callback: T,
   ): Promise<void> => {
-    const result = await setGlobalTimeout(async () => {
+    const result = await setGlobalTimeout(async (cleanUp) => {
       await $$a(() => page.goto(url!));
       await callback(tools);
+      cleanUp();
       end(false);
     });
 
