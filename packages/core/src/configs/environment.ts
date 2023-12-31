@@ -12,7 +12,6 @@ const ENVIRONMENT = {
   allowDefaultConfigs: process.env["SCRAPER_ALLOW_DEFAULT_CONFIGS"],
   saveSessionOnError: process.env["SCRAPER_SAVE_ALWAYS"],
   email: {
-    enabled: process.env["SCRAPER_EMAIL_NOTIFICATIONS"],
     host: process.env["SCRAPER_EMAIL_HOST"],
     port: process.env["SCRAPER_EMAIL_PORT"],
     user: process.env["SCRAPER_EMAIL_USER"],

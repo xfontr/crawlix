@@ -21,21 +21,6 @@ import setConfig, { defaultSessionConfig, setDefault } from "../setConfig";
 
 const mockWarn = jest.fn();
 
-// /**
-//  * Source of this .env solution:
-//  * https://stackoverflow.com/questions/48033841/test-process-env-with-jest
-//  */
-// const OLD_ENV = process.env;
-
-// beforeEach(() => {
-//   jest.resetModules();
-//   process.env = { ...OLD_ENV };
-// });
-
-// afterAll(() => {
-//   process.env = OLD_ENV;
-// });
-
 jest.mock("pino", () => () => ({
   warn: (message: string) => mockWarn(message),
 }));
@@ -216,6 +201,11 @@ describe("Given a defaultSessionConfig function", () => {
     ENVIRONMENT.usageData = "999"; // Expects a boolean;
     ENVIRONMENT.allowDefaultConfigs = undefined;
     ENVIRONMENT.saveSessionOnError = undefined;
+    ENVIRONMENT.email.host = undefined;
+    ENVIRONMENT.email.password = undefined;
+    ENVIRONMENT.email.port = undefined;
+    ENVIRONMENT.email.receiverEmail = undefined;
+    ENVIRONMENT.email.user = undefined;
 
     test("Then it should set all the default values, if allowed", () => {
       const expectedDefaultConfig: SessionConfig = {

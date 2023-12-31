@@ -1,3 +1,4 @@
+import { objectValues } from "@personal/utils";
 import env from "../configs/environment";
 import {
   GLOBAL_TIMEOUT_MAX,
@@ -68,6 +69,14 @@ export const defaultSessionConfig = (
       ALLOW_DEFAULT_CONFIGS_DEFAULT,
   );
 
+  const emailing = {
+    password: env.email.password ?? "",
+    user: env.email.user ?? "",
+    host: env.email.host ?? "",
+    port: $n(env.email.port, 0),
+    receiverEmail: env.email.receiverEmail ?? "",
+  };
+
   return {
     offset: {
       url: env.baseUrl ?? "",
@@ -93,13 +102,7 @@ export const defaultSessionConfig = (
       env.saveSessionOnError,
       SAVE_SESSION_ON_ERROR_DEFAULT,
     ),
-    emailing: {
-      password: env.email.password ?? "",
-      user: env.email.user ?? "",
-      host: env.email.host ?? "",
-      port: $n(env.email.port, 0),
-      receiverEmail: env.email.receiverEmail ?? "",
-    },
+    ...(objectValues(emailing).filter((data) => !!data).length ? emailing : {}),
   };
 };
 
