@@ -117,8 +117,6 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   };
 
   const notify = async (contentType: EmailRequest) => {
-    if (!store.current().emailNotifications) return;
-
     const emailContent = EmailTemplates(store.current())[contentType]();
 
     if (!emailContent.sendIfEmpty && !emailContent.text) return;

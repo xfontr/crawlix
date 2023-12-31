@@ -4,6 +4,7 @@ import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
 import SessionData from "../../types/SessionData";
 import SessionStore from "../SessionStore";
 import DefaultItem from "../../types/DefaultItem";
+import { mockItemWithoutMeta } from "../../test-utils/mocks/mockItem";
 
 const mockWarning = jest.fn();
 const mockEmit = jest.fn();
@@ -228,7 +229,8 @@ describe("Given a SessionStore.current function", () => {
   describe("When trying to alter its returned value", () => {
     test("It should not alter the actual store values", () => {
       const randomNumber = Math.floor(Math.random() * 1_000);
-      const randomString = "test" + Math.floor(Math.random() * 1_000).toString();
+      const randomString =
+        "test" + Math.floor(Math.random() * 1_000).toString();
 
       const { current, end: cleanUpEnd } =
         SessionStore().init(mockSessionConfig);
@@ -577,14 +579,6 @@ describe("Given a SessionStore.logError function", () => {
 
 describe("Given a SessionStore.postItem function", () => {
   describe("When called with an item and a selector", () => {
-    const mockItem: Omit<DefaultItem, "_meta"> = {
-      author: "tester",
-      categories: ["one"],
-      posted: new Date().toString(),
-      title: "test",
-      _meta: {},
-    };
-
     const selector = "h3";
 
     test("Then it should post said item with its corresponding meta data", () => {
@@ -616,11 +610,11 @@ describe("Given a SessionStore.postItem function", () => {
         },
       };
 
-      postItem(mockItem, {}, selector);
+      postItem(mockItemWithoutMeta, {}, selector);
 
       const item = current().items[0];
 
-      expect({ ...item, _meta: {} }).toStrictEqual(mockItem);
+      expect({ ...item, _meta: {} }).toStrictEqual(mockItemWithoutMeta);
       expect(item!._meta).toStrictEqual(expectedMeta._meta);
       expect(current().totalItems).toBe(1);
 
@@ -634,7 +628,7 @@ describe("Given a SessionStore.postItem function", () => {
         current,
       } = SessionStore().init({ ...mockSessionConfig, limit: { items: 0 } });
 
-      postItem(mockItem, {}, selector);
+      postItem(mockItemWithoutMeta, {}, selector);
 
       expect(current().items).toHaveLength(0);
 
@@ -648,7 +642,7 @@ describe("Given a SessionStore.postItem function", () => {
         current,
       } = SessionStore().init({ ...mockSessionConfig, limit: { items: 1 } });
 
-      postItem(mockItem, {}, selector);
+      postItem(mockItemWithoutMeta, {}, selector);
 
       expect(current().totalItems).toBe(1);
       expect(mockEmit).toHaveBeenCalledWith("SESSION:ACTIVE", false);
@@ -679,7 +673,7 @@ describe("Given a SessionStore.postItem function", () => {
           current,
         } = SessionStore().init(mockSessionConfig);
 
-        postItem(mockItem, {});
+        postItem(mockItemWithoutMeta, {});
 
         expect(current().items[0]?._meta.selector).toBe("");
 

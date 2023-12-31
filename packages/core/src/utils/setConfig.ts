@@ -14,7 +14,6 @@ import {
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
   SAVE_SESSION_ON_ERROR_DEFAULT,
-  EMAIL_NOTIFICATIONS_DEFAULT,
 } from "../configs/session";
 import t from "../i18n";
 import { warningMessage } from "../logger";
@@ -94,7 +93,6 @@ export const defaultSessionConfig = (
       env.saveSessionOnError,
       SAVE_SESSION_ON_ERROR_DEFAULT,
     ),
-    emailNotifications: $b(env.email.enabled, EMAIL_NOTIFICATIONS_DEFAULT),
     emailing: {
       password: env.email.password ?? "",
       user: env.email.user ?? "",

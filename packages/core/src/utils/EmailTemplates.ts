@@ -7,7 +7,7 @@ const EmailTemplates = (
 ): Record<EmailRequest, () => EmailContent> => ({
   FULL_SESSION: () => ({
     subject: t("email.full_session"),
-    text: JSON.stringify(store.items),
+    text: JSON.stringify(store),
     sendIfEmpty: true,
   }),
   CRITICAL_ERROR: () => ({

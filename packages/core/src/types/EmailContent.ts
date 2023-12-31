@@ -13,7 +13,7 @@ export type EmailRequest =
 
 export interface EmailContent {
   subject: string;
-  text: string;
+  text: string | undefined;
   /**
    * @description If true, the email is sent even if it has no content.
    * @default false

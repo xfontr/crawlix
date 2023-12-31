@@ -185,7 +185,8 @@ describe("Given a Session.setGlobalTimeout function", () => {
   describe("When called with a promise function with a running time lower than the global timeout", () => {
     test("Then it should complete said function", async () => {
       const promiseTimeout = mockGlobalTimeout - 1;
-      const { setGlobalTimeout, end: cleanUpEnd } = Session(mockSessionConfig).init();
+      const { setGlobalTimeout, end: cleanUpEnd } =
+        Session(mockSessionConfig).init();
 
       const response = await setGlobalTimeout(async (cleanUp) => {
         const result = await promiseFunction(promiseTimeout);
@@ -211,9 +212,12 @@ describe("Given a Session.setGlobalTimeout function", () => {
       });
 
       expect(response).toBe("ABRUPT_ENDING");
-      expect(mockLogError).toHaveBeenCalledWith(Error(t("session.error.global_timeout")), true);
+      expect(mockLogError).toHaveBeenCalledWith(
+        Error(t("session.error.global_timeout")),
+        true,
+      );
     });
 
-    // test("Then it should not complete the passed function", () => {});
+    // test("Then it should not complete the passed function", () => {}); // TODO??? IDK WHAT THIS IS
   });
 });
