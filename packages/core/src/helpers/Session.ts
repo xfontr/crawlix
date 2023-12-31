@@ -8,12 +8,17 @@ import SessionStore from "./SessionStore";
 import { tryCatch } from "@personal/utils";
 import { resolve } from "path";
 import ENVIRONMENT from "../configs/environment";
+import Email from "./Email";
+import type { SessionData } from "../..";
+import { EmailRequest } from "../types/EmailContent";
+import EmailTemplates from "../utils/EmailTemplates";
 
 let initialized = false;
 
 const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
+  const sendEmail = Email(store.current().emailing);
 
   const end = (abruptEnd = false): void => {
     if (!initialized) return;
@@ -61,7 +66,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   /**
    *
    * @param callback The function will pass a "cleanUp" parameter to the callback, so that the timer can be ended and avoid
-   * unexpected behaviours.
+   * unexpected behaviors.
    * @example
    * await setGlobalTimeout((cleanUp) => {
    *  // Actions
@@ -90,23 +95,35 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     ]);
   };
 
-  const saveAsJson = async (): Promise<void> => {
-    const dataPath = resolve(__dirname, "../../data");
+  const saveAsJson = async (route = "../../data"): Promise<void> => {
+    const dataPath = resolve(__dirname, route);
 
     const result = await tryCatch(async () => {
-      const dataDir = await readdir(dataPath);
-
-      if (ENVIRONMENT.nodeEnv === "dev" && dataDir[0]) {
-        await unlink(resolve(dataPath, dataDir[0]));
+      if (ENVIRONMENT.nodeEnv === "dev") {
+        const dataDir = await readdir(dataPath);
+        dataDir[0] && (await unlink(resolve(dataPath, dataDir[0])));
       }
 
       await writeFile(
         resolve(dataPath, `${store.current()._id}.json`),
-        JSON.stringify(store.current()),
+        JSON.stringify({
+          ...store.current(),
+          emailing: {},
+        } as SessionData),
       );
     });
 
     infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
+  };
+
+  const notify = async (contentType: EmailRequest) => {
+    if (!store.current().emailNotifications) return;
+
+    const emailContent = EmailTemplates(store.current())[contentType]();
+
+    if (!emailContent.sendIfEmpty && !emailContent.text) return;
+
+    return await sendEmail(emailContent);
   };
 
   const session = {
@@ -122,6 +139,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     },
     setGlobalTimeout,
     saveAsJson,
+    notify,
   };
 
   return session;

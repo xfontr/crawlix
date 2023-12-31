@@ -1,6 +1,6 @@
 const ENVIRONMENT = {
-  nodeEnv: process.env["NODE_ENV"] ?? "",
-  baseUrl: process.env["SCRAPER_URL"] ?? "",
+  nodeEnv: process.env["NODE_ENV"] ?? "dev",
+  baseUrl: process.env["SCRAPER_URL"],
   offsetPage: process.env["SCRAPER_OFFSET_PAGE"],
   limitItems: process.env["SCRAPER_LIMIT_ITEMS"],
   limitPage: process.env["SCRAPER_LIMIT_PAGE"],
@@ -11,6 +11,14 @@ const ENVIRONMENT = {
   usageData: process.env["SCRAPER_USAGE_DATA"],
   allowDefaultConfigs: process.env["SCRAPER_ALLOW_DEFAULT_CONFIGS"],
   saveSessionOnError: process.env["SCRAPER_SAVE_ALWAYS"],
+  email: {
+    enabled: process.env["SCRAPER_EMAIL_NOTIFICATIONS"],
+    host: process.env["SCRAPER_EMAIL_HOST"],
+    port: process.env["SCRAPER_EMAIL_PORT"],
+    user: process.env["SCRAPER_EMAIL_USER"],
+    password: process.env["SCRAPER_EMAIL_PASSWORD"],
+    receiverEmail: process.env["SCRAPER_EMAIL_RECEIVER_EMAIL"],
+  },
 };
 
 export default ENVIRONMENT;

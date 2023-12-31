@@ -72,8 +72,6 @@ const example = async () => {
   await scrapItems();
 
   end();
-
-  console.log(store());
 };
 
 void (async () => {

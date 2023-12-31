@@ -589,12 +589,16 @@ describe("Given a SessionStore.postItem function", () => {
 
     test("Then it should post said item with its corresponding meta data", () => {
       const advancedTime = 10;
+      const itemUrl = "test";
 
       const {
         postItem,
         end: cleanUpEnd,
         current,
+        nextPage,
       } = SessionStore().init(mockSessionConfig);
+
+      nextPage(itemUrl);
 
       jest.advanceTimersByTime(advancedTime);
 
@@ -602,13 +606,13 @@ describe("Given a SessionStore.postItem function", () => {
         _meta: {
           id: "random-uuid" as UUID,
           itemNumber: 0,
-          page: mockSessionConfig.offset.page ?? 0,
+          page: mockSessionConfig.offset.page! + 1,
           posted: new Date(),
           moment: advancedTime,
           selector,
           isComplete: true,
           errorLog: {},
-          url: current().history.at(-1)!,
+          url: itemUrl,
         },
       };
 

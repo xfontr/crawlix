@@ -13,17 +13,15 @@ void (async () => {
     ITEM_DATA,
   );
 
-  await run(
-    async ({ scrapItems, pageUp }) => {
-      await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+  await run(async ({ scrapItems, pageUp }) => {
+    await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
-      await pageUp(
-        "#_dynamic_list-2058-7323 > div.oxy-repeater-pages-wrap > div > a:nth-child(2)",
-      );
+    await pageUp(
+      "#_dynamic_list-2058-7323 > div.oxy-repeater-pages-wrap > div > a:nth-child(2)",
+    );
 
-      await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
-    },
-  );
+    await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+  });
 
-  process.exit(0);
+  // process.exit(0);
 })();

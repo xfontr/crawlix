@@ -26,6 +26,17 @@
     "page_up": "Page increased",
     "package_complete": "Package of items scraped"
   },
+  "email": {
+    "auth": {
+      "fail": "Couldn't connect the email service. Verify the authentication data and check for any proxy blocking the connection",
+      "incomplete": "The authentication data provided is not sufficient to connect to the mailing service"
+    },
+    "full_session": "Last scraping session ended. Open to see the outcome",
+    "critical_error": "Las scraping session ended abruptly. Open to see the error",
+    "items": "Here are the items of your last scraping session",
+    "success": "Last scraping session ended successfully",
+    "failure": "Last scraping session ended abruptly"
+  },
   "usage_data": {
     "error": "[DEV]: Couldn't save the requested usage data"
   }
