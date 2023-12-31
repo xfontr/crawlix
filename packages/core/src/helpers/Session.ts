@@ -8,15 +8,17 @@ import SessionStore from "./SessionStore";
 import { tryCatch } from "@personal/utils";
 import { resolve } from "path";
 import ENVIRONMENT from "../configs/environment";
-// import Email from "./Email";
-import { SessionData } from "../..";
+import Email from "./Email";
+import type { SessionData } from "../..";
+import { EmailRequest } from "../types/EmailContent";
+import EmailTemplates from "../utils/EmailTemplates";
 
 let initialized = false;
 
 const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
-  // let sendEmail: ReturnType<typeof Email> | undefined = undefined;
+  const sendEmail = Email(store.current().emailing);
 
   const end = (abruptEnd = false): void => {
     if (!initialized) return;
@@ -39,11 +41,6 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
     store.init(config);
 
-    // sendEmail = Email(
-    //   store.current().emailNotifications,
-    //   store.current().emailing,
-    // );
-
     EventBus.on("SESSION:ERROR", error);
     EventBus.emit("SESSION:ACTIVE", true);
     EventBus.on("SESSION:ACTIVE", (status: boolean) => {
@@ -63,16 +60,13 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.logError(error, isCritical);
     errorMessage(error.message);
 
-    if (isCritical) {
-      // sendEmail!("SCRAPER ERROR", error.message);
-      end(true);
-    }
+    if (isCritical) end(true);
   };
 
   /**
    *
    * @param callback The function will pass a "cleanUp" parameter to the callback, so that the timer can be ended and avoid
-   * unexpected behaviours.
+   * unexpected behaviors.
    * @example
    * await setGlobalTimeout((cleanUp) => {
    *  // Actions
@@ -122,6 +116,16 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
   };
 
+  const notify = async (contentType: EmailRequest) => {
+    if (!store.current().emailNotifications) return;
+
+    const emailContent = EmailTemplates(store.current())[contentType]();
+
+    if (!emailContent.sendIfEmpty && !emailContent.text) return;
+
+    return await sendEmail(emailContent);
+  };
+
   const session = {
     init,
     end,
@@ -135,6 +139,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     },
     setGlobalTimeout,
     saveAsJson,
+    notify,
   };
 
   return session;
