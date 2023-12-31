@@ -1,11 +1,20 @@
 import { createTransport } from "nodemailer";
 import { SessionConfig } from "../..";
+import EmailContent from "../types/EmailContent";
+import { warningMessage } from "../logger";
+import t from "../i18n";
+import { objectValues } from "@personal/utils";
 
-const Email = (
-  isEnabled: boolean,
-  options: NonNullable<SessionConfig["emailing"]> | undefined,
-) => {
-  if (!isEnabled || !options) return () => undefined;
+const Email = (options: NonNullable<SessionConfig["emailing"]> | undefined) => {
+  if (!options) return () => undefined;
+
+  const optionsPassed = objectValues(options).filter((value) => !!value).length;
+  const incompleteAuthData = optionsPassed > 0 && optionsPassed < 5;
+
+  if (incompleteAuthData) {
+    warningMessage(t("email.auth.incomplete"));
+    return () => undefined;
+  }
 
   const transporter = createTransport({
     host: options.host,
@@ -14,40 +23,26 @@ const Email = (
       pass: options.password,
     },
     port: options.port,
-    // pool: true,
+    pool: true,
     secure: true,
     tls: {
       rejectUnauthorized: false,
     },
-  logger: true,
-  debug: true,
   });
 
-  // transporter.verify((error) => {
-  //   if (!error) return;
+  transporter.verify((error) => {
+    if (!error) return;
 
-  //   console.log("ERROR")
-  // });
+    warningMessage(t("email.auth.fail"));
+  });
 
-  return async (subject: string, text: string) => {
-    try {
-      const fuckme = await transporter.sendMail({
-        from: options.user,
-        to: options.receiverEmail,
-        subject,
-        text,
-      })
-
-      console.log("hi", fuckme)
-    } catch (error) {
-      console.log({error})
-    }
-
-    // , (error, info) => {
-    //   console.log("error", error)
-    //   console.log("info", info)
-    // });
-
+  return async ({ subject, text }: EmailContent) => {
+    await transporter.sendMail({
+      from: options.user,
+      to: options.receiverEmail,
+      subject,
+      text,
+    });
   };
 };
 
