@@ -9,7 +9,7 @@ const CreateError = (
     error = new Error(t("misc.unknown_error"));
   }
 
-  error.name = name ?? error.name ?? t("misc.unknown_error");
+  error.name = (name ?? error.name) || t("misc.unknown_error");
 
   Object.defineProperty(error, "publicMessage", {
     value:
