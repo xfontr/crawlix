@@ -9,4 +9,5 @@ export default EventBus as EventEmitter & {
     eventName: Events,
     ...args: Omit<Parameters<EventEmitter["emit"]>, 0>
   ) => boolean;
+  removeAllListeners: (eventName: Events) => void;
 };

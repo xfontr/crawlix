@@ -28,6 +28,7 @@ const mockSessionData: SessionData = {
     receiverEmail: "test@test.com",
     user: "user-test@test.com",
   },
+  logs: [],
 };
 
 export default mockSessionData;

@@ -159,11 +159,12 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     end,
     error,
     store: store.current,
-    hooks: {
+    storeHooks: {
       updateLocation: store.updateLocation,
       nextPage: store.nextPage,
       previousPage: store.previousPage,
       postItem: store.postItem,
+      logMessage: store.logMessage,
     },
     setGlobalTimeout,
     saveAsJson,

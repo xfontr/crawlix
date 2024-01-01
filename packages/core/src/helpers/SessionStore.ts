@@ -70,7 +70,7 @@ const SessionStore = () => {
 
   const current = (): SessionData => deepClone(store.session) as SessionData;
 
-  const logMessage = (message: string) => {
+  const logMessage = (message: string): void => {
     store.session.logs!.push(
       `[${getTimeDifference(store.session.startDate!)}] ${message}`,
     );
@@ -194,6 +194,7 @@ const SessionStore = () => {
     nextPage,
     previousPage,
     postItem,
+    logMessage,
   };
 
   return sessionStore;
