@@ -28,7 +28,7 @@ const Email = (
     },
     port: options.port,
     pool: true,
-    secure: ENVIRONMENT.nodeEnv === "test" ? false : true,
+    secure: ENVIRONMENT.nodeEnv !== "test",
     tls: {
       rejectUnauthorized: false,
     },

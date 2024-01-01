@@ -40,7 +40,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
     store.init(config);
 
-    sendEmail = Email(store.current()?.emailing);
+    sendEmail = Email(store.current().emailing);
 
     EventBus.on("SESSION:ERROR", error);
     EventBus.emit("SESSION:ACTIVE", true);
@@ -121,7 +121,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     contentType: EmailRequest,
   ): Promise<void | Error | object> => {
     const emailContent = EmailTemplates(store.current())[contentType]();
-    console.log(store.current());
+
     if (!emailContent.sendIfEmpty && !emailContent.text) return;
 
     const [result, emailError] = await sendEmail!(emailContent);
