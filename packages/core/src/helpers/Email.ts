@@ -1,20 +1,24 @@
-import { createTransport } from "nodemailer";
-import { SessionConfig } from "../..";
-import EmailContent from "../types/EmailContent";
+import { type SentMessageInfo, createTransport } from "nodemailer";
+import type { SessionConfig } from "../..";
+import type EmailContent from "../types/EmailContent";
 import { warningMessage } from "../logger";
 import t from "../i18n";
-import { objectValues } from "@personal/utils";
+import { objectValues, tryCatch } from "@personal/utils";
+import ENVIRONMENT from "../configs/environment";
 
-const Email = (options: NonNullable<SessionConfig["emailing"]> | undefined) => {
-  if (!options) return () => undefined;
+const Email = (
+  options?: NonNullable<SessionConfig["emailing"]> | undefined,
+) => {
+  if (!options) return () => [undefined, undefined];
 
   const optionsPassed = objectValues(options).filter((value) => !!value).length;
   const incompleteAuthData = optionsPassed > 0 && optionsPassed < 5;
 
-  if (incompleteAuthData) {
-    warningMessage(t("email.auth.incomplete"));
-    return () => undefined;
-  }
+  if (incompleteAuthData)
+    return () => {
+      warningMessage(t("email.auth.incomplete"));
+      return [undefined, Error(t("email.auth.incomplete"))];
+    };
 
   const transporter = createTransport({
     host: options.host,
@@ -24,26 +28,22 @@ const Email = (options: NonNullable<SessionConfig["emailing"]> | undefined) => {
     },
     port: options.port,
     pool: true,
-    secure: true,
+    secure: ENVIRONMENT.nodeEnv !== "test",
     tls: {
       rejectUnauthorized: false,
     },
   });
 
-  transporter.verify((error) => {
-    if (!error) return;
-
-    warningMessage(t("email.auth.fail"));
-  });
-
-  return async ({ subject, text }: EmailContent) => {
-    await transporter.sendMail({
+  return async ({
+    subject,
+    text,
+  }: EmailContent): Promise<[SentMessageInfo, void | Error]> =>
+    await tryCatch(transporter.sendMail.bind(transporter), {
       from: options.user,
       to: options.receiverEmail,
       subject,
       text,
     });
-  };
 };
 
 export default Email;

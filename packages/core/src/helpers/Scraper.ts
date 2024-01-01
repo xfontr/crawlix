@@ -20,6 +20,7 @@ const Scraper = async (
     end,
     saveAsJson,
     setGlobalTimeout,
+    notify,
   } = Session(baseConfig).init();
 
   const {
@@ -100,6 +101,7 @@ const Scraper = async (
     pageUp,
     scrapItems,
     saveAsJson,
+    notify,
     useAction: {
       $$a,
       $a,

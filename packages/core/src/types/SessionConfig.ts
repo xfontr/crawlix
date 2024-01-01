@@ -73,19 +73,17 @@ interface SessionConfig {
    */
   saveSessionOnError: boolean;
   /**
-   * @description Will try to send an email to the desired receiver with important session data
+   * @description Data required to send email notifications. Leave empty if "emailNotifications" is set as false
    */
-  emailNotifications: boolean;
-  /**
-   * @description Data required to send email notificacions. Leave empty if "emailNotifications" is set as false
-   */
-  emailing?: {
-    host: string;
-    port: number;
-    user: string;
-    password: string;
-    receiverEmail: string;
-  };
+  emailing:
+    | {
+        host?: string;
+        port?: number;
+        user?: string;
+        password?: string;
+        receiverEmail?: string;
+      }
+    | undefined;
 }
 
 export default SessionConfig;

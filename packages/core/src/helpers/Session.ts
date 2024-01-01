@@ -18,7 +18,7 @@ let initialized = false;
 const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
-  const sendEmail = Email(store.current().emailing);
+  let sendEmail: ReturnType<typeof Email> | undefined = undefined;
 
   const end = (abruptEnd = false): void => {
     if (!initialized) return;
@@ -28,7 +28,6 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.end(!abruptEnd);
 
     EventBus.emit("SESSION:ACTIVE", false);
-
     EventBus.removeAllListeners();
 
     infoMessage(t("session.end"));
@@ -40,6 +39,8 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     }
 
     store.init(config);
+
+    sendEmail = Email(store.current().emailing);
 
     EventBus.on("SESSION:ERROR", error);
     EventBus.emit("SESSION:ACTIVE", true);
@@ -116,14 +117,21 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
   };
 
-  const notify = async (contentType: EmailRequest) => {
-    if (!store.current().emailNotifications) return;
-
+  const notify = async (
+    contentType: EmailRequest,
+  ): Promise<void | Error | object> => {
     const emailContent = EmailTemplates(store.current())[contentType]();
 
     if (!emailContent.sendIfEmpty && !emailContent.text) return;
 
-    return await sendEmail(emailContent);
+    const [result, emailError] = await sendEmail!(emailContent);
+
+    if (emailError instanceof Error) {
+      error(emailError, false);
+      return emailError;
+    }
+
+    return result;
   };
 
   const session = {

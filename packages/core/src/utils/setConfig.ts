@@ -1,3 +1,4 @@
+import { objectValues } from "@personal/utils";
 import env from "../configs/environment";
 import {
   GLOBAL_TIMEOUT_MAX,
@@ -14,7 +15,6 @@ import {
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
   SAVE_SESSION_ON_ERROR_DEFAULT,
-  EMAIL_NOTIFICATIONS_DEFAULT,
 } from "../configs/session";
 import t from "../i18n";
 import { warningMessage } from "../logger";
@@ -94,7 +94,6 @@ export const defaultSessionConfig = (
       env.saveSessionOnError,
       SAVE_SESSION_ON_ERROR_DEFAULT,
     ),
-    emailNotifications: $b(env.email.enabled, EMAIL_NOTIFICATIONS_DEFAULT),
     emailing: {
       password: env.email.password ?? "",
       user: env.email.user ?? "",
@@ -111,9 +110,14 @@ const getMax = (max: number, fallback: number, value?: number): number =>
 export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => {
   const defaults = defaultSessionConfig(config?.allowDefaultConfigs);
 
+  const emailing = { ...defaults.emailing, ...config?.emailing };
+
   return {
-    ...defaults,
-    ...config,
+    ...{ ...defaults, emailing: undefined },
+    ...{ ...config, emailing: undefined },
+    ...(objectValues(emailing).filter((data) => !!data).length
+      ? { emailing }
+      : {}),
     offset: {
       ...defaults.offset,
       ...config?.offset,

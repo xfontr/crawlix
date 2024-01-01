@@ -1,5 +1,5 @@
 const ENVIRONMENT = {
-  nodeEnv: process.env["NODE_ENV"] ?? "dev",
+  nodeEnv: (process.env["NODE_ENV"] ?? "dev") as "test" | "dev" | "prod",
   baseUrl: process.env["SCRAPER_URL"],
   offsetPage: process.env["SCRAPER_OFFSET_PAGE"],
   limitItems: process.env["SCRAPER_LIMIT_ITEMS"],
@@ -12,12 +12,23 @@ const ENVIRONMENT = {
   allowDefaultConfigs: process.env["SCRAPER_ALLOW_DEFAULT_CONFIGS"],
   saveSessionOnError: process.env["SCRAPER_SAVE_ALWAYS"],
   email: {
-    enabled: process.env["SCRAPER_EMAIL_NOTIFICATIONS"],
     host: process.env["SCRAPER_EMAIL_HOST"],
     port: process.env["SCRAPER_EMAIL_PORT"],
     user: process.env["SCRAPER_EMAIL_USER"],
     password: process.env["SCRAPER_EMAIL_PASSWORD"],
     receiverEmail: process.env["SCRAPER_EMAIL_RECEIVER_EMAIL"],
+  },
+  /**
+   * @description DEV only territory :)
+   */
+  test: {
+    email: {
+      host: process.env["SCRAPER_TEST_EMAIL_HOST"] ?? "",
+      port: +(process.env["SCRAPER_TEST_EMAIL_PORT"] ?? 0),
+      user: process.env["SCRAPER_TEST_EMAIL_USER"] ?? "",
+      password: process.env["SCRAPER_TEST_EMAIL_PASSWORD"] ?? "",
+      receiverEmail: process.env["SCRAPER_TEST_EMAIL_RECEIVER_EMAIL"] ?? "",
+    },
   },
 };
 
