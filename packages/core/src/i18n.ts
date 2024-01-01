@@ -1,4 +1,5 @@
 import i18n from "@personal/i18n";
+import ENVIRONMENT from "./configs/environment";
 
 const { useI18n } = i18n({
   autoInit: true,
@@ -6,6 +7,7 @@ const { useI18n } = i18n({
   log: {
     enabled: false,
   },
+  locale: ENVIRONMENT.locale,
 });
 
 const t = useI18n();

@@ -1,0 +1,58 @@
+{
+  "error_index": {
+    "session": "TIEMPO DE SESIÓN AGOTADO",
+    "email": "SERVICIO DE CORREO ELECTRÓNICO",
+    "action": "ACCIÓN DE SCRAPER"
+  },
+  "session_store": {
+    "warning": {
+      "no_previous_page": "Intentó volver a una página anterior mientras estaba en la página 0"
+    },
+    "error": {
+      "initialized": "[DEV] La tienda de sesiones ya ha sido inicializada",
+      "not_initialized": "[DEV] La tienda de sesiones no ha sido inicializada"
+    }
+  },
+  "session": {
+    "init": "Iniciando una nueva sesión",
+    "end": "Sesión finalizada",
+    "saved": "Sesión guardada exitosamente",
+    "warning": {
+      "invalid_env_config": "[DEV] Error al analizar las variables de entorno. Si se permite, se aplicarán valores predeterminados para las variables que fallaron. Acción recomendada: buscar errores de ortografía y verificar el tipo de cada variable"
+    },
+    "error": {
+      "initialized": "[DEV] La sesión ya ha sido iniciada",
+      "no_defaults": "La aplicación no puede iniciarse sin configurar todas las variables de configuración. Por favor, verifique que todas las configuraciones requeridas se estén pasando correctamente",
+      "global_timeout": "Se ha superado el tiempo máximo de espera. Cerrando la aplicación",
+      "not_saved": "Error al intentar guardar la sesión"
+    }
+  },
+  "session_actions": {
+    "page_up": "Página aumentada",
+    "package_complete": "Paquete de elementos extraído",
+    "error": {
+      "default": "Error al ejecutar una acción de scraper"
+    },
+    "after_all": "Ejecutando los efectos posteriores a todo"
+  },
+  "email": {
+    "error": {
+      "incomplete": "Los datos de autenticación proporcionados no son suficientes para conectarse al servicio de correo",
+      "sending_failed": "Hubo un error al enviar el correo electrónico"
+    },
+    "success": "Correo electrónico enviado exitosamente",
+    "subject": {
+      "full_session": "La última sesión de scraping ha finalizado. Abra para ver el resultado",
+      "critical_error": "La última sesión de scraping ha finalizado abruptamente. Abra para ver el error",
+      "items": "Aquí están los elementos de su última sesión de scraping",
+      "success": "La última sesión de scraping ha finalizado con éxito",
+      "failure": "La última sesión de scraping ha finalizado abruptamente"
+    }
+  },
+  "usage_data": {
+    "error": "[DEV]: No se pudo guardar los datos de uso solicitados"
+  },
+  "misc": {
+    "unknown_error": "Error desconocido"
+  }
+}
