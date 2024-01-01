@@ -1,4 +1,9 @@
 {
+  "error_index": {
+    "session": "SESSION",
+    "email": "EMAIL_SERVICE",
+    "action": "SCRAPER_ACTION"
+  },
   "session_store": {
     "warning": {
       "no_previous_page": "Tried to go a previous page while at page 0"
@@ -24,12 +29,15 @@
   },
   "session_actions": {
     "page_up": "Page increased",
-    "package_complete": "Package of items scraped"
+    "package_complete": "Package of items scraped",
+    "error": {
+      "default": "Error while executing a scraper action"
+    }
   },
   "email": {
-    "auth": {
-      "fail": "Couldn't connect the email service. Verify the authentication data and check for any proxy blocking the connection",
-      "incomplete": "The authentication data provided is not sufficient to connect to the mailing service"
+    "error": {
+      "incomplete": "The authentication data provided is not sufficient to connect to the mailing service",
+      "sending_failed": "There was an error while sending the email"
     },
     "full_session": "Last scraping session ended. Open to see the outcome",
     "critical_error": "Las scraping session ended abruptly. Open to see the error",
@@ -39,5 +47,8 @@
   },
   "usage_data": {
     "error": "[DEV]: Couldn't save the requested usage data"
+  },
+  "misc": {
+    "unknown_error": "Unknown error"
   }
 }

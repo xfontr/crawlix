@@ -2,12 +2,15 @@ import { SessionData } from "../../..";
 import t from "../../i18n";
 import mockSessionData from "../../test-utils/mocks/mockSessionData";
 import EmailContent from "../../types/EmailContent";
+import CreateError from "../CreateError";
 import EmailTemplates from "../EmailTemplates";
 
 const mockError: SessionData["errorLog"][number] = {
   actionNumber: 1,
   date: new Date(),
-  error: Error("test"),
+  error: CreateError(Error("test"), {
+    publicMessage: "test",
+  }),
   isCritical: true,
   location: {
     itemNumber: 1,

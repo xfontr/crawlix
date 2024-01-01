@@ -5,6 +5,7 @@ import SessionData from "../../types/SessionData";
 import SessionStore from "../SessionStore";
 import DefaultItem from "../../types/DefaultItem";
 import { mockItemWithoutMeta } from "../../test-utils/mocks/mockItem";
+import CreateError from "../../utils/CreateError";
 
 const mockWarning = jest.fn();
 const mockEmit = jest.fn();
@@ -477,12 +478,13 @@ describe("Given a SessionStore.logError function", () => {
 
       jest.advanceTimersByTime(advancedTime);
 
-      const error = new Error("test");
+      const error = CreateError(Error("test"));
 
       const expectedLog: SessionData["errorLog"][number] = {
         error: {
           name: error.name,
           message: error.message,
+          publicMessage: error.message,
         },
         isCritical: true,
         date: new Date(),
@@ -508,8 +510,8 @@ describe("Given a SessionStore.logError function", () => {
         current,
       } = SessionStore().init({ ...mockSessionConfig, usageData: true });
 
-      const firstError = new Error("test");
-      const secondError = new Error("test 2");
+      const firstError = CreateError(new Error("test"));
+      const secondError = CreateError(new Error("test-2"));
 
       logError(firstError);
       logError(secondError);
@@ -533,7 +535,7 @@ describe("Given a SessionStore.logError function", () => {
         usageData: false,
       });
 
-      const error = new Error("test");
+      const error = CreateError(Error("test"));
 
       logError(error);
 
@@ -551,12 +553,13 @@ describe("Given a SessionStore.logError function", () => {
         logError,
       } = SessionStore().init(mockSessionConfig);
 
-      const error = new Error("test");
+      const error = CreateError(Error("test"));
       const date = new Date();
       const expectedLog: SessionData["errorLog"][number] = {
         error: {
           name: error.name,
           message: error.message,
+          publicMessage: error.message,
         },
         isCritical: false,
         date: date,

@@ -4,12 +4,6 @@ import ENVIRONMENT from "../../configs/environment";
 import t from "../../i18n";
 import SESTransport from "nodemailer/lib/ses-transport";
 
-const mockWarningMessage = jest.fn();
-
-jest.mock("../../logger.ts", () => ({
-  warningMessage: (...args: unknown[]) => mockWarningMessage(...args),
-}));
-
 describe("Given an Email function", () => {
   describe("When called with no options", () => {
     test("Then it should return an empty function", () => {
@@ -31,13 +25,10 @@ describe("Given an Email function", () => {
         receiverEmail: "",
       });
 
-      const expectedResponse = [undefined, Error(t("email.auth.incomplete"))];
+      const expectedResponse = [undefined, Error(t("email.error.incomplete"))];
 
       const response = await sendEmail({ subject: "", text: "" });
 
-      expect(mockWarningMessage).toHaveBeenCalledWith(
-        t("email.auth.incomplete"),
-      );
       expect(response).toStrictEqual(expectedResponse);
     });
   });

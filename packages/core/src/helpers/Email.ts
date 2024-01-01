@@ -1,10 +1,10 @@
 import { type SentMessageInfo, createTransport } from "nodemailer";
 import type { SessionConfig } from "../..";
 import type EmailContent from "../types/EmailContent";
-import { warningMessage } from "../logger";
 import t from "../i18n";
 import { objectValues, tryCatch } from "@personal/utils";
 import ENVIRONMENT from "../configs/environment";
+import CreateError from "../utils/CreateError";
 
 const Email = (
   options?: NonNullable<SessionConfig["emailing"]> | undefined,
@@ -16,8 +16,7 @@ const Email = (
 
   if (incompleteAuthData)
     return () => {
-      warningMessage(t("email.auth.incomplete"));
-      return [undefined, Error(t("email.auth.incomplete"))];
+      return [undefined, CreateError(Error(t("email.error.incomplete")))];
     };
 
   const transporter = createTransport({
@@ -37,13 +36,22 @@ const Email = (
   return async ({
     subject,
     text,
-  }: EmailContent): Promise<[SentMessageInfo, void | Error]> =>
-    await tryCatch(transporter.sendMail.bind(transporter), {
+  }: EmailContent): Promise<[SentMessageInfo, void | Error]> => {
+    const response = await tryCatch(transporter.sendMail.bind(transporter), {
       from: options.user,
       to: options.receiverEmail,
       subject,
       text,
     });
+
+    response[1] = response[1]
+      ? CreateError(response[1], {
+          publicMessage: t("email.error.sending_failed"),
+        })
+      : response[1];
+
+    return response;
+  };
 };
 
 export default Email;
