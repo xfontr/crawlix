@@ -13,7 +13,7 @@ const CreateError = (
 
   Object.defineProperty(error, "publicMessage", {
     value:
-      publicMessage ?? (error as CustomError)?.publicMessage ?? error.message,
+      publicMessage ?? (error as CustomError).publicMessage ?? error.message,
   });
 
   return error as CustomError;
