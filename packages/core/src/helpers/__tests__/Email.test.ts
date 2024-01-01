@@ -4,6 +4,7 @@ import ENVIRONMENT from "../../configs/environment";
 import t from "../../i18n";
 import SESTransport from "nodemailer/lib/ses-transport";
 import CustomError from "../../types/CustomError";
+import CreateError from "../../utils/CreateError";
 
 describe("Given an Email function", () => {
   describe("When called with no options", () => {
@@ -26,11 +27,17 @@ describe("Given an Email function", () => {
         receiverEmail: "",
       });
 
-      const expectedResponse = [undefined, Error(t("email.error.incomplete"))];
+      const expectedResponse = [
+        undefined,
+        CreateError(Error(t("email.error.incomplete"))),
+      ];
 
       const response = await sendEmail({ subject: "", text: "" });
 
       expect(response).toStrictEqual(expectedResponse);
+      expect((response[1] as CustomError).publicMessage).toBe(
+        t("email.error.incomplete"),
+      );
     });
   });
 
