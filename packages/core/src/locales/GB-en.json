@@ -1,6 +1,8 @@
 {
   "error_index": {
-    "email": "EMAIL_SERVICE"
+    "session": "SESSION",
+    "email": "EMAIL_SERVICE",
+    "action": "SCRAPER_ACTION"
   },
   "session_store": {
     "warning": {
@@ -27,7 +29,10 @@
   },
   "session_actions": {
     "page_up": "Page increased",
-    "package_complete": "Package of items scraped"
+    "package_complete": "Package of items scraped",
+    "error": {
+      "default": "Error while executing a scraper action"
+    }
   },
   "email": {
     "error": {

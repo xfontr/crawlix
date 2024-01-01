@@ -10,10 +10,10 @@ import { resolve } from "path";
 import ENVIRONMENT from "../configs/environment";
 import Email from "./Email";
 import type { SessionData } from "../..";
-import { EmailRequest } from "../types/EmailContent";
+import { type EmailRequest } from "../types/EmailContent";
 import EmailTemplates from "../utils/EmailTemplates";
 import CreateError from "../utils/CreateError";
-import { CustomErrorProps } from "../types/CustomError";
+import { type CustomErrorProps } from "../types/CustomError";
 
 let initialized = false;
 
@@ -96,7 +96,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
         (resolve) =>
           (storedTimeout = setTimeout(() => {
             error(Error(t("session.error.global_timeout")), {
-              name: "TODO", // TODO
+              name: t("error_index.session"),
               isCritical: true,
             });
             resolve("ABRUPT_ENDING");
