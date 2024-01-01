@@ -87,6 +87,10 @@ interface SessionData<
    * @description Number of items which data was not fulfilled as expected
    */
   incompleteItems: number;
+  /**
+   * @description All the logs printed in the console during the session
+   */
+  logs: `[${number}] ${string}`[];
 }
 
 export default SessionData;

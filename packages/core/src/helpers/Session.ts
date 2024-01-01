@@ -30,7 +30,8 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.end(!abruptEnd);
 
     EventBus.emit("SESSION:ACTIVE", false);
-    EventBus.removeAllListeners();
+    EventBus.removeAllListeners("SESSION:ERROR");
+    EventBus.removeAllListeners("SESSION:ACTIVE");
 
     infoMessage(t("session.end"));
   };

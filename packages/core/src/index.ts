@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import Scraper from "./helpers/Scraper";
+import EventBus from "./utils/EventBus";
 
 const ITEM_DATA = {
   title: ".ct-headline.landingH3",
@@ -26,6 +27,8 @@ void (async () => {
   await afterAll(async ({ saveAsJson }) => {
     await saveAsJson();
   });
+
+  EventBus.removeAllListeners("SESSION:LOG");
 
   process.exit(0);
 })();

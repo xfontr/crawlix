@@ -23,6 +23,7 @@ const SessionStore = () => {
       errorLog: [],
       totalItems: 0,
       success: true,
+      logs: [],
     } as Partial<SessionData>,
   };
 
@@ -30,6 +31,8 @@ const SessionStore = () => {
     if (!initialized) {
       throw new Error(t("session_store.error.not_initialized"));
     }
+
+    EventBus.removeAllListeners("ACTION:COUNT");
 
     const endDate = new Date();
 
@@ -67,6 +70,12 @@ const SessionStore = () => {
 
   const current = (): SessionData => deepClone(store.session) as SessionData;
 
+  const logMessage = (message: string) => {
+    store.session.logs!.push(
+      `[${getTimeDifference(store.session.startDate!)}] ${message}`,
+    );
+  };
+
   const init = (config: SessionConfig) => {
     if (initialized) {
       throw new Error(t("session_store.error.initialized"));
@@ -81,6 +90,7 @@ const SessionStore = () => {
     };
 
     EventBus.on("ACTION:COUNT", countAction);
+    EventBus.on("SESSION:LOG", logMessage);
 
     initialized = true;
 
