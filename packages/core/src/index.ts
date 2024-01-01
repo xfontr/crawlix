@@ -13,7 +13,7 @@ void (async () => {
     ITEM_DATA,
   );
 
-  await run(async ({ scrapItems, pageUp }) => {
+  await run(async ({ scrapItems, pageUp, notify }) => {
     await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
     await pageUp(
@@ -21,6 +21,8 @@ void (async () => {
     );
 
     await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+
+    await notify("FULL_SESSION");
   });
 
   // process.exit(0);

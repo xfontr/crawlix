@@ -18,7 +18,8 @@ let initialized = false;
 const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
-  const sendEmail = Email(store.current().emailing);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let sendEmail: any = undefined;
 
   const end = (abruptEnd = false): void => {
     if (!initialized) return;
@@ -40,6 +41,8 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     }
 
     store.init(config);
+
+    sendEmail = Email(store.current().emailing);
 
     EventBus.on("SESSION:ERROR", error);
     EventBus.emit("SESSION:ACTIVE", true);

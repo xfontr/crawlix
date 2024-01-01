@@ -102,7 +102,9 @@ export const defaultSessionConfig = (
       env.saveSessionOnError,
       SAVE_SESSION_ON_ERROR_DEFAULT,
     ),
-    ...(objectValues(emailing).filter((data) => !!data).length ? emailing : {}),
+    ...(objectValues(emailing).filter((data) => !!data).length
+      ? { emailing }
+      : {}),
   };
 };
 
