@@ -1,7 +1,10 @@
+import { SessionData } from "../../..";
 import { LIMIT_ITEMS_MAX } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
+import mockSessionData from "../../test-utils/mocks/mockSessionData";
 import SessionConfig from "../../types/SessionConfig";
+import EmailTemplates from "../../utils/EmailTemplates";
 import EventBus from "../../utils/EventBus";
 import setConfig from "../../utils/setConfig";
 import Session from "../Session";
@@ -14,12 +17,16 @@ const mockLogError = jest.fn();
 
 const mockGlobalTimeout = 10;
 
+const mockCurrent = jest.fn().mockReturnValue({
+  globalTimeout: 10,
+  emailing: mockSessionConfig.emailing,
+  errorLog: [],
+});
+
 jest.mock("../SessionStore", () => () => ({
   init: (config: SessionConfig) => mockInit(config),
   end: (...args: unknown[]) => mockEnd(...args),
-  current: () => ({
-    globalTimeout: 10,
-  }),
+  current: () => mockCurrent(),
   logError: (...args: unknown[]) => mockLogError(...args),
 }));
 
@@ -36,6 +43,10 @@ jest.mock("../../logger.ts", () => ({
   },
 }));
 
+const mockSendEmail = jest.fn();
+
+jest.mock("../Email", () => () => mockSendEmail);
+
 const promiseFunction = async (timeout: number): Promise<true> => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -49,6 +60,11 @@ const promiseFunction = async (timeout: number): Promise<true> => {
 beforeEach(() => {
   jest.resetAllMocks();
   jest.clearAllMocks();
+  mockCurrent.mockReturnValue({
+    globalTimeout: 10,
+    emailing: mockSessionConfig.emailing,
+    errorLog: [],
+  });
 });
 
 describe("Given a Session.init function", () => {
@@ -219,5 +235,76 @@ describe("Given a Session.setGlobalTimeout function", () => {
     });
 
     // test("Then it should not complete the passed function", () => {}); // TODO??? IDK WHAT THIS IS
+  });
+});
+
+describe("Given a Session.notify function", () => {
+  describe("When called with a contentType of 'CRITICAL_ERROR'", () => {
+    const mockCurrentWithError = {
+      emailing: mockSessionConfig.emailing,
+      errorLog: [
+        {
+          isCritical: true,
+        },
+      ],
+    };
+
+    test("Then it should do nothing if there are no errors", async () => {
+      const { notify, end: cleanUpEnd } = Session({
+        emailing: mockSessionData.emailing,
+      }).init();
+
+      const response = await notify("CRITICAL_ERROR");
+
+      expect(response).toBeUndefined();
+
+      cleanUpEnd();
+    });
+
+    test("Then it should try to send an email if there is a critical error", async () => {
+      const expectedResponse = {
+        ok: "ok", // The content doesn't matter
+      };
+
+      mockSendEmail.mockResolvedValue([expectedResponse, undefined]);
+      mockCurrent.mockReturnValue(mockCurrentWithError);
+
+      const { notify, end: cleanUpEnd } = Session({
+        emailing: mockSessionData.emailing,
+      }).init();
+
+      const response = await notify("CRITICAL_ERROR");
+
+      expect(mockSendEmail).toHaveBeenCalledWith(
+        EmailTemplates(
+          mockCurrentWithError as unknown as SessionData,
+        ).CRITICAL_ERROR(),
+      );
+      expect(response).toStrictEqual(expectedResponse);
+
+      cleanUpEnd();
+    });
+
+    test("Then it should log and return an error if the email sending failed", async () => {
+      const expectedError = Error("test");
+
+      mockSendEmail.mockResolvedValue([undefined, expectedError]);
+      mockCurrent.mockReturnValue(mockCurrentWithError);
+
+      const { notify, end: cleanUpEnd } = Session({
+        emailing: mockSessionData.emailing,
+      }).init();
+
+      const response = await notify("CRITICAL_ERROR");
+
+      expect(mockSendEmail).toHaveBeenCalledWith(
+        EmailTemplates(
+          mockCurrentWithError as unknown as SessionData,
+        ).CRITICAL_ERROR(),
+      );
+      expect(response).toStrictEqual(expectedError);
+
+      cleanUpEnd();
+    });
   });
 });
