@@ -20,5 +20,3 @@ export const MINIMUM_ITEMS_TO_SUCCESS_DEFAULT: T["minimumItemsToSuccess"] = 0.99
 export const USAGE_DATA_DEFAULT: T["usageData"] = false;
 
 export const ALLOW_DEFAULT_CONFIGS_DEFAULT: T["allowDefaultConfigs"] = true;
-
-export const SAVE_SESSION_ON_ERROR_DEFAULT: T["saveSessionOnError"] = true;

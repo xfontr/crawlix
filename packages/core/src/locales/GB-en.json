@@ -1,8 +1,8 @@
 {
   "error_index": {
-    "session": "SESSION",
-    "email": "EMAIL_SERVICE",
-    "action": "SCRAPER_ACTION"
+    "session": "SESSION TIMEOUT",
+    "email": "EMAIL SERVICE",
+    "action": "SCRAPER ACTION"
   },
   "session_store": {
     "warning": {
@@ -32,7 +32,8 @@
     "package_complete": "Package of items scraped",
     "error": {
       "default": "Error while executing a scraper action"
-    }
+    },
+    "after_all": "Running the after all effects"
   },
   "email": {
     "error": {
@@ -42,7 +43,7 @@
     "success": "Email sent successfully",
     "subject": {
       "full_session": "Last scraping session ended. Open to see the outcome",
-      "critical_error": "Las scraping session ended abruptly. Open to see the error",
+      "critical_error": "Last scraping session ended abruptly. Open to see the error",
       "items": "Here are the items of your last scraping session",
       "success": "Last scraping session ended successfully",
       "failure": "Last scraping session ended abruptly"

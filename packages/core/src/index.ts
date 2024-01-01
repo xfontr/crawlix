@@ -7,13 +7,13 @@ const ITEM_DATA = {
 };
 
 void (async () => {
-  const run = await Scraper(
+  const { run, afterAll } = await Scraper(
     puppeteer,
     { usageData: true, allowDefaultConfigs: true },
     ITEM_DATA,
   );
 
-  await run(async ({ scrapItems, pageUp, notify }) => {
+  await run(async ({ scrapItems, pageUp }) => {
     await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
 
     await pageUp(
@@ -21,8 +21,10 @@ void (async () => {
     );
 
     await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+  });
 
-    await notify("FULL_SESSION");
+  await afterAll(async ({ saveAsJson }) => {
+    await saveAsJson();
   });
 
   process.exit(0);
