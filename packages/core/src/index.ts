@@ -25,5 +25,5 @@ void (async () => {
     await notify("FULL_SESSION");
   });
 
-  // process.exit(0);
+  process.exit(0);
 })();

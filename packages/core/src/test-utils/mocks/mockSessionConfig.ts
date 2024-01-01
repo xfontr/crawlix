@@ -13,6 +13,7 @@ const mockSessionConfig: SessionConfig = {
   usageData: false,
   allowDefaultConfigs: true,
   saveSessionOnError: true,
+  emailing: undefined,
 };
 
 export default mockSessionConfig;

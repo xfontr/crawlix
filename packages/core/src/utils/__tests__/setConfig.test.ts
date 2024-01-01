@@ -79,7 +79,34 @@ describe("Given a setConfig function", () => {
           ...defaultSessionConfig().offset,
           ...passedSessionConfig.offset,
         },
+        emailing: undefined,
       });
+    });
+  });
+
+  describe("When called with at least one emailing config variable", () => {
+    test("Then it should set an 'emailing' attribute with only said variable", () => {
+      const emailUser = "test@test.com";
+
+      const expectedEmailingConfig: SessionConfig["emailing"] = {
+        host: "",
+        password: "",
+        port: 0,
+        receiverEmail: "",
+        user: emailUser,
+      };
+
+      const { emailing } = setConfig({ emailing: { user: emailUser } });
+
+      expect(emailing).toStrictEqual(expectedEmailingConfig);
+    });
+  });
+
+  describe("When called with no emailing variables", () => {
+    test("Then it should set an empty 'emailing' attribute", () => {
+      const { emailing } = setConfig();
+
+      expect(emailing).toBeUndefined();
     });
   });
 });
@@ -224,6 +251,13 @@ describe("Given a defaultSessionConfig function", () => {
         timeout: TIMEOUT_DEFAULT,
         usageData: USAGE_DATA_DEFAULT,
         saveSessionOnError: SAVE_SESSION_ON_ERROR_DEFAULT,
+        emailing: {
+          host: "",
+          password: "",
+          port: 0,
+          receiverEmail: "",
+          user: "",
+        },
       };
 
       const result = defaultSessionConfig(true);
@@ -251,6 +285,56 @@ describe("Given a defaultSessionConfig function", () => {
           Error(t("session.error.no_defaults")),
         );
       }
+    });
+  });
+
+  describe("When called with all valid env variables", () => {
+    test("Then it should set all of them in the right format", () => {
+      ENVIRONMENT.baseUrl = "www.test.com";
+      ENVIRONMENT.offsetPage = "1";
+      ENVIRONMENT.limitItems = "100";
+      ENVIRONMENT.limitPage = "20";
+      ENVIRONMENT.timeout = "9000";
+      ENVIRONMENT.taskLength = "100";
+      ENVIRONMENT.globalTimeout = "100";
+      ENVIRONMENT.minimumItemsToSuccess = "0.6";
+      ENVIRONMENT.usageData = "true";
+      ENVIRONMENT.allowDefaultConfigs = "true";
+      ENVIRONMENT.saveSessionOnError = "true";
+      ENVIRONMENT.email.host = "test.test";
+      ENVIRONMENT.email.password = "test";
+      ENVIRONMENT.email.port = "465";
+      ENVIRONMENT.email.receiverEmail = "test@test.com";
+      ENVIRONMENT.email.user = "test@tester.com";
+
+      const expectedDefaultConfig: SessionConfig = {
+        allowDefaultConfigs: true,
+        globalTimeout: 100,
+        limit: {
+          items: 100,
+          page: 20,
+        },
+        minimumItemsToSuccess: 0.6,
+        offset: {
+          url: "www.test.com",
+          page: 1,
+        },
+        taskLength: 100,
+        timeout: 9000,
+        usageData: true,
+        saveSessionOnError: true,
+        emailing: {
+          host: "test.test",
+          password: "test",
+          port: 465,
+          receiverEmail: "test@test.com",
+          user: "test@tester.com",
+        },
+      };
+
+      const defaultConfig = defaultSessionConfig();
+
+      expect(defaultConfig).toStrictEqual(expectedDefaultConfig);
     });
   });
 });

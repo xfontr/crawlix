@@ -69,14 +69,6 @@ export const defaultSessionConfig = (
       ALLOW_DEFAULT_CONFIGS_DEFAULT,
   );
 
-  const emailing = {
-    password: env.email.password ?? "",
-    user: env.email.user ?? "",
-    host: env.email.host ?? "",
-    port: $n(env.email.port, 0),
-    receiverEmail: env.email.receiverEmail ?? "",
-  };
-
   return {
     offset: {
       url: env.baseUrl ?? "",
@@ -102,9 +94,13 @@ export const defaultSessionConfig = (
       env.saveSessionOnError,
       SAVE_SESSION_ON_ERROR_DEFAULT,
     ),
-    ...(objectValues(emailing).filter((data) => !!data).length
-      ? { emailing }
-      : {}),
+    emailing: {
+      password: env.email.password ?? "",
+      user: env.email.user ?? "",
+      host: env.email.host ?? "",
+      port: $n(env.email.port, 0),
+      receiverEmail: env.email.receiverEmail ?? "",
+    },
   };
 };
 
@@ -114,9 +110,14 @@ const getMax = (max: number, fallback: number, value?: number): number =>
 export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => {
   const defaults = defaultSessionConfig(config?.allowDefaultConfigs);
 
+  const emailing = { ...defaults.emailing, ...config?.emailing };
+
   return {
-    ...defaults,
-    ...config,
+    ...{ ...defaults, emailing: undefined },
+    ...{ ...config, emailing: undefined },
+    ...(objectValues(emailing).filter((data) => !!data).length
+      ? { emailing }
+      : {}),
     offset: {
       ...defaults.offset,
       ...config?.offset,

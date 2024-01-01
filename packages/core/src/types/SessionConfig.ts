@@ -75,13 +75,15 @@ interface SessionConfig {
   /**
    * @description Data required to send email notifications. Leave empty if "emailNotifications" is set as false
    */
-  emailing?: {
-    host: string;
-    port: number;
-    user: string;
-    password: string;
-    receiverEmail: string;
-  };
+  emailing:
+    | {
+        host?: string;
+        port?: number;
+        user?: string;
+        password?: string;
+        receiverEmail?: string;
+      }
+    | undefined;
 }
 
 export default SessionConfig;
