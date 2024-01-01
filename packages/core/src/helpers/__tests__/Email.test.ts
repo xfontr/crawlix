@@ -25,7 +25,7 @@ describe("Given an Email function", () => {
         receiverEmail: "",
       });
 
-      const expectedResponse = [undefined, Error(t("email.auth.incomplete"))];
+      const expectedResponse = [undefined, Error(t("email.error.incomplete"))];
 
       const response = await sendEmail({ subject: "", text: "" });
 

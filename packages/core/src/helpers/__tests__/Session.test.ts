@@ -157,7 +157,7 @@ describe("Given a Session.error function", () => {
 
       const { error } = Session().init();
 
-      error(testError, isCritical);
+      error(testError, { isCritical });
 
       expect(mockEnd).toHaveBeenCalledTimes(1);
       expect(mockErrorMessage).toHaveBeenCalledTimes(1);
@@ -172,7 +172,7 @@ describe("Given a Session.error function", () => {
 
       const { error, end: cleanUpEnd } = Session().init();
 
-      error(testError, isCritical);
+      error(testError, { isCritical });
 
       expect(mockEnd).not.toHaveBeenCalled();
       expect(mockErrorMessage).toHaveBeenCalledTimes(1);

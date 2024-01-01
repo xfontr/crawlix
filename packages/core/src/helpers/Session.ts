@@ -59,7 +59,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
   const error = (
     error: Error | undefined,
-    { isCritical, ...props }: CustomErrorProps & { isCritical?: boolean },
+    { isCritical, ...props }: CustomErrorProps & { isCritical?: boolean } = {},
   ) => {
     if (!error) return;
 

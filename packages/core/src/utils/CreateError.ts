@@ -11,13 +11,10 @@ const CreateError = (
 
   error.name = name ?? error.name ?? t("misc.unknown_error");
 
-  Object.defineProperty(
-    error,
-    "publicMessage",
-    { value: publicMessage } ??
-      (error as CustomError)?.publicMessage ??
-      error.message,
-  );
+  Object.defineProperty(error, "publicMessage", {
+    value:
+      publicMessage ?? (error as CustomError)?.publicMessage ?? error.message,
+  });
 
   return error as CustomError;
 };
