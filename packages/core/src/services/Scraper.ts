@@ -1,9 +1,9 @@
 import { type DefaultItem, Session, type SessionConfig } from "../..";
 import t from "../i18n";
 import { infoMessage } from "../logger";
-import Puppeteer from "./Puppeteer";
+import Puppeteer from "../helpers/Puppeteer";
 import ScraperTools from "./ScraperTools";
-import SessionStore from "./SessionStore";
+import SessionStore from "../helpers/SessionStore";
 
 const runData = {
   run: false,

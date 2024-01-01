@@ -1,4 +1,4 @@
-import Scraper from "./helpers/Scraper";
+import Scraper from "./services/Scraper";
 import EventBus from "./utils/EventBus";
 
 const ITEM_DATA = {
