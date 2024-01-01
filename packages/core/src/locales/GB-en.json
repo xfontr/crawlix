@@ -29,6 +29,7 @@
   },
   "session_actions": {
     "page_up": "Page increased",
+    "page_down": "Page decreased",
     "package_complete": "Package of items scraped",
     "error": {
       "default": "Error while executing a scraper action"
