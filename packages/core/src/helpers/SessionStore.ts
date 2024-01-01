@@ -130,7 +130,7 @@ const SessionStore = () => {
       error: {
         name: error.name,
         message: error.message,
-        publicMessage: error?.publicMessage,
+        publicMessage: error.publicMessage,
       },
       isCritical: !!isCritical,
       date: errorDate,

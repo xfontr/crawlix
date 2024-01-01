@@ -136,10 +136,12 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
     const [result, emailError] = await sendEmail!(emailContent);
 
-    if (emailError instanceof Error) {
+    if (emailError) {
       error(emailError, { name: t("error_index.email"), isCritical: false });
       return emailError;
     }
+
+    if (result) infoMessage(t("email.success"));
 
     return result;
   };

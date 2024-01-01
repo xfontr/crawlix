@@ -26,7 +26,7 @@ describe("Given a EmailTemplates.FULL_SESSION function", () => {
       const result = EmailTemplates(mockSessionData).FULL_SESSION();
 
       const expectedResult: EmailContent = {
-        subject: t("email.full_session"),
+        subject: t("email.subject.full_session"),
         text: JSON.stringify(mockSessionData),
         sendIfEmpty: true,
       };
@@ -42,7 +42,7 @@ describe("Given a EmailTemplates.CRITICAL_ERROR function", () => {
       const result = EmailTemplates(mockSessionData).CRITICAL_ERROR();
 
       const expectedResult: EmailContent = {
-        subject: t("email.critical_error"),
+        subject: t("email.subject.critical_error"),
         text: undefined,
         sendIfEmpty: false,
       };
@@ -59,7 +59,7 @@ describe("Given a EmailTemplates.CRITICAL_ERROR function", () => {
       }).CRITICAL_ERROR();
 
       const expectedResult: EmailContent = {
-        subject: t("email.critical_error"),
+        subject: t("email.subject.critical_error"),
         text: JSON.stringify(mockError),
         sendIfEmpty: false,
       };
@@ -78,7 +78,7 @@ describe("Given a EmailTemplates.ITEMS function", () => {
       }).ITEMS();
 
       const expectedResult: EmailContent = {
-        subject: t("email.items"),
+        subject: t("email.subject.items"),
         text: "",
         sendIfEmpty: false,
       };
@@ -92,7 +92,7 @@ describe("Given a EmailTemplates.ITEMS function", () => {
       const result = EmailTemplates(mockSessionData).ITEMS();
 
       const expectedResult: EmailContent = {
-        subject: t("email.items"),
+        subject: t("email.subject.items"),
         text: JSON.stringify(mockSessionData.items),
         sendIfEmpty: false,
       };
@@ -111,8 +111,8 @@ describe("Given a EmailTemplates.SUCCESS_OR_ERROR function", () => {
       }).SUCCESS_OR_ERROR();
 
       const expectedResult: EmailContent = {
-        subject: t("email.success"),
-        text: t("email.success"),
+        subject: t("email.subject.success"),
+        text: t("email.subject.success"),
         sendIfEmpty: true,
       };
 
@@ -129,7 +129,7 @@ describe("Given a EmailTemplates.SUCCESS_OR_ERROR function", () => {
       }).SUCCESS_OR_ERROR();
 
       const expectedResult: EmailContent = {
-        subject: t("email.failure"),
+        subject: t("email.subject.failure"),
         text: JSON.stringify(mockError),
         sendIfEmpty: true,
       };

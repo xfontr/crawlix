@@ -3,6 +3,7 @@ import { LIMIT_ITEMS_MAX } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
 import mockSessionData from "../../test-utils/mocks/mockSessionData";
+import CustomError from "../../types/CustomError";
 import SessionConfig from "../../types/SessionConfig";
 import EmailTemplates from "../../utils/EmailTemplates";
 import EventBus from "../../utils/EventBus";
@@ -281,6 +282,7 @@ describe("Given a Session.notify function", () => {
         ).CRITICAL_ERROR(),
       );
       expect(response).toStrictEqual(expectedResponse);
+      expect(mockInfoMessage).toHaveBeenCalledWith(t("email.success"));
 
       cleanUpEnd();
     });
@@ -303,6 +305,8 @@ describe("Given a Session.notify function", () => {
         ).CRITICAL_ERROR(),
       );
       expect(response).toStrictEqual(expectedError);
+      expect((response as CustomError).name).toBe(t("error_index.email"));
+      expect(mockLogError).toHaveBeenCalledWith(response, false);
 
       cleanUpEnd();
     });
