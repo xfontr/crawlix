@@ -282,6 +282,7 @@ describe("Given a Session.notify function", () => {
         ).CRITICAL_ERROR(),
       );
       expect(response).toStrictEqual(expectedResponse);
+      expect(mockInfoMessage).toHaveBeenCalledWith(t("email.success"));
 
       cleanUpEnd();
     });

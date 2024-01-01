@@ -141,6 +141,8 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       return emailError;
     }
 
+    if (result) infoMessage(t("email.success"));
+
     return result;
   };
 
