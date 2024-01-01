@@ -18,8 +18,7 @@ let initialized = false;
 const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let sendEmail: any = undefined;
+  let sendEmail: ReturnType<typeof Email> | undefined = undefined;
 
   const end = (abruptEnd = false): void => {
     if (!initialized) return;
@@ -124,7 +123,14 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
     if (!emailContent.sendIfEmpty && !emailContent.text) return;
 
-    return await sendEmail(emailContent);
+    const [result, emailError] = await sendEmail!(emailContent);
+
+    if (emailError instanceof Error) {
+      error(emailError, false);
+      return emailError;
+    }
+
+    return result;
   };
 
   const session = {
