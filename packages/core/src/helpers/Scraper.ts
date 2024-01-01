@@ -21,7 +21,7 @@ const Scraper = async (
 ) => {
   const {
     store,
-    hooks: { nextPage, postItem, ...hooks },
+    storeHooks: { nextPage, postItem, ...hooks },
     end,
     saveAsJson,
     setGlobalTimeout,

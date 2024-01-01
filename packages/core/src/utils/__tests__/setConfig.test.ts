@@ -12,7 +12,6 @@ import {
   TIMEOUT_DEFAULT,
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
-  SAVE_SESSION_ON_ERROR_DEFAULT,
 } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";

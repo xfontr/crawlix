@@ -30,7 +30,8 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     store.end(!abruptEnd);
 
     EventBus.emit("SESSION:ACTIVE", false);
-    EventBus.removeAllListeners();
+    EventBus.removeAllListeners("SESSION:ERROR");
+    EventBus.removeAllListeners("SESSION:ACTIVE");
 
     infoMessage(t("session.end"));
   };
@@ -158,11 +159,12 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     end,
     error,
     store: store.current,
-    hooks: {
+    storeHooks: {
       updateLocation: store.updateLocation,
       nextPage: store.nextPage,
       previousPage: store.previousPage,
       postItem: store.postItem,
+      logMessage: store.logMessage,
     },
     setGlobalTimeout,
     saveAsJson,

@@ -10,6 +10,7 @@ import CreateError from "../../utils/CreateError";
 const mockWarning = jest.fn();
 const mockEmit = jest.fn();
 const mockOn = jest.fn();
+const mockRemoveAllListeners = jest.fn();
 const mockUsageDataLogError = jest.fn();
 
 jest.mock("../../logger", () => ({
@@ -23,6 +24,7 @@ jest.mock("crypto", () => ({
 jest.mock("../../utils/EventBus", () => ({
   emit: (...args: unknown[]) => mockEmit(...args),
   on: (...args: unknown[]) => mockOn(...args),
+  removeAllListeners: (...args: unknown[]) => mockRemoveAllListeners(...args),
 }));
 
 jest.mock("../../utils/usageData", () => ({
@@ -50,16 +52,19 @@ describe("Given a SessionStore function", () => {
         history: [mockSessionConfig.offset.url ?? ""],
         _id: "random-uuid" as UUID,
         success: true,
+        logs: [],
       };
 
       const {
         current,
         end: cleanUpEnd,
         countAction,
+        logMessage,
       } = SessionStore().init(mockSessionConfig);
 
       expect(current()).toStrictEqual(expectedStore);
       expect(mockOn).toHaveBeenCalledWith("ACTION:COUNT", countAction);
+      expect(mockOn).toHaveBeenCalledWith("SESSION:LOG", logMessage);
 
       cleanUpEnd();
     });
@@ -83,6 +88,7 @@ describe("Given a SessionStore function", () => {
         _id: "random-uuid" as UUID,
         success: true,
         incompleteItems: 0,
+        logs: [],
       };
 
       const { end } = SessionStore().init(mockSessionConfig);
@@ -90,6 +96,7 @@ describe("Given a SessionStore function", () => {
       jest.advanceTimersByTime(advancedTime);
 
       expect(end()).toStrictEqual(expectedStore);
+      expect(mockRemoveAllListeners).toHaveBeenCalledWith("ACTION:COUNT");
     });
 
     test("It should update the number of incomplete items and total items", () => {
@@ -717,6 +724,25 @@ describe("Given a SessionStore.postItem function", () => {
       postItem({ name: "test", surname: undefined, age: undefined }, errorLog);
 
       expect(current().items[0]?._meta.errorLog).toStrictEqual(errorLog);
+
+      cleanUpEnd();
+    });
+  });
+});
+
+describe("Given a SessionStore.logMessage function", () => {
+  describe("When called with a message 'test'", () => {
+    test("Then it should push said message with a timestamp in the store", () => {
+      const message = "test";
+      const {
+        logMessage,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      logMessage(message);
+
+      expect(current().logs).toStrictEqual([`[0] ${message}`]);
 
       cleanUpEnd();
     });
