@@ -127,6 +127,13 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
   };
 
+  /**
+   * @param contentType "FULL_SESSION": Sends the entire session data
+   * @param contentType "CRITICAL_ERROR": Sends the error that broke the session, if any
+   * @param contentType "ITEMS": Sends the items scraped
+   * @param contentType "SUCCESS_OR_ERROR": Informs whether the session ended successfully or not.
+   * Includes the breaking error, if any
+   */
   const notify = async (
     contentType: EmailRequest,
   ): Promise<void | Error | object> => {

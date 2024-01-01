@@ -59,7 +59,7 @@ interface SessionData<
      */
     date: Date;
     /**
-     * @description Moment of the session where the error happened, counted in miliseconds
+     * @description Moment of the session where the error happened, counted in milliseconds
      */
     moment: number;
     /**
