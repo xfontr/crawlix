@@ -58,8 +58,6 @@ $ pnpm run dev
 $ pnpm run test # Optional
 ```
 
-*https://dev.to/toa_anakin/using-puppeteer-anonymously-with-tor-l9l*
-
 ## Script design
 
 The script is structured in three layers, each of on a higher abstraction level:
@@ -165,11 +163,6 @@ These services are handled by the Session and provided by the Session itself and
    * @default true
    */
   allowDefaultConfigs: boolean;
-  /**
-   * @description If true, will store the session store even if it ended abruptly
-   * @default true
-   */
-  saveSessionOnError: boolean;
   /**
    * @description Data required to send email notifications. If empty, will not try to send any email.
    */

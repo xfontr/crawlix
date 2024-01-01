@@ -68,11 +68,6 @@ interface SessionConfig {
    */
   allowDefaultConfigs: boolean;
   /**
-   * @description If true, will store the session store even if it ended abruptly
-   * @default true
-   */
-  saveSessionOnError: boolean;
-  /**
    * @description Data required to send email notifications. If empty, will not try to send any email.
    */
   emailing:

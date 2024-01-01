@@ -9,6 +9,11 @@ import t from "../i18n";
 import { infoMessage } from "../logger";
 import { objectEntries } from "@personal/utils";
 
+const runData = {
+  run: false,
+  afterAll: false,
+};
+
 const Scraper = async (
   puppeteer: PuppeteerNode,
   baseConfig: Partial<SessionConfig>,
@@ -27,7 +32,6 @@ const Scraper = async (
     taskLength,
     timeout,
     offset: { url },
-    saveSessionOnError,
   } = store();
 
   const { $$a, $a } = useAction(taskLength);
@@ -115,20 +119,46 @@ const Scraper = async (
     },
   };
 
-  return async <R, T extends (scraper: typeof tools) => Promise<R>>(
-    callback: T,
-  ): Promise<void> => {
-    const result = await setGlobalTimeout(async (cleanUp) => {
-      await $$a(() => page.goto(url!));
-      await callback(tools);
-      end(false);
-      await saveAsJson();
-      cleanUp();
-    });
+  return {
+    run: async <R, T extends (scraper: typeof tools) => Promise<R>>(
+      callback: T,
+    ) => {
+      if (runData.run) {
+        return;
+      }
 
-    if (result === "ABRUPT_ENDING") {
-      saveSessionOnError && (await saveAsJson());
-    }
+      runData.run = true;
+
+      return await setGlobalTimeout(async (cleanUp) => {
+        await $$a(() => page.goto(url!));
+        const result = await callback(tools);
+        end(false);
+        cleanUp();
+        return result;
+      });
+    },
+    afterAll: async <
+      R,
+      T extends (
+        scraper: Pick<typeof tools, "notify"> &
+          Pick<typeof tools, "saveAsJson">,
+      ) => Promise<R>,
+    >(
+      callback: T,
+    ) => {
+      if (runData.afterAll) {
+        return;
+      }
+
+      infoMessage(t("session_actions.after_all"));
+
+      runData.afterAll = true;
+
+      return await callback({
+        notify: tools.notify,
+        saveAsJson: tools.saveAsJson,
+      });
+    },
   };
 };
 

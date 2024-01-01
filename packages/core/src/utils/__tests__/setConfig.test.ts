@@ -227,7 +227,6 @@ describe("Given a defaultSessionConfig function", () => {
     ENVIRONMENT.minimumItemsToSuccess = undefined;
     ENVIRONMENT.usageData = "999"; // Expects a boolean;
     ENVIRONMENT.allowDefaultConfigs = undefined;
-    ENVIRONMENT.saveSessionOnError = undefined;
     ENVIRONMENT.email.host = undefined;
     ENVIRONMENT.email.password = undefined;
     ENVIRONMENT.email.port = undefined;
@@ -250,7 +249,6 @@ describe("Given a defaultSessionConfig function", () => {
         taskLength: TASK_LENGTH_DEFAULT,
         timeout: TIMEOUT_DEFAULT,
         usageData: USAGE_DATA_DEFAULT,
-        saveSessionOnError: SAVE_SESSION_ON_ERROR_DEFAULT,
         emailing: {
           host: "",
           password: "",
@@ -300,7 +298,6 @@ describe("Given a defaultSessionConfig function", () => {
       ENVIRONMENT.minimumItemsToSuccess = "0.6";
       ENVIRONMENT.usageData = "true";
       ENVIRONMENT.allowDefaultConfigs = "true";
-      ENVIRONMENT.saveSessionOnError = "true";
       ENVIRONMENT.email.host = "test.test";
       ENVIRONMENT.email.password = "test";
       ENVIRONMENT.email.port = "465";
@@ -322,7 +319,6 @@ describe("Given a defaultSessionConfig function", () => {
         taskLength: 100,
         timeout: 9000,
         usageData: true,
-        saveSessionOnError: true,
         emailing: {
           host: "test.test",
           password: "test",
