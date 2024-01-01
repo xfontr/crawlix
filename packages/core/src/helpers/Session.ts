@@ -12,6 +12,8 @@ import Email from "./Email";
 import type { SessionData } from "../..";
 import { EmailRequest } from "../types/EmailContent";
 import EmailTemplates from "../utils/EmailTemplates";
+import CreateError from "../utils/CreateError";
+import { CustomErrorProps } from "../types/CustomError";
 
 let initialized = false;
 
@@ -55,11 +57,16 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     return session;
   };
 
-  const error = (error: Error | undefined, isCritical?: boolean) => {
+  const error = (
+    error: Error | undefined,
+    { isCritical, ...props }: CustomErrorProps & { isCritical?: boolean },
+  ) => {
     if (!error) return;
 
-    store.logError(error, isCritical);
-    errorMessage(error.message);
+    const customError = CreateError(error, props);
+
+    store.logError(customError, isCritical);
+    errorMessage(customError.publicMessage);
 
     if (isCritical) end(true);
   };
@@ -88,7 +95,10 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       new Promise(
         (resolve) =>
           (storedTimeout = setTimeout(() => {
-            error(Error(t("session.error.global_timeout")), true);
+            error(Error(t("session.error.global_timeout")), {
+              name: "TODO", // TODO
+              isCritical: true,
+            });
             resolve("ABRUPT_ENDING");
           }, store.current().globalTimeout)),
       ),
@@ -127,7 +137,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     const [result, emailError] = await sendEmail!(emailContent);
 
     if (emailError instanceof Error) {
-      error(emailError, false);
+      error(emailError, { name: t("error_index.email"), isCritical: false });
       return emailError;
     }
 

@@ -9,6 +9,7 @@ import isItemComplete from "../utils/isItemComplete";
 import { usageDataLogError } from "../utils/usageData";
 import getTimeDifference from "../utils/getTimeDifference";
 import deepClone from "clone-deep";
+import CustomError from "../types/CustomError";
 
 let initialized = false;
 
@@ -122,13 +123,14 @@ const SessionStore = () => {
     updateLocation({ page: store.session.location!.page - 1 });
   };
 
-  const logError = (error: Error, isCritical?: boolean): void => {
+  const logError = (error: CustomError, isCritical?: boolean): void => {
     const errorDate = new Date();
 
     store.session.errorLog!.push({
       error: {
         name: error.name,
         message: error.message,
+        publicMessage: error?.publicMessage,
       },
       isCritical: !!isCritical,
       date: errorDate,

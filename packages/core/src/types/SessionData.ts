@@ -1,6 +1,7 @@
 import { UUID } from "crypto";
 import SessionConfig from "./SessionConfig";
 import DefaultItem from "./DefaultItem";
+import CustomError from "./CustomError";
 
 interface SessionData<
   T extends Record<string, string | number | object> = Record<
@@ -66,9 +67,9 @@ interface SessionData<
      */
     isCritical: boolean;
     /**
-     * @description Error object with its message and stack
+     * @description Error object
      */
-    error: Error;
+    error: CustomError;
     /**
      * @description Page and item where the error was found
      */
