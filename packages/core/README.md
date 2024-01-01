@@ -60,6 +60,39 @@ $ pnpm run test # Optional
 
 *https://dev.to/toa_anakin/using-puppeteer-anonymously-with-tor-l9l*
 
+## Script design
+
+The script is structured in three layers, each of on a higher abstraction level:
+
+### Scraper
+
+Limited set of tools based on nodemailer, and built on the utils provided by the lower level helper "Session". It also provides the "Session" utils, so this tool can actually be used to run the entire script without a real need to descend to lower layers.
+
+Main utilities:
+
+- Hooks to all the utils provided by the Session layer.
+- scrapItems function to grab items in bulk from a HTML container.
+- pageUp function to increase the page while also updating the store and handling any error.
+- A main function container that allows total control over the script, and that is a must if you wish to use the "globalTimeout" variable.
+
+### Session
+
+Orchestrates the entire app. This means: performs the necessary updates to the store, when requested by the user; and handles any necessary side-effect.
+
+For example, if the user requests to log an error, this layer will update the store with said error and send a console message.
+
+Ideally, however, the user will not directly use the Session methods, but use the Scraper upper layer.
+
+### SessionStore
+
+Stores all the session data: items, errors, start and end dates, duration, and a long etc. It does not have any side effect. Expects other functions to update and handle this data.
+
+Can be instantiated only once and it must not be used directly by the end user (excepting the "current" property, which allows a read-only access to all the store data).
+
+### Services (Email, actions)
+
+These services are handled by the Session and provided by the Session itself and the Scraper. Therefore, there is no real need to ever use them manually, and in fact it's strongly discouraged.
+
 ## Set up configuration variables
 
 ```ts
@@ -149,5 +182,97 @@ $ pnpm run test # Optional
         receiverEmail?: string;
       }
     | undefined;
+}
+```
+
+## Full session data content
+
+```ts
+{
+  /**
+   * @description Session's ID in UUID format
+   */
+  _id: string;
+  /**
+   * @description Session start date
+   */
+  startDate: Date;
+  /**
+   * @description Session end date
+   */
+  endDate: Date;
+  /**
+   * @description Session length in ms
+   */
+  duration: number;
+  /**
+   * @description Total amount of actions executed by the scraper
+   */
+  totalActions: number;
+  /**
+   * @description Total base time, in ms, consumed by the scraper actions, not including the timeouts
+   * (totalActions * taskLength * speed)
+   */
+  totalActionsJointLength: number;
+  /**
+   * @description Current location of the script, meaning the page it's at and the item is scraping
+   */
+  location: {
+    url?: string;
+    page?: number;
+  };
+  /**
+   * @description Counter of actually scraped items
+   */
+  totalItems: number;
+  /**
+   * @description Scraped items
+   */
+  items: Item[];
+  /**
+   * @description History of accessed URLs
+   */
+  history: string[];
+  /**
+   * @description History of registered errors, including critical and non-critical ones
+   */
+  errorLog: {
+    /**
+     * @description Date and time the error was caught at
+     */
+    date: Date;
+    /**
+     * @description Moment of the session where the error happened, counted in milliseconds
+     */
+    moment: number;
+    /**
+     * @description If critical, the app will break
+     */
+    isCritical: boolean;
+    /**
+     * @description Error object
+     */
+    error: CustomError;
+    /**
+     * @description Page and item where the error was found
+     */
+    location: {
+      url?: string;
+      page?: number;
+      itemNumber: number
+    };
+    /**
+     * @description The total count of actions at the moment of the error
+     */
+    actionNumber: number;
+  }[];
+  /**
+   * @description Whether the session was abruptly ended before successfully finishing
+   */
+  success: boolean;
+  /**
+   * @description Number of items which data was not fulfilled as expected
+   */
+  incompleteItems: number;
 }
 ```

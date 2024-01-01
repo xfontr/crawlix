@@ -44,7 +44,7 @@ type DefaultItem<
        */
       itemNumber: number;
       /**
-       * @description Moment of the session where the item was posted, counted in miliseconds
+       * @description Moment of the session where the item was posted, counted in milliseconds
        */
       moment: number;
       /**
