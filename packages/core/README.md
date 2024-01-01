@@ -10,6 +10,10 @@ Pnpm is required in order to properly install and run the app. If you have homeb
 $ brew install pnpm
 ```
 
+### Recommended set up
+
+The package has been developed with Typescript, so we strongly recommend using an IDE compatible with TS that allows to see all the provided hints (such as Visual Studio Code).
+
 ### Define the correct NODE_ENV environment
 
 Depending on where you'll be using the script, you'll have to define the right NODE_ENV variable. This means: you'll need to create a .env file in the root directory and place a variable named as "NODE_ENV".
