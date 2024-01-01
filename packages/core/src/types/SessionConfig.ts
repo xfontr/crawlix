@@ -73,7 +73,7 @@ interface SessionConfig {
    */
   saveSessionOnError: boolean;
   /**
-   * @description Data required to send email notifications. Leave empty if "emailNotifications" is set as false
+   * @description Data required to send email notifications. If empty, will not try to send any email.
    */
   emailing:
     | {
