@@ -1,5 +1,6 @@
 const ENVIRONMENT = {
   nodeEnv: (process.env["NODE_ENV"] ?? "dev") as "test" | "dev" | "prod",
+  locale: process.env["SCRAPER_LOCALE"] ?? "GB-en",
   baseUrl: process.env["SCRAPER_URL"],
   offsetPage: process.env["SCRAPER_OFFSET_PAGE"],
   limitItems: process.env["SCRAPER_LIMIT_ITEMS"],
