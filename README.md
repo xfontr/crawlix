@@ -63,3 +63,10 @@ $ pnpm run test # Optional
 ## Documentations
 
 See scraper/core/README.md for more information on the script.
+
+## TODOs
+
+1.- VERY IMPORTANT: Allow to recursively scrap pages until the limit is reached.
+2.- Setting to enable text cleaning (trim, replace "\n" and "\t").
+3.- Long term: Plugins attribute that allows inserting external functions, instead of having a ScraperTools module.
+4.- Fix randomly breaking usage-data function + consider adding a try catch for it.
