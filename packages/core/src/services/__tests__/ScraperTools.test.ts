@@ -35,7 +35,7 @@ describe("Given a ScraperTools.goToPage function", () => {
       mockGoto.mockResolvedValue(true);
 
       const $s = newSession();
-      const { goToPage, abort } = ScraperTools($s, mockPage, {});
+      const { goToPage, abort } = ScraperTools($s, mockPage);
 
       const response = await goToPage();
 
@@ -52,7 +52,7 @@ describe("Given a ScraperTools.goToPage function", () => {
       const testPage = "www.test-2.com";
 
       const $s = newSession();
-      const { goToPage, abort } = ScraperTools($s, mockPage, {});
+      const { goToPage, abort } = ScraperTools($s, mockPage);
 
       const response = await goToPage(testPage);
 
@@ -67,7 +67,7 @@ describe("Given a ScraperTools.goToPage function", () => {
       mockGoto.mockRejectedValue(error);
 
       const $s = newSession();
-      const { goToPage, abort } = ScraperTools($s, mockPage, {});
+      const { goToPage, abort } = ScraperTools($s, mockPage);
 
       const response = await goToPage();
 
@@ -88,7 +88,7 @@ describe("Given a ScraperTools.getElement function", () => {
       mockEval.mockResolvedValue(textContent);
 
       const $s = newSession();
-      const { getElement, abort } = ScraperTools($s, mockPage, {});
+      const { getElement, abort } = ScraperTools($s, mockPage);
 
       const response = await getElement(mockParent, selector);
 
@@ -104,7 +104,7 @@ describe("Given a ScraperTools.getElement function", () => {
       mockEval.mockRejectedValue(error);
 
       const $s = newSession();
-      const { getElement, abort } = ScraperTools($s, mockPage, {});
+      const { getElement, abort } = ScraperTools($s, mockPage);
 
       const response = await getElement(mockParent, selector);
 

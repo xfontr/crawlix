@@ -7,7 +7,7 @@ import { objectEntries } from "@personal/utils";
 const ScraperTools = (
   $s: ReturnType<typeof Session>,
   page: Page,
-  itemData: Partial<Record<keyof DefaultItem, string>>,
+  itemData?: Partial<Record<keyof DefaultItem, string>>,
 ) => {
   const { taskLength, offset, timeout } = $s.store();
   const { $a, $$a } = useAction(taskLength);
@@ -18,6 +18,8 @@ const ScraperTools = (
     $a(() => parent.$eval(selector, (category) => category.textContent));
 
   const scrapItems = async (selector: string): Promise<void> => {
+    if (!itemData) return;
+
     const [articles, error] = await $a(() => page.$$(selector));
 
     if (!articles?.length || error) return;

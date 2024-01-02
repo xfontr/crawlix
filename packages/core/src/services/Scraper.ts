@@ -5,16 +5,13 @@ import Puppeteer from "../helpers/Puppeteer";
 import ScraperTools from "./ScraperTools";
 import SessionStore from "../helpers/SessionStore";
 
-let hasRun = false;
-let hasHafterAll = false;
-
 type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
   Pick<ReturnType<typeof Session>, "saveAsJson"> &
   Pick<ReturnType<typeof SessionStore>, "logMessage">;
 
 const Scraper = async (
   baseConfig: Partial<SessionConfig>,
-  itemData: Partial<Record<keyof DefaultItem, string>>,
+  itemData?: Partial<Record<keyof DefaultItem, string>>,
 ) => {
   // INIT - The order of the following tasks is important
   const $s = Session(baseConfig).init();
@@ -27,28 +24,25 @@ const Scraper = async (
   const run = async <R, T extends (scraper: typeof $t) => Promise<R>>(
     callback: T,
   ) => {
-    if (hasRun) return;
-    hasRun = true;
+    const runResult = await $t.hooks.$$a(() =>
+      $s.setGlobalTimeout(async (cleanUp) => {
+        await $t.goToPage();
+        const result = await callback($t);
+        $s.end(false);
+        cleanUp();
+        return result;
+      }),
+    );
 
-    return await $s.setGlobalTimeout(async (cleanUp) => {
-      await $t.goToPage();
-      const result = await callback($t);
-      $s.end(false);
-      cleanUp();
-      return result;
-    });
+    return runResult;
   };
 
-  // TODO: Have a separate timeout for the after-all, too
   const afterAll = async <R, T extends (scraper: AfterAllTools) => Promise<R>>(
     callback: T,
   ) => {
-    if (hasHafterAll) return;
-    hasHafterAll = true;
-
     infoMessage(t("session_actions.after_all"));
 
-    return $s.setGlobalTimeout(async (cleanUp) => {
+    const afterAllResult = $s.setGlobalTimeout(async (cleanUp) => {
       const result = await callback({
         notify: $t.hooks.notify,
         saveAsJson: $t.hooks.saveAsJson,
@@ -56,9 +50,10 @@ const Scraper = async (
       });
 
       cleanUp();
-
       return result;
-    })    
+    });
+
+    return afterAllResult;
   };
 
   return {
