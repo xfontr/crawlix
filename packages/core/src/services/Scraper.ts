@@ -4,11 +4,7 @@ import { infoMessage } from "../logger";
 import Puppeteer from "../helpers/Puppeteer";
 import ScraperTools from "./ScraperTools";
 import SessionStore from "../helpers/SessionStore";
-
-const runData = {
-  run: false,
-  afterAll: false,
-};
+import { tryCatch } from "@personal/utils";
 
 type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
   Pick<ReturnType<typeof Session>, "saveAsJson"> &
@@ -16,13 +12,12 @@ type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
 
 const Scraper = async (
   baseConfig: Partial<SessionConfig>,
-  itemData: Partial<Record<keyof DefaultItem, string>>,
+  itemData?: Partial<Record<keyof DefaultItem, string>>,
 ) => {
   // INIT - The order of the following tasks is important
   const $s = Session(baseConfig).init();
 
   const page = await Puppeteer();
-  if (!page) return;
 
   const $t = ScraperTools($s, page, itemData);
 
@@ -30,32 +25,43 @@ const Scraper = async (
   const run = async <R, T extends (scraper: typeof $t) => Promise<R>>(
     callback: T,
   ) => {
-    if (runData.run) return;
-    runData.run = true;
+    const runResult = await $t.hooks.$$a(() =>
+      $s.setGlobalTimeout(async (cleanUp) => {
+        await $t.goToPage();
+        const result = await callback($t);
+        $s.end(false);
+        cleanUp();
+        return result;
+      }),
+    );
 
-    return await $s.setGlobalTimeout(async (cleanUp) => {
-      await $t.goToPage();
-      const result = await callback($t);
-      $s.end(false);
-      cleanUp();
-      return result;
-    });
+    return runResult;
   };
 
-  // TODO: Have a separate timeout for the after-all, too
   const afterAll = async <R, T extends (scraper: AfterAllTools) => Promise<R>>(
     callback: T,
   ) => {
-    if (runData.afterAll) return;
-    runData.afterAll = true;
-
     infoMessage(t("session_actions.after_all"));
 
-    return await callback({
-      notify: $t.hooks.notify,
-      saveAsJson: $t.hooks.saveAsJson,
-      logMessage: $t.hooks.logMessage,
-    });
+    /**
+     * This function is meant to run only after the main actual run. Therefore, the store has already been
+     * ended and using the $$a function would cause this not to work (plus, it would be pointless)
+     */
+    const afterAllResult = tryCatch<ReturnType<T>>(
+      async () =>
+        await $s.setGlobalTimeout(async (cleanUp) => {
+          const result = await callback({
+            notify: $t.hooks.notify,
+            saveAsJson: $t.hooks.saveAsJson,
+            logMessage: $t.hooks.logMessage,
+          });
+
+          cleanUp();
+          return result;
+        }, "afterAllTimeout"),
+    );
+
+    return afterAllResult;
   };
 
   return {

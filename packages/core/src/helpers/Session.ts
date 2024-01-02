@@ -85,6 +85,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
    */
   const setGlobalTimeout = async <T>(
     callback: (cleanUp: () => void) => Promise<T>,
+    timeout: "globalTimeout" | "afterAllTimeout" = "globalTimeout",
   ): Promise<T | "ABRUPT_ENDING"> => {
     let storedTimeout: NodeJS.Timeout | undefined = undefined;
 
@@ -96,12 +97,21 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       new Promise(
         (resolve) =>
           (storedTimeout = setTimeout(() => {
-            error(Error(t("session.error.global_timeout")), {
-              name: t("error_index.session"),
-              isCritical: true,
-            });
+            error(
+              Error(
+                t(
+                  `session.error.${
+                    timeout === "globalTimeout" ? "global_timeout" : "after_all" // TODO: TEST
+                  }`,
+                ),
+              ),
+              {
+                name: t("error_index.session"),
+                isCritical: true,
+              },
+            );
             resolve("ABRUPT_ENDING");
-          }, store.current().globalTimeout)),
+          }, store.current()[timeout])), // TODO: TEST
       ),
       callback(cleanUp),
     ]);

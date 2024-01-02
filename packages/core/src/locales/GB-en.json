@@ -25,6 +25,7 @@
       "initialized": "[DEV] The session as already been initiated",
       "no_defaults": "The app cannot start without setting all the configuration variables. Please, check that all the required configs are being correctly passed",
       "global_timeout": "Maximum timeout exceeded. Shutting the app down",
+      "after_all_timeout": "Maximum timeout exceeded during the after all effects",
       "not_saved": "Error while trying to save the session"
     }
   },

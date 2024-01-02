@@ -1,5 +1,6 @@
 import t from "../../i18n";
 import Puppeteer from "../Puppeteer";
+
 const mockEmit = jest.fn();
 const mockLaunch = jest.fn();
 

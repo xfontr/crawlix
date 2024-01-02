@@ -35,6 +35,11 @@ interface SessionConfig {
    */
   globalTimeout: number;
   /**
+   * @description Maximum session "after all" session length in milliseconds. Can't exceed 25 minutes
+   * @default 60.000 ms // 1 minute
+   */
+  afterAllTimeout: number;
+  /**
    * @description Time (in ms) after which the individual request will be cancelled. Can't exceed 30 seconds
    * @default 1.500 ms
    */

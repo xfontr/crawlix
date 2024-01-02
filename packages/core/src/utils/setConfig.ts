@@ -14,6 +14,8 @@ import {
   MINIMUM_ITEMS_TO_SUCCESS_DEFAULT,
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
+  AFTER_ALL_TIMEOUT_DEFAULT,
+  AFTER_ALL_TIMEOUT_MAX,
 } from "../configs/session";
 import t from "../i18n";
 import { warningMessage } from "../logger";
@@ -80,6 +82,7 @@ export const defaultSessionConfig = (
     timeout: $n(env.timeout, TIMEOUT_DEFAULT),
     taskLength: $n(env.taskLength, TASK_LENGTH_DEFAULT),
     globalTimeout: $n(env.globalTimeout, GLOBAL_TIMEOUT_DEFAULT),
+    afterAllTimeout: $n(env.afterAllTimeout, AFTER_ALL_TIMEOUT_DEFAULT),
     minimumItemsToSuccess: $n(
       env.minimumItemsToSuccess,
       MINIMUM_ITEMS_TO_SUCCESS_DEFAULT,
@@ -129,6 +132,11 @@ export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => {
       GLOBAL_TIMEOUT_MAX,
       defaults.globalTimeout,
       config?.globalTimeout,
+    ),
+    afterAllTimeout: getMax(
+      AFTER_ALL_TIMEOUT_MAX,
+      defaults.afterAllTimeout,
+      config?.afterAllTimeout,
     ),
     timeout: getMax(TIMEOUT_MAX, defaults.timeout, config?.timeout),
     taskLength: getMax(
