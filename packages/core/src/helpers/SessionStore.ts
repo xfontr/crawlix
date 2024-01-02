@@ -33,6 +33,7 @@ const SessionStore = () => {
     }
 
     EventBus.removeAllListeners("ACTION:COUNT");
+    EventBus.removeAllListeners("SESSION:LOG");
 
     const endDate = new Date();
 

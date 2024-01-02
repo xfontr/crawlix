@@ -20,6 +20,7 @@ let initialized = false;
 const Session = (baseConfig?: Partial<SessionConfig>) => {
   const config = setConfig(baseConfig);
   const store = SessionStore();
+
   let sendEmail: ReturnType<typeof Email> | undefined = undefined;
 
   const end = (abruptEnd = false): void => {
