@@ -1,9 +1,8 @@
 import { Page } from "puppeteer";
-import { Session } from "../../..";
-import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
-import Scraper from "../Scraper";
-import ScraperTools from "../ScraperTools";
-import t from "../../i18n";
+import { Session } from "../..";
+import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
+import Scraper from "./Scraper";
+import t from "../i18n";
 
 const mockInfo = jest.fn();
 

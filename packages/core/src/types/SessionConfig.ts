@@ -1,3 +1,5 @@
+import ScraperTools from "./ScraperTools";
+
 interface SessionConfig {
   offset: {
     /**
@@ -85,5 +87,11 @@ interface SessionConfig {
       }
     | undefined;
 }
+
+export type SessionConfigInit<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = {
+  ScraperTool: ScraperTools<T>;
+} & Partial<SessionConfig>;
 
 export default SessionConfig;
