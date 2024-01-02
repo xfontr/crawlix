@@ -20,7 +20,6 @@ const Scraper = async (
   const $s = Session(baseConfig).init();
 
   const page = await Puppeteer();
-  if (!page) return;
 
   const $t = ScraperTools($s, page, itemData);
 
@@ -49,11 +48,17 @@ const Scraper = async (
 
     infoMessage(t("session_actions.after_all"));
 
-    return await callback({
-      notify: $t.hooks.notify,
-      saveAsJson: $t.hooks.saveAsJson,
-      logMessage: $t.hooks.logMessage,
-    });
+    return $s.setGlobalTimeout(async (cleanUp) => {
+      const result = await callback({
+        notify: $t.hooks.notify,
+        saveAsJson: $t.hooks.saveAsJson,
+        logMessage: $t.hooks.logMessage,
+      });
+
+      cleanUp();
+
+      return result;
+    })    
   };
 
   return {
