@@ -101,7 +101,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
               Error(
                 t(
                   `session.error.${
-                    timeout === "globalTimeout" ? "global_timeout" : "after_all" // TODO: TEST
+                    timeout === "globalTimeout" ? "global_timeout" : "after_all"
                   }`,
                 ),
               ),
@@ -111,7 +111,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
               },
             );
             resolve("ABRUPT_ENDING");
-          }, store.current()[timeout])), // TODO: TEST
+          }, store.current()[timeout])),
       ),
       callback(cleanUp),
     ]);
