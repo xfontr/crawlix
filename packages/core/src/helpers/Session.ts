@@ -85,6 +85,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
    */
   const setGlobalTimeout = async <T>(
     callback: (cleanUp: () => void) => Promise<T>,
+    timeout: "globalTimeout" | "afterAllTimeout"
   ): Promise<T | "ABRUPT_ENDING"> => {
     let storedTimeout: NodeJS.Timeout | undefined = undefined;
 
@@ -101,7 +102,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
               isCritical: true,
             });
             resolve("ABRUPT_ENDING");
-          }, store.current().globalTimeout)),
+          }, store.current()[timeout])),
       ),
       callback(cleanUp),
     ]);

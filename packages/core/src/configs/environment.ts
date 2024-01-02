@@ -10,6 +10,7 @@ const ENVIRONMENT = {
   timeout: process.env["SCRAPER_TIMEOUT"],
   taskLength: process.env["SCRAPER_TASK_LENGTH"],
   globalTimeout: process.env["SCRAPER_GLOBAL_TIMEOUT"],
+  afterAllTimeout: process.env["SCRAPER_AFTER_ALL_TIMEOUT"],
   minimumItemsToSuccess: process.env["SCRAPER_MINIMUM_ITEMS_TO_SUCCESS"],
   usageData: process.env["SCRAPER_USAGE_DATA"],
   allowDefaultConfigs: process.env["SCRAPER_ALLOW_DEFAULT_CONFIGS"],

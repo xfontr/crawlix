@@ -12,6 +12,8 @@ import {
   TIMEOUT_DEFAULT,
   USAGE_DATA_DEFAULT,
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
+  AFTER_ALL_TIMEOUT_MAX,
+  AFTER_ALL_TIMEOUT_DEFAULT,
 } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
@@ -46,6 +48,7 @@ describe("Given a setConfig function", () => {
           page: 0,
         },
         globalTimeout: GLOBAL_TIMEOUT_MAX + 1,
+        afterAllTimeout: AFTER_ALL_TIMEOUT_MAX + 1,
         timeout: TIMEOUT_MAX + 1,
         taskLength: TASK_LENGTH_MAX + 1,
       });
@@ -57,6 +60,7 @@ describe("Given a setConfig function", () => {
           page: 0,
         },
         globalTimeout: GLOBAL_TIMEOUT_MAX,
+        afterAllTimeout: AFTER_ALL_TIMEOUT_MAX,
         timeout: TIMEOUT_MAX,
         taskLength: TASK_LENGTH_MAX,
       });
@@ -223,6 +227,7 @@ describe("Given a defaultSessionConfig function", () => {
     ENVIRONMENT.timeout = undefined;
     ENVIRONMENT.taskLength = undefined;
     ENVIRONMENT.globalTimeout = "aaa"; // Expects a number;
+    ENVIRONMENT.afterAllTimeout = "aaa"; // Expects a number;
     ENVIRONMENT.minimumItemsToSuccess = undefined;
     ENVIRONMENT.usageData = "999"; // Expects a boolean;
     ENVIRONMENT.allowDefaultConfigs = undefined;
@@ -236,6 +241,7 @@ describe("Given a defaultSessionConfig function", () => {
       const expectedDefaultConfig: SessionConfig = {
         allowDefaultConfigs: ALLOW_DEFAULT_CONFIGS_DEFAULT,
         globalTimeout: GLOBAL_TIMEOUT_DEFAULT,
+        afterAllTimeout: AFTER_ALL_TIMEOUT_DEFAULT,
         limit: {
           items: LIMIT_ITEMS_DEFAULT,
           page: LIMIT_PAGES_DEFAULT,
@@ -294,6 +300,7 @@ describe("Given a defaultSessionConfig function", () => {
       ENVIRONMENT.timeout = "9000";
       ENVIRONMENT.taskLength = "100";
       ENVIRONMENT.globalTimeout = "100";
+      ENVIRONMENT.afterAllTimeout = "100";
       ENVIRONMENT.minimumItemsToSuccess = "0.6";
       ENVIRONMENT.usageData = "true";
       ENVIRONMENT.allowDefaultConfigs = "true";
@@ -306,6 +313,7 @@ describe("Given a defaultSessionConfig function", () => {
       const expectedDefaultConfig: SessionConfig = {
         allowDefaultConfigs: true,
         globalTimeout: 100,
+        afterAllTimeout: 100,
         limit: {
           items: 100,
           page: 20,
