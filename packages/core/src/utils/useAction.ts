@@ -3,8 +3,6 @@ import ScraperSpeed from "../types/ScraperSpeed";
 import EventBus from "./EventBus";
 import t from "../i18n";
 
-// TODO: Consider placing these two inside the function itself, and then rearranging the tests without mocking the EventBus
-
 const useAction = (taskLength: number) => {
   let isSessionOn = true;
 
@@ -16,7 +14,7 @@ const useAction = (taskLength: number) => {
     callback: CustomFunction<T>,
     speed: ScraperSpeed,
   ): Promise<T | void> => {
-    if (speed * taskLength === 0) return callback(); // TODO: Test this, or maybe simply remove it, as it probably doesn't really change anything for good
+    if (speed * taskLength === 0) return callback();
 
     return await new Promise((resolve) => {
       setTimeout(() => {
@@ -33,7 +31,7 @@ const useAction = (taskLength: number) => {
     if (!isSessionOn) return [undefined, undefined];
 
     const [response, error] = await tryCatch<T>(delay, callback, speed);
-    
+
     EventBus.emit("ACTION:COUNT", speed);
 
     error &&

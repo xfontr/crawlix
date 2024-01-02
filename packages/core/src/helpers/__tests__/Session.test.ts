@@ -1,4 +1,5 @@
-import { SessionData } from "../../..";
+import type { SessionData } from "../../..";
+import CreateError from "../../utils/CreateError";
 import { LIMIT_ITEMS_MAX } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
@@ -228,14 +229,51 @@ describe("Given a Session.setGlobalTimeout function", () => {
         return result;
       });
 
-      expect(response).toBe("ABRUPT_ENDING");
-      expect(mockLogError).toHaveBeenCalledWith(
+      const expectedError = CreateError(
         Error(t("session.error.global_timeout")),
-        true,
+        {
+          name: t("error_index.session"),
+        },
       );
+
+      expect(response).toBe("ABRUPT_ENDING");
+      expect(mockLogError).toHaveBeenCalledWith(expectedError, true);
+
+      expect((mockLogError.mock.calls[0] as CustomError[])[0]?.name).toBe(
+        expectedError.name,
+      );
+      expect(
+        (mockLogError.mock.calls[0] as CustomError[])[0]?.publicMessage,
+      ).toBe(expectedError.message);
     });
 
-    // test("Then it should not complete the passed function", () => {}); // TODO??? IDK WHAT THIS IS
+    describe("When called with an afterAll promise function with a running time higher than the afterAll timeout", () => {
+      test("Then it should log an error and resolve 'ABRUPT_ENDING'", async () => {
+        const promiseTimeout = mockSessionConfig.afterAllTimeout + 1;
+        const { setGlobalTimeout } = Session(mockSessionConfig).init();
+
+        const response = await setGlobalTimeout(async (cleanUp) => {
+          const result = await promiseFunction(promiseTimeout);
+          cleanUp();
+          return result;
+        }, "afterAllTimeout");
+
+        expect(response).toBe("ABRUPT_ENDING");
+
+        const expectedError = CreateError(Error(t("session.error.after_all")), {
+          name: t("error_index.session"),
+        });
+
+        expect(response).toBe("ABRUPT_ENDING");
+        expect(mockLogError).toHaveBeenCalledWith(expectedError, true);
+        expect((mockLogError.mock.calls[0] as CustomError[])[0]?.name).toBe(
+          expectedError.name,
+        );
+        expect(
+          (mockLogError.mock.calls[0] as CustomError[])[0]?.publicMessage,
+        ).toBe(expectedError.message);
+      });
+    });
   });
 });
 
