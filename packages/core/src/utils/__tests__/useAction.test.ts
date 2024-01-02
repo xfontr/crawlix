@@ -1,5 +1,6 @@
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable jest/no-conditional-expect */
+import t from "../../i18n";
 import Events from "../../types/Events";
 import ScraperSpeed from "../../types/ScraperSpeed";
 import EventBus from "../EventBus";
@@ -104,9 +105,17 @@ describe("Given an useAction function", () => {
       await $a(callbackWithError, speed);
 
       expect(mockEmit).toHaveBeenCalledTimes(emitCalls);
+
+      expect(
+        (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[1] instanceof Error,
+      ).toBeTruthy();
       expect(
         (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[2],
-      ).toBe(false);
+      ).toStrictEqual({
+        name: t("error_index.action"),
+        publicMessage: t("session_actions.error.default"),
+        isCritical: false,
+      });
     });
 
     test("Then it should not do anything if the session is off", async () => {
@@ -151,8 +160,15 @@ describe("Given an useAction function", () => {
 
       expect(mockEmit).toHaveBeenCalledTimes(emitCalls);
       expect(
+        (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[1] instanceof Error,
+      ).toBeTruthy();
+      expect(
         (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[2],
-      ).toBe(true);
+      ).toStrictEqual({
+        name: t("error_index.action"),
+        publicMessage: t("session_actions.error.default"),
+        isCritical: true,
+      });
     });
   });
 });
