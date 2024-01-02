@@ -13,12 +13,15 @@ const useAction = (taskLength: number) => {
   const delay = async <T>(
     callback: CustomFunction<T>,
     speed: ScraperSpeed,
-  ): Promise<T | void> =>
-    await new Promise((resolve) => {
+  ): Promise<T | void> => {
+    if (speed * taskLength === 0) return callback();
+    
+    return await new Promise((resolve) => {
       setTimeout(() => {
         resolve(callback());
       }, speed * taskLength);
     });
+  };
 
   const action = async <T>(
     callback: CustomFunction<T> | PromiseFunction<T>,
@@ -32,30 +35,30 @@ const useAction = (taskLength: number) => {
     EventBus.emit("ACTION:COUNT", speed);
 
     error &&
-      EventBus.emit(
-        "SESSION:ERROR",
-        error,
-        {
-          name: t("error_index.action"),
-          publicMessage: t("session_actions.error.default"),
-          isCritical,
-        },
-      );
+      EventBus.emit("SESSION:ERROR", error, {
+        name: t("error_index.action"),
+        publicMessage: t("session_actions.error.default"),
+        isCritical,
+      });
 
     return [response as Awaited<T>, error];
   };
 
+  /**
+   * @description Normal action. If an error is hanlded, will not break the app.
+   */
   const $a = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>
     action(callback, speed, false);
 
+  /**
+   * @description Critical action. If an error is hanlded, will break the app.
+   */
   const $$a = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>
     action(callback, speed, true);
 
   return {
     $a,
     $$a,
-    action: $a,
-    criticalAction: $$a,
   };
 };
 

@@ -78,6 +78,7 @@ const ScraperTools = (
     changePage,
     scrapItems,
     goToPage,
+    getElement,
     abort: (abrupt = true) => $s.end(abrupt),
     store: $s.store,
     hooks: {

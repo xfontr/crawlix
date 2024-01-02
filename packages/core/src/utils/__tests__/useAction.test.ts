@@ -35,7 +35,7 @@ describe("Given an useAction function", () => {
   const callbackWithError = () =>
     new Promise((_, reject) => reject(new Error(errorMessage)));
 
-  const { $a, action, $$a, criticalAction } = useAction(taskLength);
+  const { $a, $$a } = useAction(taskLength);
 
   describe("When called its returned functions with a callback and no task length", () => {
     test("Then they should work with a delay of 0", async () => {
@@ -93,7 +93,7 @@ describe("Given an useAction function", () => {
       const numberOfCalls = 1;
       const expectedEvent: Events = "ACTION:COUNT";
 
-      await action(callback, speed);
+      await $a(callback, speed);
 
       expect(mockEmit).toHaveBeenCalledWith(expectedEvent, speed);
       expect(mockEmit).toHaveBeenCalledTimes(numberOfCalls);
@@ -107,7 +107,9 @@ describe("Given an useAction function", () => {
       expect(mockEmit).toHaveBeenCalledTimes(emitCalls);
 
       expect(
-        (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[1] instanceof Error,
+        (
+          mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>
+        )[1] instanceof Error,
       ).toBeTruthy();
       expect(
         (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[2],
@@ -121,7 +123,7 @@ describe("Given an useAction function", () => {
     test("Then it should not do anything if the session is off", async () => {
       EventBus.emit("SESSION:ACTIVE", false);
 
-      await action(callback, speed);
+      await $a(callback, speed);
 
       expect(mockEmit).not.toHaveBeenCalled();
 
@@ -156,11 +158,13 @@ describe("Given an useAction function", () => {
     test("Then it should catch any error and emit a critical error event", async () => {
       const emitCalls = 2;
 
-      await criticalAction(callbackWithError, speed);
+      await $$a(callbackWithError, speed);
 
       expect(mockEmit).toHaveBeenCalledTimes(emitCalls);
       expect(
-        (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[1] instanceof Error,
+        (
+          mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>
+        )[1] instanceof Error,
       ).toBeTruthy();
       expect(
         (mockEmit.mock.calls[1] as Parameters<typeof EventBus.emit>)[2],
