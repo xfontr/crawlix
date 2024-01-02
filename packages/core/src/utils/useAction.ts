@@ -13,12 +13,15 @@ const useAction = (taskLength: number) => {
   const delay = async <T>(
     callback: CustomFunction<T>,
     speed: ScraperSpeed,
-  ): Promise<T | void> =>
-    await new Promise((resolve) => {
+  ): Promise<T | void> => {
+    if (speed * taskLength === 0) return callback();
+    
+    return await new Promise((resolve) => {
       setTimeout(() => {
         resolve(callback());
       }, speed * taskLength);
     });
+  };
 
   const action = async <T>(
     callback: CustomFunction<T> | PromiseFunction<T>,
