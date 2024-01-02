@@ -4,6 +4,7 @@ import { infoMessage } from "../logger";
 import Puppeteer from "../helpers/Puppeteer";
 import ScraperTools from "./ScraperTools";
 import SessionStore from "../helpers/SessionStore";
+import { tryCatch } from "@personal/utils";
 
 type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
   Pick<ReturnType<typeof Session>, "saveAsJson"> &
@@ -42,16 +43,23 @@ const Scraper = async (
   ) => {
     infoMessage(t("session_actions.after_all"));
 
-    const afterAllResult = $s.setGlobalTimeout(async (cleanUp) => {
-      const result = await callback({
-        notify: $t.hooks.notify,
-        saveAsJson: $t.hooks.saveAsJson,
-        logMessage: $t.hooks.logMessage,
-      });
+    /**
+     * This function is meant to run only after the main actual run. Therefore, the store has already been
+     * ended and using the $$a function would cause this not to work (plus, it would be pointless)
+     */
+    const afterAllResult = tryCatch<ReturnType<T>>(
+      async () =>
+        await $s.setGlobalTimeout(async (cleanUp) => {
+          const result = await callback({
+            notify: $t.hooks.notify,
+            saveAsJson: $t.hooks.saveAsJson,
+            logMessage: $t.hooks.logMessage,
+          });
 
-      cleanUp();
-      return result;
-    });
+          cleanUp();
+          return result;
+        }, "afterAllTimeout"),
+    );
 
     return afterAllResult;
   };

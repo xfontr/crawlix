@@ -15,7 +15,7 @@ const ScraperTools = (
   const goToPage = async (url = offset.url!) => await $$a(() => page.goto(url));
 
   const getElement = async (parent: ElementHandle<Element>, selector: string) =>
-    $a(() => parent.$eval(selector, (category) => category.textContent));
+    $a(() => parent.$eval(selector, ({ textContent }) => textContent));
 
   const scrapItems = async (selector: string): Promise<void> => {
     if (!itemData) return;

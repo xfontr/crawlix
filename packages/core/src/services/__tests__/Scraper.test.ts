@@ -3,6 +3,15 @@ import { Session } from "../../..";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
 import Scraper from "../Scraper";
 import ScraperTools from "../ScraperTools";
+import t from "../../i18n";
+
+const mockInfo = jest.fn();
+
+jest.mock("pino", () => () => ({
+  info: (...args: unknown[]) => mockInfo(...args),
+  error: (...args: unknown[]) => args,
+  warn: (...args: unknown[]) => args,
+}));
 
 const mockGoto = jest.fn().mockResolvedValue(true);
 const mockPage = {
@@ -25,7 +34,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const promiseFunction = async (timeout: number): Promise<true> => {
+const promiseFunction = async (timeout = 0): Promise<true> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(true);
@@ -110,17 +119,56 @@ describe("Given a Scraper.run function", () => {
 });
 
 describe("Given a Scraper.afterAll function", () => {
-  describe("When called", () => {
-    test("Then it should send a message indicating the afterAll functions begun", async () => {});
+  describe("When called with a callback that is shorter than the afterAll timeout", () => {
+    test("Then it should send a message indicating the afterAll functions begun", async () => {
+      const { run: cleanUpEnd, afterAll } = await Scraper(mockSessionConfig);
 
-    test("Then it should do nothing and return undefined if it's the second time it was called", async () => {});
+      const [result, error] = await afterAll(() =>
+        promiseFunction(mockSessionConfig.afterAllTimeout - 1),
+      );
+
+      expect(result).toBe(true);
+      expect(error).toBeUndefined();
+      expect(mockInfo).toHaveBeenCalledWith(t("session_actions.after_all"));
+
+      await cleanUpEnd(() => promiseFunction());
+    });
+
+    test("Then it should provide the callback access to several hooks", async () => {
+      const $s = Session(mockSessionConfig).init();
+      const $t = ScraperTools($s, mockPage);
+      $s.end();
+
+      const { run: cleanUpEnd, afterAll } = await Scraper(mockSessionConfig);
+
+      const expectedToools = JSON.stringify({
+        notify: $t.hooks.notify,
+        saveAsJson: $t.hooks.saveAsJson,
+        logMessage: $t.hooks.logMessage,
+      });
+
+      const [resultTools] = await afterAll(
+        (tools) => new Promise((resolve) => resolve(JSON.stringify(tools))),
+      );
+
+      expect(resultTools).toStrictEqual(expectedToools);
+
+      await cleanUpEnd(() => promiseFunction());
+    });
   });
 
   describe("When called with a callback that is longer than the afterAll timeout", () => {
-    test("Then it should cut the callback and return an 'ABRUPT_ENDING' text", async () => {});
-  });
+    test("Then it should cut the callback and return an 'ABRUPT_ENDING' text", async () => {
+      const { run: cleanUpEnd, afterAll } = await Scraper(mockSessionConfig);
 
-  describe("When called with a callback that is shorter than the afterAll timeout", () => {
-    test("Then it should return the callback returned value", async () => {});
+      const [result, error] = await afterAll(() =>
+        promiseFunction(mockSessionConfig.afterAllTimeout + 1),
+      );
+
+      expect(result).toBe("ABRUPT_ENDING");
+      expect(error).toBeUndefined();
+
+      await cleanUpEnd(() => promiseFunction());
+    });
   });
 });
