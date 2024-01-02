@@ -1,7 +1,6 @@
 import { CustomFunction, PromiseFunction, tryCatch } from "@personal/utils";
 import ScraperSpeed from "../types/ScraperSpeed";
 import EventBus from "./EventBus";
-import CreateError from "./CreateError";
 import t from "../i18n";
 
 let isSessionOn = true;
@@ -35,11 +34,12 @@ const useAction = (taskLength: number) => {
     error &&
       EventBus.emit(
         "SESSION:ERROR",
-        CreateError(error, {
+        error,
+        {
           name: t("error_index.action"),
           publicMessage: t("session_actions.error.default"),
-        }),
-        isCritical,
+          isCritical,
+        },
       );
 
     return [response as Awaited<T>, error];

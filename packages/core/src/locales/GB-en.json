@@ -2,7 +2,8 @@
   "error_index": {
     "session": "SESSION TIMEOUT",
     "email": "EMAIL SERVICE",
-    "action": "SCRAPER ACTION"
+    "action": "SCRAPER ACTION",
+    "init": "SCRAPER INIT"
   },
   "session_store": {
     "warning": {
@@ -55,5 +56,10 @@
   },
   "misc": {
     "unknown_error": "Unknown error"
+  },
+  "scraper": {
+    "puppeteer": {
+      "error": "Could not launch Puppeteer. Double check the package version and currently used Node.js version"
+    }
   }
 }
