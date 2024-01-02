@@ -5,10 +5,8 @@ import Puppeteer from "../helpers/Puppeteer";
 import ScraperTools from "./ScraperTools";
 import SessionStore from "../helpers/SessionStore";
 
-const runData = {
-  run: false,
-  afterAll: false,
-};
+let hasRun = false;
+let hasHafterAll = false;
 
 type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
   Pick<ReturnType<typeof Session>, "saveAsJson"> &
@@ -30,8 +28,8 @@ const Scraper = async (
   const run = async <R, T extends (scraper: typeof $t) => Promise<R>>(
     callback: T,
   ) => {
-    if (runData.run) return;
-    runData.run = true;
+    if (hasRun) return;
+    hasRun = true;
 
     return await $s.setGlobalTimeout(async (cleanUp) => {
       await $t.goToPage();
@@ -46,8 +44,8 @@ const Scraper = async (
   const afterAll = async <R, T extends (scraper: AfterAllTools) => Promise<R>>(
     callback: T,
   ) => {
-    if (runData.afterAll) return;
-    runData.afterAll = true;
+    if (hasHafterAll) return;
+    hasHafterAll = true;
 
     infoMessage(t("session_actions.after_all"));
 

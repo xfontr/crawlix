@@ -3,7 +3,7 @@ import { Page, launch } from "puppeteer";
 import EventBus from "../utils/EventBus";
 import t from "../i18n";
 
-const Puppeteer = async (): Promise<Page | void> => {
+const Puppeteer = async (): Promise<Page> => {
   const [page, error] = await tryCatch<Page>(async () => {
     const browser = await launch({ headless: "new" });
     return await browser.newPage();
@@ -15,10 +15,9 @@ const Puppeteer = async (): Promise<Page | void> => {
       publicMessage: t("scraper.puppeteer.error"),
       isCritical: true,
     });
-    return;
   }
 
-  return page;
+  return page as Page;
 };
 
 export default Puppeteer;
