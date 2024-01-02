@@ -15,7 +15,13 @@ const ScraperTools = (
   const goToPage = async (url = offset.url!) => await $$a(() => page.goto(url));
 
   const getElement = async (parent: ElementHandle<Element>, selector: string) =>
-    $a(() => parent.$eval(selector, ({ textContent }) => textContent));
+    $a(() =>
+      parent.$eval(
+        selector,
+        ({ textContent }) =>
+          textContent?.replace("\n", "").replace("\t", "").trim(),
+      ),
+    );
 
   const scrapItems = async (selector: string): Promise<void> => {
     if (!itemData) return;
@@ -68,7 +74,25 @@ const ScraperTools = (
         page.click(selector),
         page.waitForNavigation({ timeout }),
       ]);
-    }, 0.2);
+    }, 7);
+
+    if (response[1]) return;
+
+    $s.storeHooks[isNext ? "nextPage" : "previousPage"](page.url());
+    infoMessage(t(`session_actions.page_${isNext ? "up" : "down"}`));
+  };
+
+  const changeSPAPage = async (
+    selector: string,
+    waitForSelector: string,
+    isNext = true,
+  ): Promise<void> => {
+    const response = await $$a(async () => {
+      await Promise.all([
+        page.click(selector),
+        page.waitForSelector(waitForSelector),
+      ]);
+    }, 7);
 
     if (response[1]) return;
 
@@ -78,6 +102,7 @@ const ScraperTools = (
 
   return {
     changePage,
+    changeSPAPage,
     scrapItems,
     goToPage,
     getElement,
@@ -90,6 +115,7 @@ const ScraperTools = (
       $$a,
       $a,
     },
+    page,
   };
 };
 

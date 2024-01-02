@@ -71,7 +71,7 @@ describe("Given an Email function", () => {
       expect(
         (mockEmailUrl as string).startsWith("https://ethereal.email/message/"),
       ).toBe(true);
-    });
+    }, 10_000);
 
     test("Then it should try to send the email and return the error if it fails", async () => {
       const sendEmail = Email({
