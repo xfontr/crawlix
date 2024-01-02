@@ -1,5 +1,11 @@
 {
-  "include": ["src/**/*", "src/example.ts", "src/*"],
+  "include": [
+    "src/**/*",
+    "src/example.ts",
+    "src/*",
+    "../core/src/api/Puppeteer.ts",
+    "../core/src/api/Puppeteer.test.ts"
+  ],
   "compilerOptions": {
     "target": "es2016",
     "module": "node16",

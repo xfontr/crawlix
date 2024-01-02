@@ -1,5 +1,6 @@
 import { Session, useAction } from "../..";
 
+// TODO: Pending tests
 const setDefaultTools = (
   $s: ReturnType<typeof Session>,
   { $a, $$a }: ReturnType<typeof useAction>,
