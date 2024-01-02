@@ -6,14 +6,50 @@ The script is structured in three layers, each of on a higher abstraction level:
 
 ### Scraper
 
-Limited set of tools based on nodemailer, and built on the utils provided by the lower level helper "Session". It also provides the "Session" utils, so this tool can actually be used to run the entire script without a real need to descend to lower layers.
+Wraps the entire app and allows to execute the main script with a "run" function. Also allows to run scripts after the main session has ben completed, with an "afterAll" function.
+
+Example:
+
+```ts
+const { run, afterAll } = await Scraper();
+await run(
+  async ({ scrapItems, changePage, page, store, hooks, ...otherTools }) => {
+    await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+
+    await changePage(
+      "#_dynamic_list-2058-7323 > div.oxy-repeater-pages-wrap > div > a:nth-child(2)",
+    );
+
+    await scrapItems("#_dynamic_list-2058-7323 > .ct-div-block");
+
+    // The Puppeteer instance
+    console.log(page);
+
+    // Returns the entire store
+    console.log(store());
+
+    // Fully tested utility functions
+    console.log(hooks);
+  },
+);
+
+await afterAll(async ({ saveAsJson, notify, ...afterAllHooks }) => {
+  await saveAsJson();
+  await notify("CRITICAL_ERROR");
+});
+```
+
+### ScraperTools
+
+Limited set of tools based on Puppeteer, and built on the utils provided by the lower level helper "Session". It also provides the "Session" utils.
+
+It should be adapted to each individual needs and this is why its tools may not serve every purpose. Therefore, its utils are not fully tested, and we recommend using directly the "page" utils provided and every other hook (which are tested).
 
 Main utilities:
 
 - Hooks to all the utils provided by the Session layer.
 - scrapItems function to grab items in bulk from a HTML container.
 - pageUp function to increase the page while also updating the store and handling any error.
-- A main function container that allows total control over the script, and that is a must if you wish to use the "globalTimeout" variable.
 
 ### Session
 
