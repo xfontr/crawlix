@@ -1,43 +1,32 @@
-import { Session } from "../..";
+import { ScraperTools, Session, SessionData, useAction } from "../..";
 import t from "../i18n";
 import { infoMessage } from "../logger";
 import SessionStore from "../helpers/SessionStore";
 import { tryCatch } from "@personal/utils";
 import type { SessionConfigInit } from "../types/SessionConfig";
+import setDefaultTools from "../utils/setDefaultTools";
 
 type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
   Pick<ReturnType<typeof Session>, "saveAsJson"> &
-  Pick<ReturnType<typeof SessionStore>, "logMessage">;
+  Pick<ReturnType<typeof SessionStore>, "logMessage"> & {
+    store: () => SessionData;
+  };
 
-const scraper = <S extends Record<string, unknown>>({
-  ScraperTool,
-  ...baseConfig
-}: SessionConfigInit<S>) => {
-  const session = Session(baseConfig).init();
+type Tools<S extends Record<string, unknown>> = ReturnType<ScraperTools<S>>;
 
-  return async () => {
-    const $t = await ScraperTool(session);
-
-    // SESSION WRAPPERS
-    const run = async <R, T extends (scraper: typeof $t) => Promise<R>>(
-      callback: T,
-    ) => {
-      const runResult = await $t.hooks.$$a(() =>
-        session.setGlobalTimeout(async (cleanUp) => {
-          await $t.init?.();
-          const result = await callback($t);
-          $t.abort(false);
-          cleanUp();
-          return result;
-        }),
-      );
-
-      return runResult;
-    };
+const scraper =
+  <S extends Record<string, unknown>>({
+    ScraperTool,
+    ...baseConfig
+  }: Partial<SessionConfigInit<S>> = {}) =>
+  async () => {
+    const session = Session(baseConfig).init();
+    const actions = useAction(session.store().taskLength);
+    let tools = setDefaultTools(session, actions);
 
     const afterAll = async <
       R,
-      T extends (scraper: AfterAllTools) => Promise<R>,
+      T extends (scraper: AfterAllTools) => Promise<R> | R,
     >(
       callback: T,
     ) => {
@@ -51,9 +40,10 @@ const scraper = <S extends Record<string, unknown>>({
         async () =>
           await session.setGlobalTimeout(async (cleanUp) => {
             const result = await callback({
-              notify: $t.hooks.notify,
-              saveAsJson: $t.hooks.saveAsJson,
-              logMessage: $t.hooks.logMessage,
+              notify: session.notify,
+              saveAsJson: session.saveAsJson,
+              logMessage: session.storeHooks.logMessage,
+              store: session.store,
             });
 
             cleanUp();
@@ -64,11 +54,53 @@ const scraper = <S extends Record<string, unknown>>({
       return afterAllResult;
     };
 
+    if (ScraperTool) {
+      const [customScraper, error] = await tryCatch<Awaited<Tools<S>>>(() =>
+        ScraperTool(session, actions),
+      );
+
+      if (error || !customScraper) {
+        session.error(error || Error(t("scraper.error.empty")), {
+          name: t("error_index.init"),
+          publicMessage: t(`scraper.error.${error ? "launch" : "empty"}`),
+          isCritical: true,
+        });
+
+        return {
+          run: () => [undefined, error],
+          afterAll,
+        };
+      }
+
+      tools = { ...customScraper, ...tools };
+    }
+
+    const run = async <
+      R,
+      T extends (scraper: Awaited<Tools<S>> & typeof tools) => Promise<R> | R,
+    >(
+      callback: T,
+    ) => {
+      const runResult = await actions.$$a(() =>
+        session.setGlobalTimeout(async (cleanUp) => {
+          ScraperTool &&
+            (await (tools as Awaited<Tools<S>> & typeof tools).init?.());
+          const result = await callback(
+            tools as Awaited<Tools<S>> & typeof tools,
+          );
+          session.end(false);
+          cleanUp();
+          return result;
+        }),
+      );
+
+      return runResult;
+    };
+
     return {
       run,
       afterAll,
     };
   };
-};
 
 export default scraper;

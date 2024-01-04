@@ -1,6 +1,5 @@
 import { Session, useAction } from "../..";
 
-// TODO: Pending tests
 const setDefaultTools = (
   $s: ReturnType<typeof Session>,
   { $a, $$a }: ReturnType<typeof useAction>,
@@ -11,6 +10,7 @@ const setDefaultTools = (
     ...$s.storeHooks,
     saveAsJson: $s.saveAsJson,
     notify: $s.notify,
+    logError: $s.error,
     $$a,
     $a,
   },

@@ -14,6 +14,7 @@ import { type EmailRequest } from "../types/EmailContent";
 import EmailTemplates from "../utils/EmailTemplates";
 import CreateError from "../utils/CreateError";
 import { type CustomErrorProps } from "../types/CustomError";
+import { ABRUPT_ENDING_ERROR } from "../configs/session";
 
 let initialized = false;
 
@@ -23,18 +24,19 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
   let sendEmail: ReturnType<typeof Email> | undefined = undefined;
 
-  const end = (abruptEnd = false): void => {
+  const end = (abruptEnd = false): SessionData | undefined => {
     if (!initialized) return;
 
     initialized = false;
 
-    store.end(!abruptEnd);
+    const finalStore = store.end(!abruptEnd);
 
     EventBus.emit("SESSION:ACTIVE", false);
     EventBus.removeAllListeners("SESSION:ERROR");
     EventBus.removeAllListeners("SESSION:ACTIVE");
 
     infoMessage(t("session.end"));
+    return finalStore;
   };
 
   const init = () => {
@@ -62,7 +64,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   const error = (
     error: Error | undefined,
     { isCritical, ...props }: CustomErrorProps & { isCritical?: boolean } = {},
-  ) => {
+  ): void => {
     if (!error) return;
 
     const customError = CreateError(error, props);
@@ -87,14 +89,14 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   const setGlobalTimeout = async <T>(
     callback: (cleanUp: () => void) => Promise<T>,
     timeout: "globalTimeout" | "afterAllTimeout" = "globalTimeout",
-  ): Promise<T | "ABRUPT_ENDING"> => {
+  ): Promise<T | symbol> => {
     let storedTimeout: NodeJS.Timeout | undefined = undefined;
 
     const cleanUp = () => {
       clearInterval(storedTimeout);
     };
 
-    return await Promise.race<T | "ABRUPT_ENDING">([
+    return await Promise.race<T | symbol>([
       new Promise(
         (resolve) =>
           (storedTimeout = setTimeout(() => {
@@ -111,7 +113,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
                 isCritical: true,
               },
             );
-            resolve("ABRUPT_ENDING");
+            resolve(ABRUPT_ENDING_ERROR);
           }, store.current()[timeout])),
       ),
       callback(cleanUp),

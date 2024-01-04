@@ -1,6 +1,6 @@
 import type { SessionData } from "../../..";
 import CreateError from "../../utils/CreateError";
-import { LIMIT_ITEMS_MAX } from "../../configs/session";
+import { ABRUPT_ENDING_ERROR, LIMIT_ITEMS_MAX } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
 import mockSessionData from "../../test-utils/mocks/mockSessionData";
@@ -12,6 +12,8 @@ import setConfig from "../../utils/setConfig";
 import Session from "../Session";
 
 jest.useFakeTimers();
+
+const mockEndResult = "test";
 
 const mockInit = jest.fn();
 const mockEnd = jest.fn();
@@ -61,7 +63,6 @@ const promiseFunction = async (timeout: number): Promise<true> => {
 
 beforeEach(() => {
   jest.resetAllMocks();
-  jest.clearAllMocks();
   mockCurrent.mockReturnValue({
     globalTimeout: 10,
     emailing: mockSessionConfig.emailing,
@@ -120,10 +121,12 @@ describe("Given a Session.init function", () => {
 
 describe("Given a Session.end function", () => {
   describe("When called with no parameters", () => {
-    test("Then it should softly end the store", () => {
-      Session(mockSessionConfig).init().end();
+    test("Then it should softly end the store and return its value", () => {
+      mockEnd.mockReturnValue(mockEndResult);
+      const result = Session(mockSessionConfig).init().end();
 
       expect(mockEnd).toHaveBeenCalledWith(true);
+      expect(result).toBe(mockEndResult);
     });
   });
 
@@ -236,7 +239,7 @@ describe("Given a Session.setGlobalTimeout function", () => {
         },
       );
 
-      expect(response).toBe("ABRUPT_ENDING");
+      expect(response).toBe(ABRUPT_ENDING_ERROR);
       expect(mockLogError).toHaveBeenCalledWith(expectedError, true);
 
       expect((mockLogError.mock.calls[0] as CustomError[])[0]?.name).toBe(
@@ -258,13 +261,13 @@ describe("Given a Session.setGlobalTimeout function", () => {
           return result;
         }, "afterAllTimeout");
 
-        expect(response).toBe("ABRUPT_ENDING");
+        expect(response).toBe(ABRUPT_ENDING_ERROR);
 
         const expectedError = CreateError(Error(t("session.error.after_all")), {
           name: t("error_index.session"),
         });
 
-        expect(response).toBe("ABRUPT_ENDING");
+        expect(response).toBe(ABRUPT_ENDING_ERROR);
         expect(mockLogError).toHaveBeenCalledWith(expectedError, true);
         expect((mockLogError.mock.calls[0] as CustomError[])[0]?.name).toBe(
           expectedError.name,
