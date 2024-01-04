@@ -59,8 +59,9 @@
     "unknown_error": "Unknown error"
   },
   "scraper": {
-    "puppeteer": {
-      "error": "Could not launch Puppeteer. Double check the package version and currently used Node.js version"
+    "error": {
+      "launch": "Could not launch the Scraper. There was an error while running the external ScraperTool script",
+      "empty": "The scraper tool provided is empty and therefore cannot be included in the script"
     }
   }
 }

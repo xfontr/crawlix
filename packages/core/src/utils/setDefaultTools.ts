@@ -11,6 +11,7 @@ const setDefaultTools = (
     ...$s.storeHooks,
     saveAsJson: $s.saveAsJson,
     notify: $s.notify,
+    logError: $s.error,
     $$a,
     $a,
   },
