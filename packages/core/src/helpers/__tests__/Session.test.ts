@@ -1,6 +1,6 @@
 import type { SessionData } from "../../..";
 import CreateError from "../../utils/CreateError";
-import { LIMIT_ITEMS_MAX } from "../../configs/session";
+import { ABRUPT_ENDING_ERROR, LIMIT_ITEMS_MAX } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
 import mockSessionData from "../../test-utils/mocks/mockSessionData";
@@ -236,7 +236,7 @@ describe("Given a Session.setGlobalTimeout function", () => {
         },
       );
 
-      expect(response).toBe("ABRUPT_ENDING");
+      expect(response).toBe(ABRUPT_ENDING_ERROR);
       expect(mockLogError).toHaveBeenCalledWith(expectedError, true);
 
       expect((mockLogError.mock.calls[0] as CustomError[])[0]?.name).toBe(
@@ -258,13 +258,13 @@ describe("Given a Session.setGlobalTimeout function", () => {
           return result;
         }, "afterAllTimeout");
 
-        expect(response).toBe("ABRUPT_ENDING");
+        expect(response).toBe(ABRUPT_ENDING_ERROR);
 
         const expectedError = CreateError(Error(t("session.error.after_all")), {
           name: t("error_index.session"),
         });
 
-        expect(response).toBe("ABRUPT_ENDING");
+        expect(response).toBe(ABRUPT_ENDING_ERROR);
         expect(mockLogError).toHaveBeenCalledWith(expectedError, true);
         expect((mockLogError.mock.calls[0] as CustomError[])[0]?.name).toBe(
           expectedError.name,
