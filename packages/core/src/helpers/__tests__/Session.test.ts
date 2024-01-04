@@ -13,6 +13,8 @@ import Session from "../Session";
 
 jest.useFakeTimers();
 
+const mockEndResult = "test";
+
 const mockInit = jest.fn();
 const mockEnd = jest.fn();
 const mockLogError = jest.fn();
@@ -61,7 +63,6 @@ const promiseFunction = async (timeout: number): Promise<true> => {
 
 beforeEach(() => {
   jest.resetAllMocks();
-  jest.clearAllMocks();
   mockCurrent.mockReturnValue({
     globalTimeout: 10,
     emailing: mockSessionConfig.emailing,
@@ -120,10 +121,12 @@ describe("Given a Session.init function", () => {
 
 describe("Given a Session.end function", () => {
   describe("When called with no parameters", () => {
-    test("Then it should softly end the store", () => {
-      Session(mockSessionConfig).init().end();
+    test("Then it should softly end the store and return its value", () => {
+      mockEnd.mockReturnValue(mockEndResult);
+      const result = Session(mockSessionConfig).init().end();
 
       expect(mockEnd).toHaveBeenCalledWith(true);
+      expect(result).toBe(mockEndResult);
     });
   });
 

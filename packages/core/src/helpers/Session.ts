@@ -24,18 +24,19 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
   let sendEmail: ReturnType<typeof Email> | undefined = undefined;
 
-  const end = (abruptEnd = false): void => {
+  const end = (abruptEnd = false): SessionData | undefined => {
     if (!initialized) return;
 
     initialized = false;
 
-    store.end(!abruptEnd);
+    const finalStore = store.end(!abruptEnd);
 
     EventBus.emit("SESSION:ACTIVE", false);
     EventBus.removeAllListeners("SESSION:ERROR");
     EventBus.removeAllListeners("SESSION:ACTIVE");
 
     infoMessage(t("session.end"));
+    return finalStore;
   };
 
   const init = () => {

@@ -163,7 +163,7 @@ describe("Given a Scraper.run function", () => {
       );
       $s.end();
 
-      const { run } = await Scraper();
+      const { run } = await scraper()();
 
       const [result] = await run(async () => {
         await promiseFunction(mockSessionConfig.globalTimeout - 1);
