@@ -3,6 +3,7 @@ import Session from "./src/helpers/Session";
 import Scraper from "./src/services/Scraper";
 import Email from "./src/helpers/Email";
 import useAction from "./src/utils/useAction";
+import Puppeteer from "./src/api/Puppeteer";
 
 // Import types
 import type DefaultItem from "./src/types/DefaultItem";
@@ -32,4 +33,5 @@ export type {
   Events,
   ScraperTools,
   SessionConfigInit,
+  Puppeteer,
 };

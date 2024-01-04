@@ -1,6 +1,6 @@
 export type CustomFunction<T = any> = (...args: any[]) => T;
 
-export type PromiseFunction<T = any> = CustomFunction<Promise<T>>;
+export type PromiseFunction<T = any> = CustomFunction<Promise<T>> | CustomFunction<T>;
 
 const tryCatch = async <
   R = any,

@@ -1,7 +1,5 @@
 import { ElementHandle, Page } from "puppeteer";
-import { useAction } from "@scraper/core";
 import ScraperTools from "@scraper/core/src/types/ScraperTools";
-import setDefaultTools from "@scraper/core/src/utils/setDefaultTools";
 import { infoMessage } from "@scraper/core/src/logger";
 import t from "@scraper/core/src/i18n";
 import { objectEntries } from "@personal/utils";
@@ -25,9 +23,8 @@ export type CustomTools = {
   ) => Promise<void>;
 };
 
-const ScraperTool: ScraperTools<CustomTools> = async ($s) => {
-  const { taskLength, offset, timeout } = $s.store();
-  const { $$a, $a } = useAction(taskLength);
+const ScraperTool: ScraperTools<CustomTools> = async ($s, { $a, $$a }) => {
+  const { offset, timeout } = $s.store();
 
   const page = await Puppeteer();
 
@@ -130,7 +127,6 @@ const ScraperTool: ScraperTools<CustomTools> = async ($s) => {
     getElement,
     page,
     init,
-    ...setDefaultTools($s, { $$a, $a }),
   };
 };
 
