@@ -1,8 +1,8 @@
-import { readdir, unlink, writeFile } from "fs/promises";
+import { mkdir, readdir, unlink, writeFile } from "fs/promises";
 import t from "../i18n";
 import { errorMessage, infoMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
-import EventBus from "../utils/EventBus";
+import EventBus from "./EventBus";
 import setConfig from "../utils/setConfig";
 import SessionStore from "./SessionStore";
 import { tryCatch } from "@personal/utils";
@@ -11,10 +11,11 @@ import ENVIRONMENT from "../configs/environment";
 import Email from "./Email";
 import type { SessionData } from "../..";
 import { type EmailRequest } from "../types/EmailContent";
-import EmailTemplates from "../utils/EmailTemplates";
 import CreateError from "../utils/CreateError";
 import { type CustomErrorProps } from "../types/CustomError";
 import { ABRUPT_ENDING_ERROR } from "../configs/session";
+import EmailTemplates from "./EmailTemplates";
+import { existsSync } from "fs";
 
 let initialized = false;
 
@@ -120,19 +121,23 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     ]);
   };
 
-  const saveAsJson = async (route = "../../data"): Promise<void> => {
-    const dataPath = resolve(__dirname, route);
+  const saveAsJson = async (route: string): Promise<void> => {
+    const doesRouteExist = existsSync(route);
 
     const result = await tryCatch(async () => {
-      if (ENVIRONMENT.nodeEnv === "dev") {
-        const dataDir = await readdir(dataPath);
-        dataDir[0] && (await unlink(resolve(dataPath, dataDir[0])));
+      if (!doesRouteExist) await mkdir(route, { recursive: true });
+
+      if (doesRouteExist && ENVIRONMENT.nodeEnv === "dev") {
+        const dataDir = await readdir(route);
+        dataDir[0] && (await unlink(resolve(route, dataDir[0])));
       }
 
+      const $s = store.current();
+
       await writeFile(
-        resolve(dataPath, `${store.current()._id}.json`),
+        resolve(route, `${$s._id}.json`),
         JSON.stringify({
-          ...store.current(),
+          ...$s,
           emailing: {},
         } as SessionData),
       );
@@ -171,10 +176,22 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     init,
     end,
     error,
+    /**
+     * @return Current store data
+     */
     store: store.current,
     storeHooks: {
+      /**
+       * @description Force set the current location. If the limit is reached, ends the session
+       */
       updateLocation: store.updateLocation,
+      /**
+       * @description Updates current location to next page
+       */
       nextPage: store.nextPage,
+      /**
+       * @description Updates current location to previous page
+       */
       previousPage: store.previousPage,
       postItem: store.postItem,
       logMessage: store.logMessage,
