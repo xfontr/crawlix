@@ -53,7 +53,7 @@
     }
   },
   "usage_data": {
-    "error": "[DEV]: Couldn't save the requested usage data"
+    "error": "[DEV]: Could not save the requested usage data"
   },
   "misc": {
     "unknown_error": "Unknown error"

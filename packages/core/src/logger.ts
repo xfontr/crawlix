@@ -1,5 +1,5 @@
 import pino from "pino";
-import EventBus from "./utils/EventBus";
+import EventBus from "./helpers/EventBus";
 
 const logger = pino();
 

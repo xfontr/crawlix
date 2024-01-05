@@ -11,7 +11,13 @@ const setDefaultTools = (
     saveAsJson: $s.saveAsJson,
     notify: $s.notify,
     logError: $s.error,
+    /**
+     * @description Normal action. If an error is handled, will not break the app.
+     */
     $$a,
+    /**
+     * @description Critical action. If an error is handled, will break the app.
+     */
     $a,
   },
 });

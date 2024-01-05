@@ -6,23 +6,29 @@ import t from "../i18n";
 
 const usageDataFileName = "usage-data.json";
 
-export const usageDataLogError = (error?: SessionData["errorLog"][number]) => {
-  if (process.env["NODE_ENV"] === "test" || !error) return;
+export const usageDataLogError = (
+  logError?: SessionData["errorLog"][number],
+) => {
+  if (process.env["NODE_ENV"] === "test" || !logError) return;
 
   const path = resolve(__dirname, "../../", usageDataFileName);
 
-  readFile(path, { encoding: "ascii" }, (_error, usageData) => {
-    if (_error) return warningMessage(t("usage_data.error"));
+  readFile(path, { encoding: "ascii" }, (error, usageData) => {
+    if (error) return warningMessage(t("usage_data.error"));
 
-    const currentData = JSON.parse(usageData) as SessionData["errorLog"][];
+    let newData: SessionData["errorLog"] = [];
 
-    const newData = [...currentData, error];
+    try {
+      newData = [
+        ...(JSON.parse(usageData) as SessionData["errorLog"]),
+        logError,
+      ];
+    } catch (_error) {
+      newData = [logError];
+    }
 
-    writeFile(path, JSON.stringify(newData), (error) => {
-      if (!error) return;
-      warningMessage(t("usage_data.error"));
-
-      writeFile(path, JSON.stringify(currentData), () => undefined);
+    writeFile(path, JSON.stringify(newData), (_error) => {
+      if (_error) warningMessage(t("usage_data.error"));
     });
   });
 };

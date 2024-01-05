@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import t from "../i18n";
 import type SessionConfig from "../types/SessionConfig";
 import type SessionData from "../types/SessionData";
-import EventBus from "../utils/EventBus";
+import EventBus from "./EventBus";
 import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
 import isItemComplete from "../utils/isItemComplete";
@@ -165,7 +165,7 @@ const SessionStore = () => {
     if (store.session.totalItems! >= store.session.limit!.items!) return;
 
     store.session.items!.push({
-      ...item,
+      ...(item ?? {}),
       _meta: {
         id: randomUUID(),
         itemNumber: store.session.totalItems!,

@@ -3,7 +3,7 @@
 import t from "../../i18n";
 import Events from "../../types/Events";
 import ScraperSpeed from "../../types/ScraperSpeed";
-import EventBus from "../EventBus";
+import EventBus from "../../helpers/EventBus";
 import useAction from "../useAction";
 
 const mockEmit = jest.fn();

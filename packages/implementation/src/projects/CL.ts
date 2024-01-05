@@ -1,5 +1,5 @@
-import { LIMIT_PAGES_MAX } from "@scraper/core/src/configs/session";
 import Scraper from "../scraper.init";
+import { resolve } from "path";
 
 const ELEMENT_SELECTOR = ".compact-product";
 
@@ -12,38 +12,36 @@ const ITEM_DATA = {
 };
 
 const CL = async () => {
-  const { run, afterAll } = await Scraper();
+  const { runInLoop, afterAll } = await Scraper();
 
-  await run(async ({ store, scrapItems, changeSPAPage }) => {
-    const action = async () => {
-      await scrapItems(ITEM_DATA)(ELEMENT_SELECTOR);
-      await changeSPAPage(NEXT_PAGE_BUTTON, ELEMENT_SELECTOR);
-    };
-
-    const promiseAllSequentially = async <T>(
-      tasks: (() => Promise<T>)[],
-      breakingCondition: () => boolean,
-    ) => {
-      const results = [];
-      for (const task of tasks) {
-        results.push(await task());
-        if (breakingCondition()) return;
-      }
-
-      return results;
-    };
-
-    await promiseAllSequentially(
-      new Array<() => Promise<void>>(1 ?? LIMIT_PAGES_MAX).fill(action),
-      () =>
-        store().location.page >= store().limit.page! ||
-        store().totalItems >= store().limit.items!,
-    );
+  await runInLoop(async ({ scrapItems, changeSPAPage }) => {
+    await scrapItems(ITEM_DATA)(ELEMENT_SELECTOR);
+    await changeSPAPage(NEXT_PAGE_BUTTON, ELEMENT_SELECTOR);
   });
 
   await afterAll(async ({ saveAsJson }) => {
-    await saveAsJson();
+    await saveAsJson(resolve(__dirname, "../../data"));
   });
 };
 
 export default CL;
+
+// const promiseAllSequentially = async <T>(
+//   tasks: (() => Promise<T>)[],
+//   breakingCondition: () => boolean,
+// ) => {
+//   const results = [];
+//   for (const task of tasks) {
+//     results.push(await task());
+//     if (breakingCondition()) return;
+//   }
+
+//   return results;
+// };
+
+// await promiseAllSequentially(
+//   new Array<() => Promise<void>>(1 ?? LIMIT_PAGES_MAX).fill(action),
+//   () =>
+//     store().location.page >= store().limit.page! ||
+//     store().totalItems >= store().limit.items!,
+// );
