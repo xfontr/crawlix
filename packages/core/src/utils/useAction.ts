@@ -1,6 +1,6 @@
 import { CustomFunction, PromiseFunction, tryCatch } from "@personal/utils";
 import ScraperSpeed from "../types/ScraperSpeed";
-import EventBus from "./EventBus";
+import EventBus from "../helpers/EventBus";
 import t from "../i18n";
 
 const useAction = (taskLength: number) => {
@@ -44,20 +44,20 @@ const useAction = (taskLength: number) => {
     return [response as Awaited<T>, error];
   };
 
-  /**
-   * @description Normal action. If an error is hanlded, will not break the app.
-   */
   const $a = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>
     action(callback, speed, false);
 
-  /**
-   * @description Critical action. If an error is hanlded, will break the app.
-   */
   const $$a = <T>(callback: CustomFunction<T>, speed: ScraperSpeed = 0) =>
     action(callback, speed, true);
 
   return {
+    /**
+     * @description Normal action. If an error is handled, will not break the app.
+     */
     $a,
+    /**
+     * @description Critical action. If an error is handled, will break the app.
+     */
     $$a,
   };
 };

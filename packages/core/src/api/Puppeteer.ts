@@ -1,6 +1,6 @@
 import { tryCatch } from "@personal/utils";
 import { Page, launch } from "puppeteer";
-import EventBus from "../utils/EventBus";
+import EventBus from "../helpers/EventBus";
 import t from "../i18n";
 
 const Puppeteer = async (): Promise<Page> => {

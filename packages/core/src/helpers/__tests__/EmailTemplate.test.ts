@@ -2,7 +2,7 @@ import { SessionData } from "../../..";
 import t from "../../i18n";
 import mockSessionData from "../../test-utils/mocks/mockSessionData";
 import EmailContent from "../../types/EmailContent";
-import CreateError from "../CreateError";
+import CreateError from "../../utils/CreateError";
 import EmailTemplates from "../EmailTemplates";
 
 const mockError: SessionData["errorLog"][number] = {

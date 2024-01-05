@@ -6,8 +6,8 @@ import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
 import mockSessionData from "../../test-utils/mocks/mockSessionData";
 import CustomError from "../../types/CustomError";
 import SessionConfig from "../../types/SessionConfig";
-import EmailTemplates from "../../utils/EmailTemplates";
-import EventBus from "../../utils/EventBus";
+import EmailTemplates from "../EmailTemplates";
+import EventBus from "../EventBus";
 import setConfig from "../../utils/setConfig";
 import Session from "../Session";
 
