@@ -68,6 +68,7 @@ const scraper =
 
         return {
           run: () => [undefined, error],
+          runInLoop: () => [],
           afterAll,
         };
       }
@@ -97,8 +98,71 @@ const scraper =
       return runResult;
     };
 
+    const loopPromise = async <T>(
+      callback: () => Promise<T> | T,
+      breakingCondition: () => boolean,
+    ) => {
+      const results = [];
+
+      do {
+        results.push(await callback());
+      } while (breakingCondition() === false);
+
+      return results;
+    };
+
+    const breakingCondition =
+      (store: () => SessionData<Record<string, string | number | object>>) =>
+      () => {
+        const {
+          totalItems,
+          limit,
+          location: { page },
+        } = store();
+
+        return (
+          totalItems >= limit.items! || !!(limit.page && page >= limit.page)
+        );
+      };
+
+    const runInLoop = async <
+      R,
+      T extends (
+        scraper: Awaited<Tools<S>> &
+          typeof tools & {
+            index: number;
+          },
+      ) => Promise<R> | R,
+    >(
+      callback: T,
+    ) => {
+      const runResult = await actions.$$a(() =>
+        session.setGlobalTimeout(async (cleanUp) => {
+          ScraperTool &&
+            (await (tools as Awaited<Tools<S>> & typeof tools).init?.());
+
+          let index = -1;
+
+          const result = await loopPromise(() => {
+            index += 1;
+            return callback({ ...tools, index } as Awaited<Tools<S>> &
+              typeof tools & {
+                index: number;
+              });
+          }, breakingCondition(session.store));
+
+          session.end(false);
+          cleanUp();
+          return result;
+        }),
+      );
+
+      return runResult;
+    };
+
     return {
       run,
+      runInLoop,
       afterAll,
     };
   };
