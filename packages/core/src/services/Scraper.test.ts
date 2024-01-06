@@ -1,9 +1,7 @@
-import { Page } from "puppeteer";
-import { ScraperTools, Session, useAction } from "../..";
+import { CustomError, ScraperTools, Session, useAction } from "../..";
 import mockSessionConfig from "../test-utils/mocks/mockSessionConfig";
 import scraper from "./Scraper";
 import t from "../i18n";
-import { ABRUPT_ENDING_ERROR } from "../configs/session";
 import setDefaultTools from "../utils/setDefaultTools";
 import CreateError from "../utils/CreateError";
 
@@ -13,21 +11,6 @@ jest.mock("pino", () => () => ({
   info: (...args: unknown[]) => mockInfo(...args),
   error: (...args: unknown[]) => args,
   warn: (...args: unknown[]) => args,
-}));
-
-const mockGoto = jest.fn().mockResolvedValue(true);
-const mockPage = {
-  goto: (...args: unknown[]) => mockGoto(...args),
-  $$: () => new Promise((resolve) => resolve(true)),
-  $eval: () => new Promise((resolve) => resolve(true)),
-  click: () => new Promise((resolve) => resolve(true)),
-  waitForNavigation: () => new Promise((resolve) => resolve(true)),
-} as unknown as Page;
-
-jest.mock("puppeteer", () => ({
-  launch: () => ({
-    newPage: async () => await new Promise((resolve) => resolve(mockPage)),
-  }),
 }));
 
 jest.useFakeTimers();
@@ -143,14 +126,16 @@ describe("Given a scraper function", () => {
 
 describe("Given a Scraper.run function", () => {
   describe("When called with a callback that is longer than the global timeout", () => {
-    test("Then it should cut the callback and return an 'ABRUPT_ENDING' text", async () => {
+    test("Then it should cut the callback and return an error", async () => {
       const { run } = await Scraper();
 
-      const [result] = await run(() =>
+      const [result, error] = await run(() =>
         promiseFunction(mockSessionConfig.globalTimeout + 1),
       );
 
-      expect(result).toBe(ABRUPT_ENDING_ERROR);
+      expect(result).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      expect(error!.message).toBe(t("session.error.global_timeout"));
     });
   });
 
@@ -247,7 +232,7 @@ describe("Given a Scraper.afterAll function", () => {
 
       const { run: cleanUpEnd, afterAll } = await Scraper();
 
-      const expectedToools = JSON.stringify({
+      const expectedTools = JSON.stringify({
         notify: $t.hooks.notify,
         saveAsJson: $t.hooks.saveAsJson,
         logMessage: $t.hooks.logMessage,
@@ -257,24 +242,188 @@ describe("Given a Scraper.afterAll function", () => {
         (tools) => new Promise((resolve) => resolve(JSON.stringify(tools))),
       );
 
-      expect(resultTools).toStrictEqual(expectedToools);
+      expect(resultTools).toStrictEqual(expectedTools);
 
       await cleanUpEnd(() => promiseFunction());
     });
   });
 
   describe("When called with a callback that is longer than the afterAll timeout", () => {
-    test("Then it should cut the callback and return an 'ABRUPT_ENDING' text", async () => {
+    test("Then it should cut the callback and return an error", async () => {
       const { run: cleanUpEnd, afterAll } = await Scraper();
 
       const [result, error] = await afterAll(() =>
         promiseFunction(mockSessionConfig.afterAllTimeout + 1),
       );
 
-      expect(result).toBe(ABRUPT_ENDING_ERROR);
-      expect(error).toBeUndefined();
+      expect(result).toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      expect(error!.message).toBe(t("session.error.after_all"));
 
       await cleanUpEnd(() => promiseFunction());
+    });
+  });
+});
+
+describe("Given a Scraper.runInLoop function", () => {
+  const runInLoopScraper = scraper({
+    ...mockSessionConfig,
+    offset: {
+      page: 0,
+    },
+    limit: {
+      page: 3,
+    },
+  });
+
+  const mockLoopLength = 3 - 0;
+
+  describe("When called with a callback that is longer than the global timeout", () => {
+    test("Then it should cut the callback and return an error", async () => {
+      const { runInLoop } = await runInLoopScraper();
+
+      const [result, error] = await runInLoop(
+        async ({ hooks: { nextPage } }) => {
+          await promiseFunction(mockSessionConfig.globalTimeout + 1);
+          nextPage();
+        },
+      );
+
+      expect(result).toBeUndefined();
+
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      expect(error!.message).toBe(t("session.error.global_timeout"));
+    });
+  });
+
+  describe("When called with a callback that is shorter than the global timeout", () => {
+    test("Then it should return the callback returned value and provide the right tools", async () => {
+      const $s = Session(mockSessionConfig).init();
+      const expectedTools = setDefaultTools(
+        $s,
+        useAction(mockSessionConfig.taskLength),
+      );
+      $s.end();
+      const expectedIndex = mockLoopLength - 1;
+
+      const { runInLoop } = await runInLoopScraper();
+
+      const [result] = await runInLoop(
+        async ({ index, hooks: { nextPage } }) => {
+          await promiseFunction((mockSessionConfig.globalTimeout - 1) / 3);
+          nextPage();
+          return JSON.stringify({ ...expectedTools, index });
+        },
+      );
+
+      expect((result as string[])[2]).toBe(
+        JSON.stringify({ ...expectedTools, index: expectedIndex }),
+      );
+    });
+
+    test("Then it should return an error if an unhandled exception occurs", async () => {
+      const error = new Error("test");
+
+      const { runInLoop } = await runInLoopScraper();
+
+      const [result, resultError] = await runInLoop(
+        async () => new Promise((_, reject) => reject(error)),
+      );
+
+      expect(result).toBeUndefined();
+      expect(resultError).toStrictEqual(resultError);
+    });
+  });
+
+  describe("When called with a callback and having a Scraper tool with an init function", () => {
+    test("Then it should call said init function", async () => {
+      const mockInit = jest.fn().mockResolvedValue(undefined);
+      const Scraper = scraper({
+        limit: { page: 3 },
+        ScraperTool: () => ({
+          init: mockInit,
+        }),
+      });
+
+      await (
+        await Scraper()
+      ).runInLoop(async ({ hooks: { nextPage } }) => {
+        nextPage();
+        await promiseFunction(0);
+      });
+
+      /**
+       * We make sure that it has been called only once, as we don't want it to run for each loop
+       */
+      expect(mockInit).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("When called twice", () => {
+    test("Then it should do nothing the second time and return undefined", async () => {
+      const { runInLoop } = await runInLoopScraper();
+
+      const sessionResult = "test";
+
+      const [firstResult] = await runInLoop(async ({ hooks: { nextPage } }) => {
+        await promiseFunction(0);
+        nextPage();
+        return sessionResult;
+      });
+
+      const [secondResult] = await runInLoop(
+        async ({ hooks: { nextPage } }) => {
+          await promiseFunction(0);
+          nextPage();
+          return sessionResult;
+        },
+      );
+
+      expect(firstResult).toStrictEqual(
+        Array(mockLoopLength).fill(sessionResult),
+      );
+      expect(secondResult).toBeUndefined();
+    });
+  });
+
+  describe("When called with a safetyCheck of 2", () => {
+    describe("If it doesn't advance page or items in two loops", () => {
+      test("Then it should return and log an error", async () => {
+        const expectedError = CreateError(
+          Error(t("scraper.error.loop_stuck")),
+          { name: t("error_index.session") },
+        );
+
+        const { runInLoop, afterAll } = await runInLoopScraper();
+        const response = await runInLoop(() => promiseFunction(0));
+
+        const [receivedError] = await afterAll<CustomError>(
+          ({ store }) => store().errorLog[0]!.error,
+        );
+
+        expect(response[1]!.message).toBe(expectedError.message);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        expect(receivedError!.publicMessage).toBe(receivedError!.publicMessage);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        expect(receivedError!.message).toBe(receivedError!.message);
+      });
+    });
+  });
+
+  describe("When called with no safetyCheck", () => {
+    describe("If it doesn't advance page or items", () => {
+      test("Then it should loop until timeout", async () => {
+        const { runInLoop } = await runInLoopScraper();
+
+        const [result, error] = await runInLoop(
+          async ({ store }) => await promiseFunction(store().globalTimeout / 4),
+          0,
+        );
+
+        expect(result).toBeUndefined();
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        expect(error!.message).toBe(t("session.error.global_timeout"));
+      });
     });
   });
 });
