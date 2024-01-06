@@ -16,6 +16,7 @@ import {
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
   AFTER_ALL_TIMEOUT_DEFAULT,
   AFTER_ALL_TIMEOUT_MAX,
+  SAFE_MODE_DEFAULT,
 } from "../configs/session";
 import t from "../i18n";
 import { warningMessage } from "../logger";
@@ -99,16 +100,23 @@ export const defaultSessionConfig = (
       port: $n(env.email.port, 0),
       receiverEmail: env.email.receiverEmail ?? "",
     },
+    safeMode: $b(env.safeMode, SAFE_MODE_DEFAULT),
   };
 };
 
-const getMax = (max: number, fallback: number, value?: number): number =>
-  ((value ?? 0) > max ? max : value) ?? fallback;
+const baseGetMax =
+  (enabled = true) =>
+  (max: number, fallback: number, value?: number): number => {
+    if (!enabled) return value ?? fallback;
+    return ((value ?? 0) > max ? max : value) ?? fallback;
+  };
 
 export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => {
   const defaults = defaultSessionConfig(config?.allowDefaultConfigs);
 
   const emailing = { ...defaults.emailing, ...config?.emailing };
+
+  const getMax = baseGetMax(config?.safeMode);
 
   return {
     ...{ ...defaults, emailing: undefined },

@@ -86,6 +86,14 @@ interface SessionConfig {
         receiverEmail?: string;
       }
     | undefined;
+  /**
+   * @description Allows the consumer to disable the script configs maximum values.
+   *
+   * RECOMMENDED: Leave it as enabled (default), since it can prevent unexpected
+   * behavior and/or performance issues
+   * @default true
+   */
+  safeMode: boolean;
 }
 
 export type SessionConfigInit<

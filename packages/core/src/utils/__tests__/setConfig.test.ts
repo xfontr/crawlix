@@ -65,6 +65,34 @@ describe("Given a setConfig function", () => {
         taskLength: TASK_LENGTH_MAX,
       });
     });
+
+    test("Then it should return the passed values, unaltered, if safe mode is disabled", () => {
+      const config = setConfig({
+        ...mockSessionConfig,
+        limit: {
+          items: LIMIT_ITEMS_MAX + 1,
+          page: 0,
+        },
+        globalTimeout: GLOBAL_TIMEOUT_MAX + 1,
+        afterAllTimeout: AFTER_ALL_TIMEOUT_MAX + 1,
+        timeout: TIMEOUT_MAX + 1,
+        taskLength: TASK_LENGTH_MAX + 1,
+        safeMode: false,
+      });
+
+      expect(config).toStrictEqual({
+        ...mockSessionConfig,
+        limit: {
+          items: LIMIT_ITEMS_MAX + 1,
+          page: 0,
+        },
+        globalTimeout: GLOBAL_TIMEOUT_MAX + 1,
+        afterAllTimeout: AFTER_ALL_TIMEOUT_MAX + 1,
+        timeout: TIMEOUT_MAX + 1,
+        taskLength: TASK_LENGTH_MAX + 1,
+        safeMode: false,
+      });
+    });
   });
 
   describe("When called with partial session configs", () => {
@@ -261,6 +289,7 @@ describe("Given a defaultSessionConfig function", () => {
           receiverEmail: "",
           user: "",
         },
+        safeMode: true,
       };
 
       const result = defaultSessionConfig(true);
@@ -333,6 +362,7 @@ describe("Given a defaultSessionConfig function", () => {
           receiverEmail: "test@test.com",
           user: "test@tester.com",
         },
+        safeMode: true,
       };
 
       const defaultConfig = defaultSessionConfig();
