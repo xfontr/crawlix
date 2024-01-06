@@ -4,9 +4,9 @@ import Puppeteer from "./Puppeteer";
 const mockEmit = jest.fn();
 const mockLaunch = jest.fn();
 
-jest.mock("puppeteer", () => ({
+const mockPuppeteer = {
   launch: (...args: unknown[]) => mockLaunch(...args),
-}));
+};
 
 jest.mock("../helpers/EventBus", () => ({
   emit: (...args: unknown[]) => mockEmit(...args),
@@ -20,7 +20,7 @@ describe("Given a Puppeteer function", () => {
         newPage: () => mockPage,
       });
 
-      const page = await Puppeteer();
+      const page = await Puppeteer(mockPuppeteer);
 
       expect(page).toBe(mockPage);
       expect(mockEmit).not.toHaveBeenCalled();
@@ -30,7 +30,7 @@ describe("Given a Puppeteer function", () => {
       const error = new Error("test");
       mockLaunch.mockRejectedValue(error);
 
-      const result = await Puppeteer();
+      const result = await Puppeteer(mockPuppeteer);
 
       expect(mockEmit).toHaveBeenCalledWith("SESSION:ERROR", error, {
         name: t("error_index.init"),

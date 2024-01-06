@@ -1,4 +1,4 @@
-import { ElementHandle, Page } from "puppeteer";
+import puppeteer, { ElementHandle, Page } from "puppeteer";
 import ScraperTools from "@scraper/core/src/types/ScraperTools";
 import { infoMessage } from "@scraper/core/src/logger";
 import t from "@scraper/core/src/i18n";
@@ -26,7 +26,7 @@ export type CustomTools = {
 const ScraperTool: ScraperTools<CustomTools> = async ($s, { $a, $$a }) => {
   const { offset, timeout } = $s.store();
 
-  const page = await Puppeteer();
+  const page = await Puppeteer<Page>(puppeteer);
 
   const init = async (): Promise<void> => {
     await $$a(() => page.goto(offset.url!));

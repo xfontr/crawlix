@@ -21,8 +21,7 @@
     "@personal/utils": "workspace:*",
     "clone-deep": "^4.0.1",
     "nodemailer": "^6.9.7",
-    "pino": "^8.16.2",
-    "puppeteer": "^21.6.0"
+    "pino": "^8.16.2"
   },
   "devDependencies": {
     "@types/clone-deep": "^4.0.4",

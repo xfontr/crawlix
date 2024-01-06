@@ -64,6 +64,9 @@
       "launch": "Could not launch the Scraper. There was an error while running the external ScraperTool script",
       "empty": "The scraper tool provided is empty and therefore cannot be included in the script",
       "loop_stuck": "The scraper tried to run in a loop but it got stuck for at least two loops in a row. The session will be ended abruptly"
+    },
+    "puppeteer": {
+      "error": "Could not launch Puppeteer. Make sure you a functioning version of the module is being injected"
     }
   }
 }
