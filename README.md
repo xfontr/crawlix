@@ -74,3 +74,4 @@ See scraper/core/README.md for more information on the script.
 6.- Unsafe mode: allows the consumer to remove the default maxs
 7.- [DONE] Do we really need an abrupt error symbol? Maybe we should simply throw a custom error
 8.- Timeout: either remove it, or update it as an attribute only used for pages
+9.- Pass a hook that takes care of the errors within the item, if possible

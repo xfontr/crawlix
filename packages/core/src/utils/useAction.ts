@@ -38,7 +38,7 @@ const useAction = (taskLength: number) => {
     error &&
       EventBus.emit("SESSION:ERROR", error, {
         name:
-          error.name === DEFAULT_ERROR_NAME // TODO: TEST THIS!!!
+          error.name === DEFAULT_ERROR_NAME
             ? t("error_index.action")
             : error.name,
         publicMessage: t("session_actions.error.default"),
