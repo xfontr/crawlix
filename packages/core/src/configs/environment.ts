@@ -14,6 +14,7 @@ const ENVIRONMENT = {
   minimumItemsToSuccess: process.env["SCRAPER_MINIMUM_ITEMS_TO_SUCCESS"],
   usageData: process.env["SCRAPER_USAGE_DATA"],
   allowDefaultConfigs: process.env["SCRAPER_ALLOW_DEFAULT_CONFIGS"],
+  safeMode: process.env["SCRAPER_SAFE_MODE"],
   email: {
     host: process.env["SCRAPER_EMAIL_HOST"],
     port: process.env["SCRAPER_EMAIL_PORT"],
