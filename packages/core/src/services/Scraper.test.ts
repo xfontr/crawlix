@@ -4,6 +4,7 @@ import scraper from "./Scraper";
 import t from "../i18n";
 import setDefaultTools from "../utils/setDefaultTools";
 import CreateError from "../utils/CreateError";
+import mockPromiseFunction from "../test-utils/mockPromiseFunction";
 
 const mockInfo = jest.fn();
 
@@ -18,16 +19,6 @@ jest.useFakeTimers();
 beforeEach(() => {
   jest.clearAllMocks();
 });
-
-const promiseFunction = async (timeout = 0): Promise<true> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, timeout);
-
-    jest.advanceTimersByTime(timeout);
-  });
-};
 
 const Scraper = scraper(mockSessionConfig);
 
@@ -49,7 +40,7 @@ describe("Given a scraper function", () => {
 
       const { run, afterAll } = await Scraper();
 
-      const runResult = await run(() => promiseFunction(0));
+      const runResult = await run(() => mockPromiseFunction());
 
       expect(runResult).toStrictEqual([undefined, error]);
 
@@ -83,7 +74,7 @@ describe("Given a scraper function", () => {
 
       const { run, afterAll } = await Scraper();
 
-      const runResult = await run(() => promiseFunction(0));
+      const runResult = await run(() => mockPromiseFunction());
 
       expect(runResult).toStrictEqual([undefined, undefined]);
 
@@ -130,7 +121,7 @@ describe("Given a Scraper.run function", () => {
       const { run } = await Scraper();
 
       const [result, error] = await run(() =>
-        promiseFunction(mockSessionConfig.globalTimeout + 1),
+        mockPromiseFunction({ timeout: mockSessionConfig.globalTimeout + 1 }),
       );
 
       expect(result).toBeUndefined();
@@ -151,7 +142,9 @@ describe("Given a Scraper.run function", () => {
       const { run } = await scraper()();
 
       const [result] = await run(async () => {
-        await promiseFunction(mockSessionConfig.globalTimeout - 1);
+        await mockPromiseFunction({
+          timeout: mockSessionConfig.globalTimeout - 1,
+        });
         return JSON.stringify(expectedTools);
       });
 
@@ -181,7 +174,7 @@ describe("Given a Scraper.run function", () => {
         }),
       });
 
-      await (await Scraper()).run(() => promiseFunction(0));
+      await (await Scraper()).run(() => mockPromiseFunction());
 
       expect(mockInit).toHaveBeenCalled();
     });
@@ -194,12 +187,12 @@ describe("Given a Scraper.run function", () => {
       const sessionResult = "test";
 
       const [firstResult] = await run(async () => {
-        await promiseFunction(0);
+        await mockPromiseFunction();
         return sessionResult;
       });
 
       const [secondResult] = await run(async () => {
-        await promiseFunction(0);
+        await mockPromiseFunction();
         return sessionResult;
       });
 
@@ -215,14 +208,14 @@ describe("Given a Scraper.afterAll function", () => {
       const { run: cleanUpEnd, afterAll } = await Scraper();
 
       const [result, error] = await afterAll(() =>
-        promiseFunction(mockSessionConfig.afterAllTimeout - 1),
+        mockPromiseFunction({ timeout: mockSessionConfig.afterAllTimeout - 1 }),
       );
 
       expect(result).toBe(true);
       expect(error).toBeUndefined();
       expect(mockInfo).toHaveBeenCalledWith(t("session_actions.after_all"));
 
-      await cleanUpEnd(() => promiseFunction());
+      await cleanUpEnd(() => mockPromiseFunction());
     });
 
     test("Then it should provide the callback access to several hooks", async () => {
@@ -244,7 +237,7 @@ describe("Given a Scraper.afterAll function", () => {
 
       expect(resultTools).toStrictEqual(expectedTools);
 
-      await cleanUpEnd(() => promiseFunction());
+      await cleanUpEnd(() => mockPromiseFunction());
     });
   });
 
@@ -253,14 +246,14 @@ describe("Given a Scraper.afterAll function", () => {
       const { run: cleanUpEnd, afterAll } = await Scraper();
 
       const [result, error] = await afterAll(() =>
-        promiseFunction(mockSessionConfig.afterAllTimeout + 1),
+        mockPromiseFunction({ timeout: mockSessionConfig.afterAllTimeout + 1 }),
       );
 
       expect(result).toBeUndefined();
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       expect(error!.message).toBe(t("session.error.after_all"));
 
-      await cleanUpEnd(() => promiseFunction());
+      await cleanUpEnd(() => mockPromiseFunction());
     });
   });
 });
@@ -284,7 +277,9 @@ describe("Given a Scraper.runInLoop function", () => {
 
       const [result, error] = await runInLoop(
         async ({ hooks: { nextPage } }) => {
-          await promiseFunction(mockSessionConfig.globalTimeout + 1);
+          await mockPromiseFunction({
+            timeout: mockSessionConfig.globalTimeout + 1,
+          });
           nextPage();
         },
       );
@@ -310,7 +305,9 @@ describe("Given a Scraper.runInLoop function", () => {
 
       const [result] = await runInLoop(
         async ({ index, hooks: { nextPage } }) => {
-          await promiseFunction((mockSessionConfig.globalTimeout - 1) / 3);
+          await mockPromiseFunction({
+            timeout: (mockSessionConfig.globalTimeout - 1) / 3,
+          });
           nextPage();
           return JSON.stringify({ ...expectedTools, index });
         },
@@ -349,7 +346,7 @@ describe("Given a Scraper.runInLoop function", () => {
         await Scraper()
       ).runInLoop(async ({ hooks: { nextPage } }) => {
         nextPage();
-        await promiseFunction(0);
+        await mockPromiseFunction();
       });
 
       /**
@@ -366,14 +363,14 @@ describe("Given a Scraper.runInLoop function", () => {
       const sessionResult = "test";
 
       const [firstResult] = await runInLoop(async ({ hooks: { nextPage } }) => {
-        await promiseFunction(0);
+        await mockPromiseFunction();
         nextPage();
         return sessionResult;
       });
 
       const [secondResult] = await runInLoop(
         async ({ hooks: { nextPage } }) => {
-          await promiseFunction(0);
+          await mockPromiseFunction();
           nextPage();
           return sessionResult;
         },
@@ -395,7 +392,7 @@ describe("Given a Scraper.runInLoop function", () => {
         );
 
         const { runInLoop, afterAll } = await runInLoopScraper();
-        const response = await runInLoop(() => promiseFunction(0));
+        const response = await runInLoop(() => mockPromiseFunction());
 
         const [receivedError] = await afterAll<CustomError>(
           ({ store }) => store().errorLog[0]!.error,
@@ -416,7 +413,8 @@ describe("Given a Scraper.runInLoop function", () => {
         const { runInLoop } = await runInLoopScraper();
 
         const [result, error] = await runInLoop(
-          async ({ store }) => await promiseFunction(store().globalTimeout / 4),
+          async ({ store }) =>
+            await mockPromiseFunction({ timeout: store().globalTimeout / 4 }),
           0,
         );
 

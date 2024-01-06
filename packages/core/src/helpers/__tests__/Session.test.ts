@@ -11,6 +11,7 @@ import EventBus from "../EventBus";
 import setConfig from "../../utils/setConfig";
 import Session from "../Session";
 import { tryCatch } from "@personal/utils";
+import mockPromiseFunction from "../../test-utils/mockPromiseFunction";
 
 jest.useFakeTimers();
 
@@ -51,16 +52,6 @@ jest.mock("../../logger.ts", () => ({
 const mockSendEmail = jest.fn();
 
 jest.mock("../Email", () => () => mockSendEmail);
-
-const promiseFunction = async (timeout: number): Promise<true> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, timeout);
-
-    jest.advanceTimersByTime(timeout);
-  });
-};
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -211,7 +202,7 @@ describe("Given a Session.setGlobalTimeout function", () => {
         Session(mockSessionConfig).init();
 
       const response = await setGlobalTimeout(async (cleanUp) => {
-        const result = await promiseFunction(promiseTimeout);
+        const result = await mockPromiseFunction({ timeout: promiseTimeout });
         cleanUp();
         return result;
       });
@@ -229,7 +220,7 @@ describe("Given a Session.setGlobalTimeout function", () => {
 
       const [response] = await tryCatch<undefined>(() =>
         setGlobalTimeout(async (cleanUp) => {
-          const result = await promiseFunction(promiseTimeout);
+          const result = await mockPromiseFunction({ timeout: promiseTimeout });
           cleanUp();
           return result;
         }),
@@ -261,7 +252,7 @@ describe("Given a Session.setGlobalTimeout function", () => {
 
       const [response] = await tryCatch<undefined>(() =>
         setGlobalTimeout(async (cleanUp) => {
-          const result = await promiseFunction(promiseTimeout);
+          const result = await mockPromiseFunction({ timeout: promiseTimeout });
           cleanUp();
           return result;
         }, "afterAllTimeout"),
