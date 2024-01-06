@@ -193,6 +193,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       previousPage: store.previousPage,
       postItem: store.postItem,
       logMessage: store.logMessage,
+      hasReachedLimit: store.hasReachedLimit,
     },
     setGlobalTimeout,
     saveAsJson,

@@ -6,7 +6,7 @@ import SessionStore from "../helpers/SessionStore";
 import { tryCatch } from "@personal/utils";
 import type { SessionConfigInit } from "../types/SessionConfig";
 import setDefaultTools from "../utils/setDefaultTools";
-import promiseAllSeq, { hasReachedLimit } from "../utils/sequentialPromises";
+import promiseAllSeq from "../utils/sequentialPromises";
 
 type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
   Pick<ReturnType<typeof Session>, "saveAsJson"> &
@@ -142,7 +142,7 @@ const scraper =
               typeof tools & {
                 index: number;
               });
-          }, hasReachedLimit(session.store));
+          }, session.storeHooks.hasReachedLimit);
 
           session.end(false);
           cleanUp();

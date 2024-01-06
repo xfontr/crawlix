@@ -165,7 +165,7 @@ const SessionStore = () => {
     if (store.session.totalItems! >= store.session.limit!.items!) return;
 
     store.session.items!.push({
-      ...(item ?? {}),
+      ...(item ?? {}), // Test this, maybe already covered, though
       _meta: {
         id: randomUUID(),
         itemNumber: store.session.totalItems!,
@@ -185,6 +185,15 @@ const SessionStore = () => {
       EventBus.emit("SESSION:ACTIVE", false);
   };
 
+  const hasReachedLimit = (): boolean => {
+    const { totalItems, limit, location } = store.session;
+
+    return (
+      totalItems! >= limit!.items! ||
+      !!(limit!.page && location!.page >= limit!.page)
+    );
+  };
+
   const sessionStore = {
     init,
     current,
@@ -196,6 +205,7 @@ const SessionStore = () => {
     previousPage,
     postItem,
     logMessage,
+    hasReachedLimit,
   };
 
   return sessionStore;

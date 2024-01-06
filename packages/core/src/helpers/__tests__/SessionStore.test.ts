@@ -21,7 +21,7 @@ jest.mock("crypto", () => ({
   randomUUID: () => "random-uuid",
 }));
 
-jest.mock("../../utils/EventBus", () => ({
+jest.mock("../../helpers/EventBus", () => ({
   emit: (...args: unknown[]) => mockEmit(...args),
   on: (...args: unknown[]) => mockOn(...args),
   removeAllListeners: (...args: unknown[]) => mockRemoveAllListeners(...args),
@@ -743,6 +743,124 @@ describe("Given a SessionStore.logMessage function", () => {
       logMessage(message);
 
       expect(current().logs).toStrictEqual([`[0] ${message}`]);
+
+      cleanUpEnd();
+    });
+  });
+});
+
+describe("Given a SessionStore.hasReachedLimit function", () => {
+  describe("When called and the limit of items has been reached", () => {
+    test("Then it should return true", () => {
+      const expectedResult = true;
+      const itemsLimit = 3;
+
+      const {
+        postItem,
+        hasReachedLimit,
+        end: cleanUpEnd,
+      } = SessionStore().init({
+        ...mockSessionConfig,
+        limit: {
+          items: itemsLimit,
+        },
+      });
+
+      expect(hasReachedLimit()).toBe(false);
+
+      Array(itemsLimit)
+        .fill(postItem)
+        .forEach((post) => post(undefined, {}));
+
+      expect(hasReachedLimit()).toBe(expectedResult);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called and the limit of pages has been reached", () => {
+    test("Then it should return true", () => {
+      const expectedResult = true;
+      const pagesLimit = 3;
+
+      const {
+        nextPage,
+        hasReachedLimit,
+        end: cleanUpEnd,
+      } = SessionStore().init({
+        ...mockSessionConfig,
+        offset: {
+          page: 1,
+        },
+        limit: {
+          page: pagesLimit,
+        },
+      });
+
+      expect(hasReachedLimit()).toBe(false);
+
+      Array(pagesLimit)
+        .fill(nextPage)
+        .forEach((next) => next(""));
+
+      expect(hasReachedLimit()).toBe(expectedResult);
+
+      cleanUpEnd();
+    });
+
+    test("It should return false if there is no page limit", () => {
+      const expectedResult = false;
+      const randomPageIncrease =
+        Math.floor(Math.random() * 50) + (mockSessionConfig.offset.page ?? 0);
+
+      const {
+        nextPage,
+        hasReachedLimit,
+        end: cleanUpEnd,
+      } = SessionStore().init({
+        ...mockSessionConfig,
+        limit: {
+          page: 0,
+        },
+      });
+
+      expect(hasReachedLimit()).toBe(false);
+
+      Array(randomPageIncrease)
+        .fill(nextPage)
+        .forEach((next) => next(""));
+
+      expect(hasReachedLimit()).toBe(expectedResult);
+
+      cleanUpEnd();
+    });
+  });
+
+  describe("When called but no limits have been reached", () => {
+    test("Then it should return false", () => {
+      const expectedResult = false;
+      const pagesLimit = 10;
+      const itemsLimit = 10;
+
+      const {
+        postItem,
+        nextPage,
+        hasReachedLimit,
+        end: cleanUpEnd,
+      } = SessionStore().init({
+        ...mockSessionConfig,
+        limit: {
+          page: pagesLimit,
+          items: itemsLimit,
+        },
+      });
+
+      expect(hasReachedLimit()).toBe(false);
+
+      nextPage("");
+      postItem(undefined, {});
+
+      expect(hasReachedLimit()).toBe(expectedResult);
 
       cleanUpEnd();
     });
