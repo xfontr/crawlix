@@ -38,11 +38,13 @@ describe("Given a scraper function", () => {
 
       const Scraper = scraper({ ...mockSessionConfig, ScraperTool });
 
-      const { run, afterAll } = await Scraper();
+      const { run, afterAll, runInLoop } = await Scraper();
 
       const runResult = await run(() => mockPromiseFunction());
+      const runInLoopResult = await runInLoop(() => mockPromiseFunction());
 
       expect(runResult).toStrictEqual([undefined, error]);
+      expect(runInLoopResult).toStrictEqual([undefined, error]);
 
       const [currentStore] = await afterAll(({ store }) => store());
 
@@ -58,7 +60,7 @@ describe("Given a scraper function", () => {
 
   describe("When called with an empty Scraper Tool", () => {
     test("Then it should return an empty run wrapper, an afterAll function and log an error", async () => {
-      const customError = CreateError(new Error("test"), {
+      const customError = CreateError(new Error(t("scraper.error.empty")), {
         name: t("error_index.init"),
         publicMessage: t("scraper.error.empty"),
       });
@@ -72,11 +74,13 @@ describe("Given a scraper function", () => {
         ScraperTool: ScraperTool as ScraperTools<Record<string, unknown>>,
       });
 
-      const { run, afterAll } = await Scraper();
+      const { run, runInLoop, afterAll } = await Scraper();
 
       const runResult = await run(() => mockPromiseFunction());
+      const runInLoopResult = await runInLoop(() => mockPromiseFunction());
 
-      expect(runResult).toStrictEqual([undefined, undefined]);
+      expect(runResult).toStrictEqual([undefined, customError]);
+      expect(runInLoopResult).toStrictEqual([undefined, customError]);
 
       const [currentStore] = await afterAll(({ store }) => store());
 
@@ -125,7 +129,7 @@ describe("Given a Scraper.run function", () => {
       );
 
       expect(result).toBeUndefined();
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
       expect(error!.message).toBe(t("session.error.global_timeout"));
     });
   });
@@ -286,7 +290,6 @@ describe("Given a Scraper.runInLoop function", () => {
 
       expect(result).toBeUndefined();
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       expect(error!.message).toBe(t("session.error.global_timeout"));
     });
   });
@@ -419,7 +422,7 @@ describe("Given a Scraper.runInLoop function", () => {
         );
 
         expect(result).toBeUndefined();
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
         expect(error!.message).toBe(t("session.error.global_timeout"));
       });
     });

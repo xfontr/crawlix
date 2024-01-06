@@ -12,7 +12,7 @@ jest.mock("pino", () => () => ({
 
 const mockEmit = jest.fn();
 
-jest.mock("./utils/EventBus", () => ({
+jest.mock("./helpers/EventBus", () => ({
   emit: (...args: unknown[]) => mockEmit(...args),
 }));
 

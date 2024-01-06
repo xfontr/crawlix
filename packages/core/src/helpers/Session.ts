@@ -9,7 +9,7 @@ import { tryCatch } from "@personal/utils";
 import { resolve } from "path";
 import ENVIRONMENT from "../configs/environment";
 import Email from "./Email";
-import type { SessionData } from "../..";
+import type { CustomError, SessionData } from "../..";
 import { type EmailRequest } from "../types/EmailContent";
 import CreateError from "../utils/CreateError";
 import { type CustomErrorProps } from "../types/CustomError";
@@ -62,7 +62,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   };
 
   const error = (
-    error: Error | undefined,
+    error: Error | CustomError | undefined,
     { isCritical, ...props }: CustomErrorProps & { isCritical?: boolean } = {},
   ): void => {
     if (!error) return;

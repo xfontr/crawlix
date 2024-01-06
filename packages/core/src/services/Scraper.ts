@@ -59,15 +59,19 @@ const scraper =
       );
 
       if (error || !customScraper) {
-        session.error(error || Error(t("scraper.error.empty")), {
-          name: t("error_index.init"),
-          publicMessage: t(`scraper.error.${error ? "launch" : "empty"}`),
-          isCritical: true,
-        });
+        const customError = CreateError(
+          error ?? Error(t("scraper.error.empty")),
+          {
+            name: t("error_index.init"),
+            publicMessage: t(`scraper.error.${error ? "launch" : "empty"}`),
+          },
+        );
+
+        session.error(customError, { isCritical: true });
 
         return {
-          run: () => [undefined, error],
-          runInLoop: () => [],
+          run: () => [undefined, error ?? customError],
+          runInLoop: () => [undefined, error ?? customError],
           afterAll,
         };
       }
