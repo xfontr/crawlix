@@ -14,6 +14,7 @@ const mockSessionConfig: SessionConfig = {
   usageData: false,
   allowDefaultConfigs: true,
   emailing: undefined,
+  safeMode: true,
 };
 
 export default mockSessionConfig;
