@@ -8,7 +8,7 @@ jest.mock("puppeteer", () => ({
   launch: (...args: unknown[]) => mockLaunch(...args),
 }));
 
-jest.mock("../utils/EventBus", () => ({
+jest.mock("../helpers/EventBus", () => ({
   emit: (...args: unknown[]) => mockEmit(...args),
 }));
 

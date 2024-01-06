@@ -14,6 +14,7 @@ const CreateError = (
   Object.defineProperty(error, "publicMessage", {
     value:
       publicMessage ?? (error as CustomError).publicMessage ?? error.message,
+    writable: true,
   });
 
   return error as CustomError;

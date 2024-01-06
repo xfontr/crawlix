@@ -66,8 +66,12 @@ See scraper/core/README.md for more information on the script.
 
 ## TODOs
 
-1.- VERY IMPORTANT: Allow to recursively scrap pages until the limit is reached.
+1.- [DONE] VERY IMPORTANT: Allow to recursively scrap pages until the limit is reached.
 2.- Setting to enable text cleaning (trim, replace "\n" and "\t").
-3.- Long term: Plugins attribute that allows inserting external functions, instead of having a ScraperTools module.
-4.- Fix randomly breaking usage-data function + consider adding a try catch for it.
-5.- When saving stuff in the data/ folder, verify first if there is such a folder. If not, create it.
+3.- [DONE] Long term: Plugins attribute that allows inserting external functions, instead of having a ScraperTools module.
+4.- [DONE] Fix randomly breaking usage-data function + consider adding a try catch for it.
+5.- [DONE] When saving stuff in the data/ folder, verify first if there is such a folder. If not, create it.
+6.- Unsafe mode: allows the consumer to remove the default maxs
+7.- [DONE] Do we really need an abrupt error symbol? Maybe we should simply throw a custom error
+8.- Timeout: either remove it, or update it as an attribute only used for pages
+9.- Pass a hook that takes care of the errors within the item, if possible

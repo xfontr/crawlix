@@ -2,6 +2,7 @@ import { CustomFunction, PromiseFunction, tryCatch } from "@personal/utils";
 import ScraperSpeed from "../types/ScraperSpeed";
 import EventBus from "../helpers/EventBus";
 import t from "../i18n";
+import { DEFAULT_ERROR_NAME } from "../configs/constants";
 
 const useAction = (taskLength: number) => {
   let isSessionOn = true;
@@ -36,7 +37,10 @@ const useAction = (taskLength: number) => {
 
     error &&
       EventBus.emit("SESSION:ERROR", error, {
-        name: t("error_index.action"),
+        name:
+          error.name === DEFAULT_ERROR_NAME
+            ? t("error_index.action")
+            : error.name,
         publicMessage: t("session_actions.error.default"),
         isCritical,
       });

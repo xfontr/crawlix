@@ -82,7 +82,7 @@ const ScraperTool: ScraperTools<CustomTools> = async ($s, { $a, $$a }) => {
           [{}, {}],
         );
 
-        $s.storeHooks.postItem(finalItem, finalErrors!);
+        $s.storeHooks.postItem(finalItem, finalErrors);
       });
 
       infoMessage(t("session_actions.package_complete"));

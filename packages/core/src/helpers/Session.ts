@@ -9,11 +9,10 @@ import { tryCatch } from "@personal/utils";
 import { resolve } from "path";
 import ENVIRONMENT from "../configs/environment";
 import Email from "./Email";
-import type { SessionData } from "../..";
+import type { CustomError, SessionData } from "../..";
 import { type EmailRequest } from "../types/EmailContent";
 import CreateError from "../utils/CreateError";
 import { type CustomErrorProps } from "../types/CustomError";
-import { ABRUPT_ENDING_ERROR } from "../configs/session";
 import EmailTemplates from "./EmailTemplates";
 import { existsSync } from "fs";
 
@@ -63,7 +62,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   };
 
   const error = (
-    error: Error | undefined,
+    error: Error | CustomError | undefined,
     { isCritical, ...props }: CustomErrorProps & { isCritical?: boolean } = {},
   ): void => {
     if (!error) return;
@@ -93,28 +92,27 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
   ): Promise<T | symbol> => {
     let storedTimeout: NodeJS.Timeout | undefined = undefined;
 
-    const cleanUp = () => {
-      clearInterval(storedTimeout);
-    };
+    const cleanUp = () => clearInterval(storedTimeout);
 
     return await Promise.race<T | symbol>([
       new Promise(
-        (resolve) =>
+        (_, reject) =>
           (storedTimeout = setTimeout(() => {
-            error(
+            const timeoutError = CreateError(
               Error(
                 t(
                   `session.error.${
-                    timeout === "globalTimeout" ? "global_timeout" : "after_all"
+                    timeout === "globalTimeout"
+                      ? "global_timeout"
+                      : "after_all_timeout"
                   }`,
                 ),
               ),
-              {
-                name: t("error_index.session"),
-                isCritical: true,
-              },
+              { name: t("error_index.session_timeout") },
             );
-            resolve(ABRUPT_ENDING_ERROR);
+
+            error(timeoutError, { isCritical: true });
+            reject(timeoutError);
           }, store.current()[timeout])),
       ),
       callback(cleanUp),
@@ -195,6 +193,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       previousPage: store.previousPage,
       postItem: store.postItem,
       logMessage: store.logMessage,
+      hasReachedLimit: store.hasReachedLimit,
     },
     setGlobalTimeout,
     saveAsJson,

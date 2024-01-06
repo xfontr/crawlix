@@ -5,6 +5,8 @@ import Events from "../../types/Events";
 import ScraperSpeed from "../../types/ScraperSpeed";
 import EventBus from "../../helpers/EventBus";
 import useAction from "../useAction";
+import CreateError from "../CreateError";
+import { CustomError } from "../../..";
 
 const mockEmit = jest.fn();
 const mockError = jest.fn();
@@ -118,6 +120,21 @@ describe("Given an useAction function", () => {
         publicMessage: t("session_actions.error.default"),
         isCritical: false,
       });
+    });
+
+    test("Then, if error, it should not replace its name if it has a non-default name", async () => {
+      const errorName = "test";
+      await $a(
+        () =>
+          new Promise((_, reject) =>
+            reject(CreateError(Error(""), { name: errorName })),
+          ),
+        speed,
+      );
+
+      expect((mockEmit.mock.calls[1] as CustomError[])[2]?.name).toBe(
+        errorName,
+      );
     });
 
     test("Then it should not do anything if the session is off", async () => {

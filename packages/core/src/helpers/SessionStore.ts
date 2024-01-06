@@ -159,7 +159,7 @@ const SessionStore = () => {
 
   const postItem = <T = DefaultItem>(
     item: T | undefined,
-    errorLog: Partial<Record<keyof T, Error>>,
+    errorLog: Partial<Record<keyof T, Error>> | undefined,
     selector = "",
   ): void => {
     if (store.session.totalItems! >= store.session.limit!.items!) return;
@@ -174,7 +174,7 @@ const SessionStore = () => {
         moment: getTimeDifference(store.session.startDate!),
         isComplete: isItemComplete(item),
         selector,
-        errorLog,
+        errorLog: errorLog ?? {},
         url: current().history.at(-1)!,
       },
     });
@@ -183,6 +183,15 @@ const SessionStore = () => {
 
     if (store.session.totalItems >= store.session.limit!.items!)
       EventBus.emit("SESSION:ACTIVE", false);
+  };
+
+  const hasReachedLimit = (): boolean => {
+    const { totalItems, limit, location } = store.session;
+
+    return (
+      totalItems! >= limit!.items! ||
+      !!(limit!.page && location!.page >= limit!.page)
+    );
   };
 
   const sessionStore = {
@@ -196,6 +205,7 @@ const SessionStore = () => {
     previousPage,
     postItem,
     logMessage,
+    hasReachedLimit,
   };
 
   return sessionStore;
