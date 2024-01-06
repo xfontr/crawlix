@@ -159,13 +159,13 @@ const SessionStore = () => {
 
   const postItem = <T = DefaultItem>(
     item: T | undefined,
-    errorLog: Partial<Record<keyof T, Error>>,
+    errorLog: Partial<Record<keyof T, Error>> | undefined,
     selector = "",
   ): void => {
     if (store.session.totalItems! >= store.session.limit!.items!) return;
 
     store.session.items!.push({
-      ...(item ?? {}), // Test this, maybe already covered, though
+      ...(item ?? {}),
       _meta: {
         id: randomUUID(),
         itemNumber: store.session.totalItems!,
@@ -174,7 +174,7 @@ const SessionStore = () => {
         moment: getTimeDifference(store.session.startDate!),
         isComplete: isItemComplete(item),
         selector,
-        errorLog,
+        errorLog: errorLog ?? {},
         url: current().history.at(-1)!,
       },
     });

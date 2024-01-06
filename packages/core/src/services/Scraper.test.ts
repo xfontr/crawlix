@@ -251,7 +251,7 @@ describe("Given a Scraper.afterAll function", () => {
 
       expect(result).toBeUndefined();
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-      expect(error!.message).toBe(t("session.error.after_all"));
+      expect(error!.message).toBe(t("session.error.after_all_timeout"));
 
       await cleanUpEnd(() => mockPromiseFunction());
     });

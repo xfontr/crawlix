@@ -728,6 +728,23 @@ describe("Given a SessionStore.postItem function", () => {
       cleanUpEnd();
     });
   });
+
+  describe("When called with no item and no errorLog", () => {
+    test("Then it should register all the meta data, but no item", () => {
+      const {
+        postItem,
+        end: cleanUpEnd,
+        current,
+      } = SessionStore().init(mockSessionConfig);
+
+      postItem(undefined, undefined);
+
+      expect(current().items[0]?._meta.errorLog).toStrictEqual({});
+      expect(current().items[0]?._meta.id).toBe("random-uuid");
+
+      cleanUpEnd();
+    });
+  });
 });
 
 describe("Given a SessionStore.logMessage function", () => {
