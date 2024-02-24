@@ -1,5 +1,7 @@
 node_modules
 data/
+ignore-me
+ignore_me
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -9,6 +11,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+.out/
 .Python
 build/
 develop-eggs/
