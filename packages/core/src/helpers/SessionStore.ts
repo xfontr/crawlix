@@ -44,7 +44,7 @@ const SessionStore = () => {
       duration: getTimeDifference(store.session.startDate!, endDate),
       success,
       incompleteItems: store.session.items!.reduce(
-        (total, { _meta: { isComplete } }) => total + (isComplete ? 0 : 1),
+        (total, { _meta: { complete } }) => total + (complete ? 0 : 1),
         0,
       ),
     };
@@ -112,7 +112,11 @@ const SessionStore = () => {
     store.session.location!.page = page ?? store.session.location!.page;
     store.session.location!.url = url ?? store.session.location!.url;
 
-    if (page && store.session.limit!.page && page >= store.session.limit!.page)
+    if (
+      page &&
+      store.session.limit!.page &&
+      page >= store.session.offset!.page! + store.session.limit!.page
+    )
       EventBus.emit("SESSION:ACTIVE", false);
   };
 
@@ -153,13 +157,14 @@ const SessionStore = () => {
       actionNumber: store.session.totalActions!,
     });
 
+    // TODO: This secondary effect should probably be one layer above, @ Session.ts
     store.session.usageData &&
       usageDataLogError(store.session.errorLog!.at(-1));
   };
 
   const postItem = <T = DefaultItem>(
     item: T | undefined,
-    errorLog: Partial<Record<keyof T, Error>> | undefined,
+    errorLog: Partial<Record<keyof T, string>> | undefined,
     selector = "",
   ): void => {
     if (store.session.totalItems! >= store.session.limit!.items!) return;
@@ -172,7 +177,7 @@ const SessionStore = () => {
         page: store.session.location!.page,
         posted: new Date(),
         moment: getTimeDifference(store.session.startDate!),
-        isComplete: isItemComplete(item),
+        complete: isItemComplete(item),
         selector,
         errorLog: errorLog ?? {},
         url: current().history.at(-1)!,
@@ -186,13 +191,15 @@ const SessionStore = () => {
   };
 
   const hasReachedLimit = (): boolean => {
-    const { totalItems, limit, location } = store.session;
+    const { totalItems, limit, location, offset } = store.session;
 
     return (
       totalItems! >= limit!.items! ||
-      !!(limit!.page && location!.page >= limit!.page)
+      !!(limit!.page && location!.page >= offset!.page! + limit!.page)
     );
   };
+
+  const storeGodMode = () => store.session;
 
   const sessionStore = {
     init,
@@ -206,6 +213,7 @@ const SessionStore = () => {
     postItem,
     logMessage,
     hasReachedLimit,
+    storeGodMode,
   };
 
   return sessionStore;

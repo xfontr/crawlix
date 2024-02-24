@@ -13,7 +13,8 @@
     "error": {
       "initialized": "[DEV] The session store has already been instantiated",
       "not_initialized": "[DEV] The session store has not been instantiated"
-    }
+    },
+    "empty_attribute": "Field empty"
   },
   "session": {
     "init": "Starting a new session",
@@ -37,6 +38,7 @@
     "error": {
       "default": "Error while executing a scraper action"
     },
+    "before_all": "Running the before all effects",
     "after_all": "Running the after all effects"
   },
   "email": {
