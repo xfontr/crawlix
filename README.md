@@ -74,9 +74,13 @@ See scraper/core/README.md for more information on the script.
 
 ### Done
 
-1.- [DONE] VERY IMPORTANT: Allow to recursively scrap pages until the limit is reached.
-3.- [DONE] Long term: Plugins attribute that allows inserting external functions, instead of having a
-4.- [DONE] Fix randomly breaking usage-data function + consider adding a try catch for it.
-5.- [DONE] When saving stuff in the data/ folder, verify first if there is such a folder. If not, create it.
-7.- [DONE] Do we really need an abrupt error symbol? Maybe we should simply throw a custom error
-6.- [DONE] Unsafe mode: allows the consumer to remove the default maximum values
+7.- Failed sessions in a row: Config that the consumer passes, informing the amount of failed sessions prior to the current one. The program will automatically reset the counter or increase it by one depending on the success of the session. After, implement a new notification type that will trigger when X amount of fails happen. Goal: inform the consumer that there is probably a critical error that is preventing the scrapper to run at all.
+8.- Premade config packages
+9.- Loading bar for the runInLoop function
+10.- Better history: store also the moment when the page was reached, and how many items did the scraper take out of that page
+11.- IMPORTANT: Spread the \_meta attribute and delete it and/or give the consumer the option to have it spread or as an attribute. This allows to have all the meta data in normal csv columns instead of an annoying stringified object, or instead of having to do additional absurd logic to spread it.
+
+12.- Add try catches and curate everything at Scraper.ts
+13.- For the sleeps, allow a random multiplier, so that the await times are even more realistic
+
+14.- For the postItem, have a curry function that allows to add only partial item data. And then the final postItem that submits the thing

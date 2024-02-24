@@ -7,9 +7,11 @@ import { tryCatch } from "@personal/utils";
 import type { SessionConfigInit } from "../types/SessionConfig";
 import setDefaultTools from "../utils/setDefaultTools";
 import promiseAllSeq from "../utils/sequentialPromises";
+import EventBus from "../helpers/EventBus";
 
 type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
   Pick<ReturnType<typeof Session>, "saveAsJson"> &
+  Pick<ReturnType<typeof Session>, "saveItemsLocally"> &
   Pick<ReturnType<typeof SessionStore>, "logMessage"> & {
     store: () => SessionData;
   };
@@ -22,9 +24,46 @@ const scraper =
     ...baseConfig
   }: Partial<SessionConfigInit<S>> = {}) =>
   async () => {
+    if (baseConfig.enabled === false)
+      return {
+        run: () => [undefined, undefined],
+        runInLoop: () => [undefined, undefined],
+        afterAll: () => [[undefined], undefined],
+        beforeAll: () => [undefined, undefined],
+      };
+
     const session = Session(baseConfig).init();
     const actions = useAction(session.store().taskLength);
     let tools = setDefaultTools(session, actions);
+
+    // TODO: Test this
+    const beforeAll = async <R>(
+      callback: (
+        scraper: Awaited<Tools<S>> &
+          typeof tools & {
+            storeGodMode: () => Partial<
+              SessionData<Record<string, string | number | object>>
+            >;
+          },
+      ) => Promise<R> | R,
+    ) => {
+      infoMessage(t("session_actions.before_all"));
+
+      const runResult = await actions.$$a(
+        () =>
+          session.setGlobalTimeout(async (cleanUp) => {
+            const result = await callback({
+              ...(tools as Awaited<Tools<S>> & typeof tools),
+              storeGodMode: session.storeGodMode,
+            });
+
+            cleanUp();
+            return result;
+          }, "afterAllTimeout"), // TODO: Have a global variable that covers both types of timeouts
+      );
+
+      return runResult;
+    };
 
     const afterAll = async <R>(
       callback: (scraper: AfterAllTools) => Promise<R> | R,
@@ -41,6 +80,7 @@ const scraper =
             const result = await callback({
               notify: session.notify,
               saveAsJson: session.saveAsJson,
+              saveItemsLocally: session.saveItemsLocally,
               logMessage: session.storeHooks.logMessage,
               store: session.store,
             });
@@ -73,6 +113,7 @@ const scraper =
           run: () => [undefined, error ?? customError],
           runInLoop: () => [undefined, error ?? customError],
           afterAll,
+          beforeAll,
         };
       }
 
@@ -106,8 +147,14 @@ const scraper =
           },
       ) => Promise<R> | R,
       safetyCheck = 2,
-    ) =>
-      await actions.$$a(() =>
+    ) => {
+      let isSessionOver = false;
+
+      EventBus.on("SESSION:ACTIVE", (status: boolean) => {
+        isSessionOver = !status;
+      });
+
+      return await actions.$$a(() =>
         session.setGlobalTimeout(async (cleanUp) => {
           ScraperTool &&
             (await (tools as Awaited<Tools<S>> & typeof tools).init?.());
@@ -121,6 +168,8 @@ const scraper =
           };
 
           const result = await promiseAllSeq(() => {
+            if (isSessionOver) return;
+
             index += 1;
 
             const {
@@ -148,16 +197,18 @@ const scraper =
               });
           }, session.storeHooks.hasReachedLimit);
 
-          session.end(false);
+          if (!isSessionOver) session.end(false);
           cleanUp();
           return result;
         }),
       );
+    };
 
     return {
       run,
       runInLoop,
       afterAll,
+      beforeAll,
     };
   };
 

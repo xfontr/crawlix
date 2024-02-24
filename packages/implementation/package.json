@@ -7,7 +7,7 @@
   "author": "Xifré Font",
   "license": "MIT",
   "scripts": {
-    "start": "node .",
+    "start": "nodemon src --exec \"node -r dotenv/config -r ts-node/register --inspect\" src/index.ts",
     "build": "rimraf build && tsc src/*.ts && tsc",
     "dev": "nodemon --watch src --watch .env --exec \"node -r dotenv/config -r ts-node/register --inspect\" src/index.ts",
     "test": "jest",
@@ -17,11 +17,13 @@
     "format": "prettier . --write"
   },
   "dependencies": {
-    "@scraper/core": "workspace:*",
     "@personal/i18n": "workspace:*",
     "@personal/utils": "workspace:*",
+    "@scraper/core": "workspace:*",
     "pino": "^8.16.2",
-    "puppeteer": "^21.6.0"
+    "puppeteer": "^21.6.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",

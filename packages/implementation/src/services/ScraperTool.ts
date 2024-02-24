@@ -1,4 +1,6 @@
-import puppeteer, { ElementHandle, Page } from "puppeteer";
+import type { ElementHandle, Page } from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import ScraperTools from "@scraper/core/src/types/ScraperTools";
 import { infoMessage } from "@scraper/core/src/logger";
 import t from "@scraper/core/src/i18n";
@@ -26,9 +28,14 @@ export type CustomTools = {
 const ScraperTool: ScraperTools<CustomTools> = async ($s, { $a, $$a }) => {
   const { offset, timeout } = $s.store();
 
+  puppeteer.use(StealthPlugin());
+
   const page = await Puppeteer<Page>(puppeteer);
 
+  await page.setViewport({ width: 1920, height: 1080 });
+
   const init = async (): Promise<void> => {
+    console.log("offset shit", offset.url);
     await $$a(() => page.goto(offset.url!));
   };
 

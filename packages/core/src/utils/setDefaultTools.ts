@@ -9,6 +9,7 @@ const setDefaultTools = (
   hooks: {
     ...$s.storeHooks,
     saveAsJson: $s.saveAsJson,
+    saveItemsLocally: $s.saveItemsLocally,
     notify: $s.notify,
     logError: $s.error,
     /**

@@ -614,7 +614,7 @@ describe("Given a SessionStore.postItem function", () => {
           posted: new Date(),
           moment: advancedTime,
           selector,
-          isComplete: true,
+          complete: true,
           errorLog: {},
           url: itemUrl,
         },
@@ -671,7 +671,7 @@ describe("Given a SessionStore.postItem function", () => {
 
         postItem(undefined, {});
 
-        expect(current().items[0]?._meta.isComplete).toBe(false);
+        expect(current().items[0]?._meta.complete).toBe(false);
 
         cleanUpEnd();
       });
@@ -702,7 +702,7 @@ describe("Given a SessionStore.postItem function", () => {
 
       postItem({ name: "test", surname: undefined, age: undefined }, {});
 
-      expect(current().items[0]?._meta.isComplete).toBe(false);
+      expect(current().items[0]?._meta.complete).toBe(false);
 
       cleanUpEnd();
     });
