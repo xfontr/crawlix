@@ -1,7 +1,6 @@
 import ScraperTools from "./ScraperTools";
 
 interface SessionConfig {
-  enabled?: boolean;
   offset: {
     /**
      * @description The URL the scraper starts with
