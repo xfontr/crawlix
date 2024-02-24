@@ -1,0 +1,41 @@
+import DefaultItem from "./DefaultItem";
+
+interface UseItemOptions<
+  T extends Record<string, string | number | boolean> = Record<
+    string,
+    string | number | boolean
+  >,
+> {
+  initialState?: Partial<DefaultItem<T>>;
+  /**
+   * @description List with the minimum attributes that the item must have.
+   * @example ["name", "shop", "price"]
+   */
+  requiredType?: Partial<keyof DefaultItem<T>>[];
+  /**
+   * @description If the item cleaner should run automatically before using the item.
+   */
+  autoClean?: boolean;
+  /**
+   * @description If the error checker should run automatically before using the item.
+   *
+   * Behavior:
+   *
+   * - If there's a list of minimum attributes, the script will check which
+   * ones are lacking and log them as item errors.
+   * - If there is no list of minimum attributes, the script will check every
+   * single attribute and log the empty ones as errors.
+   */
+  autoLogErrors?: boolean;
+  /**
+   * @description Custom Reg Expression and a value to replace the findings with, in addition with the
+   * default cleaner
+   */
+  customCleaner?: [RegExp | string, string];
+  /**
+   * @description If true, will store the item and its errors every time it's used.
+   */
+  enableBackup?: boolean;
+}
+
+export default UseItemOptions;
