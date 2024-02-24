@@ -19,8 +19,11 @@
   "dependencies": {
     "@personal/i18n": "workspace:*",
     "@personal/utils": "workspace:*",
+    "@types/papaparse": "^5.3.14",
     "clone-deep": "^4.0.1",
+    "csv-writer": "^1.6.0",
     "nodemailer": "^6.9.7",
+    "papaparse": "^5.4.1",
     "pino": "^8.16.2"
   },
   "devDependencies": {
