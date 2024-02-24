@@ -16,9 +16,9 @@ type TypicalData = Partial<{
 }>;
 
 type DefaultItem<
-  T extends Record<string, string | number | object> = Record<
+  T extends Record<string, string | number | boolean> = Record<
     string,
-    string | number | object
+    string | number | boolean
   >,
 > = T &
   TypicalData & {
@@ -50,18 +50,15 @@ type DefaultItem<
       /**
        * @description Whether all the elements of this items were successfully scraped or not
        */
-      isComplete: boolean;
+      complete: boolean;
       /**
        * @description Object including all the item's elements where there was an error
        * @example
        * {
-       *  title: {
-       *    name: "Wrong selector",
-       *    message: "The item used an invalid selector",
-       *  }
+       *  title: "[Wrong selector] The item used an invalid selector",
        * }
        */
-      errorLog: Record<string, Error | void>;
+      errorLog: Record<string, string | void>;
       /**
        * @description The URL where the item was obtained from
        */
