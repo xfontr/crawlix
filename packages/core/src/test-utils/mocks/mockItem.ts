@@ -14,7 +14,7 @@ export const mockItem: DefaultItem = {
   _meta: {
     errorLog: {},
     id: randomUUID(),
-    isComplete: true,
+    complete: true,
     itemNumber: 0,
     moment: 100,
     page: 1,
