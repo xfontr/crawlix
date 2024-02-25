@@ -11,14 +11,8 @@ describe("Given a setDefaultTools function", () => {
       const expectedResult = JSON.stringify({
         abort: (abrupt = true) => session.end(abrupt),
         store: session.store,
-        hooks: {
-          ...session.storeHooks,
-          saveAsJson: session.saveAsJson,
-          notify: session.notify,
-          logError: session.error,
-          $$a: actions.$$a,
-          $a: actions.$a,
-        },
+        ...session.hooks,
+        useAction: { $a: actions.$a, $$a: actions.$$a },
       });
 
       const result = JSON.stringify(setDefaultTools(session, actions));

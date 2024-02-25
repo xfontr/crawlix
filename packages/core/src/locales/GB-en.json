@@ -14,7 +14,11 @@
       "initialized": "[DEV] The session store has already been instantiated",
       "not_initialized": "[DEV] The session store has not been instantiated"
     },
-    "empty_attribute": "Field empty"
+    "empty_attribute": "Field empty",
+    "empty_item": {
+      "key": "NO_ITEM",
+      "value": "No values were provided for this item"
+    }
   },
   "session": {
     "init": "Starting a new session",

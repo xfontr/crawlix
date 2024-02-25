@@ -1,20 +1,22 @@
-import { ScraperTools, Session, SessionData, useAction } from "../..";
 import CreateError from "../utils/CreateError";
 import t from "../i18n";
 import { infoMessage } from "../logger";
-import SessionStore from "../helpers/SessionStore";
 import { tryCatch } from "@personal/utils";
 import type { SessionConfigInit } from "../types/SessionConfig";
 import setDefaultTools from "../utils/setDefaultTools";
-import promiseAllSeq from "../utils/sequentialPromises";
+import Session from "../helpers/Session";
+import type SessionData from "../types/SessionData";
+import IScraperTool from "../types/ScraperTool";
+import { useAction } from "../..";
 
-type AfterAllTools = Pick<ReturnType<typeof Session>, "notify"> &
-  Pick<ReturnType<typeof Session>, "saveAsJson"> &
-  Pick<ReturnType<typeof SessionStore>, "logMessage"> & {
-    store: () => SessionData;
-  };
+export type AfterAllTools = {
+  useConnectors: ReturnType<typeof Session>["hooks"]["useConnectors"];
+  useLoggers: ReturnType<typeof Session>["hooks"]["useLoggers"];
+} & {
+  store: () => SessionData;
+};
 
-type Tools<S extends Record<string, unknown>> = ReturnType<ScraperTools<S>>;
+type Tools<S extends Record<string, unknown>> = ReturnType<IScraperTool<S>>;
 
 const scraper =
   <S extends Record<string, unknown>>({
@@ -22,8 +24,16 @@ const scraper =
     ...baseConfig
   }: Partial<SessionConfigInit<S>> = {}) =>
   async () => {
+    if (baseConfig.enabled === false)
+      return {
+        run: () => [undefined, undefined],
+        afterAll: () => [[undefined], undefined],
+      };
+
     const session = Session(baseConfig).init();
     const actions = useAction(session.store().taskLength);
+    const utils = session.hooks.useUtils();
+
     let tools = setDefaultTools(session, actions);
 
     const afterAll = async <R>(
@@ -35,27 +45,25 @@ const scraper =
        * This function is meant to run only after the main actual run. Therefore, the store has already been
        * ended and using the $$a function would cause this not to work (plus, it would be pointless)
        */
-      const afterAllResult = tryCatch<R>(
-        async () =>
-          await session.setGlobalTimeout(async (cleanUp) => {
-            const result = await callback({
-              notify: session.notify,
-              saveAsJson: session.saveAsJson,
-              logMessage: session.storeHooks.logMessage,
-              store: session.store,
-            });
+      const afterAllResult = await tryCatch<R>(() =>
+        utils.setGlobalTimeout(async (cleanUp) => {
+          const result = await callback({
+            useLoggers: session.hooks.useLoggers,
+            useConnectors: session.hooks.useConnectors,
+            store: session.store,
+          });
 
-            cleanUp();
-            return result;
-          }, "afterAllTimeout"),
+          cleanUp();
+          return result;
+        }, "afterAllTimeout"),
       );
 
       return afterAllResult;
     };
 
     if (ScraperTool) {
-      const [customScraper, error] = await tryCatch<Awaited<Tools<S>>>(() =>
-        ScraperTool(session, actions),
+      const [customScraper, error] = await tryCatch<Awaited<Tools<S>>>(
+        async () => await ScraperTool(tools),
       );
 
       if (error || !customScraper) {
@@ -67,11 +75,10 @@ const scraper =
           },
         );
 
-        session.error(customError, { isCritical: true });
+        utils.error(customError, { isCritical: true });
 
         return {
           run: () => [undefined, error ?? customError],
-          runInLoop: () => [undefined, error ?? customError],
           afterAll,
         };
       }
@@ -83,7 +90,7 @@ const scraper =
       callback: (scraper: Awaited<Tools<S>> & typeof tools) => Promise<R> | R,
     ) => {
       const runResult = await actions.$$a(() =>
-        session.setGlobalTimeout(async (cleanUp) => {
+        utils.setGlobalTimeout(async (cleanUp) => {
           ScraperTool &&
             (await (tools as Awaited<Tools<S>> & typeof tools).init?.());
           const result = await callback(
@@ -98,65 +105,8 @@ const scraper =
       return runResult;
     };
 
-    const runInLoop = async <R>(
-      callback: (
-        scraper: Awaited<Tools<S>> &
-          typeof tools & {
-            index: number;
-          },
-      ) => Promise<R> | R,
-      safetyCheck = 2,
-    ) =>
-      await actions.$$a(() =>
-        session.setGlobalTimeout(async (cleanUp) => {
-          ScraperTool &&
-            (await (tools as Awaited<Tools<S>> & typeof tools).init?.());
-
-          let index = -1;
-
-          /** Will be updated only if there's a safetyCheck on */
-          const history = {
-            totalItems: 0,
-            page: session.store().offset.page,
-          };
-
-          const result = await promiseAllSeq(() => {
-            index += 1;
-
-            const {
-              totalItems,
-              location: { page },
-            } = session.store();
-
-            if (
-              safetyCheck &&
-              index % safetyCheck &&
-              history.totalItems === totalItems &&
-              history.page === page
-            ) {
-              throw CreateError(Error(t("scraper.error.loop_stuck")), {
-                name: t("error_index.session"),
-              });
-            } else if (safetyCheck) {
-              history.totalItems = totalItems;
-              history.page = page;
-            }
-
-            return callback({ ...tools, index } as Awaited<Tools<S>> &
-              typeof tools & {
-                index: number;
-              });
-          }, session.storeHooks.hasReachedLimit);
-
-          session.end(false);
-          cleanUp();
-          return result;
-        }),
-      );
-
     return {
       run,
-      runInLoop,
       afterAll,
     };
   };
