@@ -33,7 +33,9 @@ jest.mock("../SessionStore", () => () => ({
   init: (config: SessionConfig) => mockInit(config),
   end: (...args: unknown[]) => mockEnd(...args),
   current: () => mockCurrent(),
-  logError: (...args: unknown[]) => mockLogError(...args),
+  useLoggers: () => ({
+    logError: (...args: unknown[]) => mockLogError(...args),
+  }),
 }));
 
 const mockInfoMessage = jest.fn();
@@ -152,9 +154,11 @@ describe("Given a Session.error function", () => {
       const testError = new Error("error");
       const isCritical = true;
 
-      const { error } = Session().init();
+      const {
+        hooks: { useUtils },
+      } = Session().init();
 
-      error(testError, { isCritical });
+      useUtils().error(testError, { isCritical });
 
       expect(mockEnd).toHaveBeenCalledTimes(1);
       expect(mockErrorMessage).toHaveBeenCalledTimes(1);
@@ -167,9 +171,12 @@ describe("Given a Session.error function", () => {
       const testError = new Error("error");
       const isCritical = false;
 
-      const { error, end: cleanUpEnd } = Session().init();
+      const {
+        hooks: { useUtils },
+        end: cleanUpEnd,
+      } = Session().init();
 
-      error(testError, { isCritical });
+      useUtils().error(testError, { isCritical });
 
       expect(mockEnd).not.toHaveBeenCalled();
       expect(mockErrorMessage).toHaveBeenCalledTimes(1);
@@ -181,9 +188,12 @@ describe("Given a Session.error function", () => {
 
   describe("When called with no error", () => {
     test("It should do nothing", () => {
-      const { error, end: cleanUpEnd } = Session().init();
+      const {
+        hooks: { useUtils },
+        end: cleanUpEnd,
+      } = Session().init();
 
-      error(undefined);
+      useUtils().error(undefined);
 
       expect(mockEnd).not.toHaveBeenCalled();
       expect(mockErrorMessage).not.toHaveBeenCalled();
@@ -198,10 +208,12 @@ describe("Given a Session.setGlobalTimeout function", () => {
   describe("When called with a promise function with a running time lower than the global timeout", () => {
     test("Then it should complete said function", async () => {
       const promiseTimeout = mockGlobalTimeout - 1;
-      const { setGlobalTimeout, end: cleanUpEnd } =
-        Session(mockSessionConfig).init();
+      const {
+        hooks: { useUtils },
+        end: cleanUpEnd,
+      } = Session(mockSessionConfig).init();
 
-      const response = await setGlobalTimeout(async (cleanUp) => {
+      const response = await useUtils().setGlobalTimeout(async (cleanUp) => {
         const result = await mockPromiseFunction({ timeout: promiseTimeout });
         cleanUp();
         return result;
@@ -216,10 +228,12 @@ describe("Given a Session.setGlobalTimeout function", () => {
   describe("When called with a promise function with a running time higher than the global timeout", () => {
     test("Then it should log an error", async () => {
       const promiseTimeout = mockGlobalTimeout + 1;
-      const { setGlobalTimeout } = Session(mockSessionConfig).init();
+      const {
+        hooks: { useUtils },
+      } = Session(mockSessionConfig).init();
 
       const [response] = await tryCatch<undefined>(() =>
-        setGlobalTimeout(async (cleanUp) => {
+        useUtils().setGlobalTimeout(async (cleanUp) => {
           const result = await mockPromiseFunction({ timeout: promiseTimeout });
           cleanUp();
           return result;
@@ -248,10 +262,12 @@ describe("Given a Session.setGlobalTimeout function", () => {
   describe("When called with an afterAll promise function with a running time higher than the afterAll timeout", () => {
     test("Then it should log an error", async () => {
       const promiseTimeout = mockSessionConfig.afterAllTimeout + 1;
-      const { setGlobalTimeout } = Session(mockSessionConfig).init();
+      const {
+        hooks: { useUtils },
+      } = Session(mockSessionConfig).init();
 
       const [response] = await tryCatch<undefined>(() =>
-        setGlobalTimeout(async (cleanUp) => {
+        useUtils().setGlobalTimeout(async (cleanUp) => {
           const result = await mockPromiseFunction({ timeout: promiseTimeout });
           cleanUp();
           return result;
@@ -290,11 +306,14 @@ describe("Given a Session.notify function", () => {
     };
 
     test("Then it should do nothing if there are no errors", async () => {
-      const { notify, end: cleanUpEnd } = Session({
+      const {
+        hooks: { useConnectors },
+        end: cleanUpEnd,
+      } = Session({
         emailing: mockSessionData.emailing,
       }).init();
 
-      const response = await notify("CRITICAL_ERROR");
+      const response = await useConnectors().notify("CRITICAL_ERROR");
 
       expect(response).toBeUndefined();
 
@@ -309,11 +328,14 @@ describe("Given a Session.notify function", () => {
       mockSendEmail.mockResolvedValue([expectedResponse, undefined]);
       mockCurrent.mockReturnValue(mockCurrentWithError);
 
-      const { notify, end: cleanUpEnd } = Session({
+      const {
+        hooks: { useConnectors },
+        end: cleanUpEnd,
+      } = Session({
         emailing: mockSessionData.emailing,
       }).init();
 
-      const response = await notify("CRITICAL_ERROR");
+      const response = await useConnectors().notify("CRITICAL_ERROR");
 
       expect(mockSendEmail).toHaveBeenCalledWith(
         EmailTemplates(
@@ -332,11 +354,14 @@ describe("Given a Session.notify function", () => {
       mockSendEmail.mockResolvedValue([undefined, expectedError]);
       mockCurrent.mockReturnValue(mockCurrentWithError);
 
-      const { notify, end: cleanUpEnd } = Session({
+      const {
+        hooks: { useConnectors },
+        end: cleanUpEnd,
+      } = Session({
         emailing: mockSessionData.emailing,
       }).init();
 
-      const response = await notify("CRITICAL_ERROR");
+      const response = await useConnectors().notify("CRITICAL_ERROR");
 
       expect(mockSendEmail).toHaveBeenCalledWith(
         EmailTemplates(
