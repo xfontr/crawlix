@@ -3,13 +3,15 @@ import t from "../i18n";
 import type SessionConfig from "../types/SessionConfig";
 import type SessionData from "../types/SessionData";
 import EventBus from "./EventBus";
-import DefaultItem from "../types/DefaultItem";
 import { warningMessage } from "../logger";
-import isItemComplete from "../utils/isItemComplete";
 import { usageDataLogError } from "../utils/usageData";
 import getTimeDifference from "../utils/getTimeDifference";
 import deepClone from "clone-deep";
 import CustomError from "../types/CustomError";
+import { FullItem, Item, ItemExtraAttributes } from "../..";
+import _useItem from "./useItem";
+import { ItemMeta } from "../types/Item";
+import UseItemOptions from "../types/UseItemOptions";
 
 let initialized = false;
 
@@ -44,7 +46,7 @@ const SessionStore = () => {
       duration: getTimeDifference(store.session.startDate!, endDate),
       success,
       incompleteItems: store.session.items!.reduce(
-        (total, { _meta: { isComplete } }) => total + (isComplete ? 0 : 1),
+        (total, { _meta: { complete } }) => total + (complete ? 0 : 1),
         0,
       ),
     };
@@ -112,7 +114,11 @@ const SessionStore = () => {
     store.session.location!.page = page ?? store.session.location!.page;
     store.session.location!.url = url ?? store.session.location!.url;
 
-    if (page && store.session.limit!.page && page >= store.session.limit!.page)
+    if (
+      page &&
+      store.session.limit!.page &&
+      page >= store.session.offset!.page! + store.session.limit!.page
+    )
       EventBus.emit("SESSION:ACTIVE", false);
   };
 
@@ -153,31 +159,34 @@ const SessionStore = () => {
       actionNumber: store.session.totalActions!,
     });
 
+    // TODO: This secondary effect should probably be one layer above, @ Session.ts
     store.session.usageData &&
       usageDataLogError(store.session.errorLog!.at(-1));
   };
 
-  const postItem = <T = DefaultItem>(
-    item: T | undefined,
-    errorLog: Partial<Record<keyof T, Error>> | undefined,
-    selector = "",
+  const postItem: UseItemOptions["callbackUse"] = <
+    T extends ItemExtraAttributes = ItemExtraAttributes,
+  >(
+    item: Item<T> | undefined,
+    errorLog?: ItemMeta<T>["errorLog"],
   ): void => {
     if (store.session.totalItems! >= store.session.limit!.items!) return;
 
-    store.session.items!.push({
-      ...(item ?? {}),
+    const newItem: FullItem<T> = {
+      ...(item ?? ({} as Item<T>)),
       _meta: {
         id: randomUUID(),
         itemNumber: store.session.totalItems!,
         page: store.session.location!.page,
         posted: new Date(),
         moment: getTimeDifference(store.session.startDate!),
-        isComplete: isItemComplete(item),
-        selector,
+        complete: !Object.keys(errorLog ?? {}).length,
         errorLog: errorLog ?? {},
         url: current().history.at(-1)!,
       },
-    });
+    };
+
+    store.session.items!.push(newItem);
 
     store.session.totalItems = store.session.items!.length;
 
@@ -186,26 +195,38 @@ const SessionStore = () => {
   };
 
   const hasReachedLimit = (): boolean => {
-    const { totalItems, limit, location } = store.session;
+    const { totalItems, limit, location, offset } = store.session;
 
     return (
       totalItems! >= limit!.items! ||
-      !!(limit!.page && location!.page >= limit!.page)
+      !!(limit!.page && location!.page >= offset!.page! + limit!.page)
     );
   };
 
-  const sessionStore = {
-    init,
-    current,
-    end,
-    countAction,
-    logError,
-    updateLocation,
+  const useLocation = () => ({
     nextPage,
     previousPage,
-    postItem,
+    updateLocation,
+  });
+
+  const useItem = <T extends ItemExtraAttributes = ItemExtraAttributes>(
+    options: UseItemOptions<T> = {},
+  ) => ({ ..._useItem<T>({ ...options, callbackUse: postItem }) });
+
+  const useLoggers = () => ({
+    logError,
     logMessage,
+  });
+
+  const sessionStore = {
+    init,
+    end,
+    current,
     hasReachedLimit,
+    useLoggers,
+    useLocation,
+    useItem,
+    countAction,
   };
 
   return sessionStore;

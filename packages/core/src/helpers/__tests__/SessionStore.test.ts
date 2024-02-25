@@ -3,9 +3,11 @@ import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
 import SessionData from "../../types/SessionData";
 import SessionStore from "../SessionStore";
-import DefaultItem from "../../types/DefaultItem";
 import { mockItemWithoutMeta } from "../../test-utils/mocks/mockItem";
 import CreateError from "../../utils/CreateError";
+import type { Item, ItemExtraAttributes } from "../../..";
+import useItem from "../useItem";
+import { ItemMeta } from "../../types/Item";
 
 const mockWarning = jest.fn();
 const mockEmit = jest.fn();
@@ -59,12 +61,15 @@ describe("Given a SessionStore function", () => {
         current,
         end: cleanUpEnd,
         countAction,
-        logMessage,
+        useLoggers,
       } = SessionStore().init(mockSessionConfig);
 
       expect(current()).toStrictEqual(expectedStore);
       expect(mockOn).toHaveBeenCalledWith("ACTION:COUNT", countAction);
-      expect(mockOn).toHaveBeenCalledWith("SESSION:LOG", logMessage);
+      expect(mockOn).toHaveBeenCalledWith(
+        "SESSION:LOG",
+        useLoggers().logMessage,
+      );
 
       cleanUpEnd();
     });
@@ -102,12 +107,12 @@ describe("Given a SessionStore function", () => {
     test("It should update the number of incomplete items and total items", () => {
       const expectedIncompleteItems = 3;
 
-      const { end, postItem } = SessionStore().init(mockSessionConfig);
+      const { end, useItem } = SessionStore().init(mockSessionConfig);
 
       postItems(
         expectedIncompleteItems,
         { name: "Test", surname: undefined },
-        postItem,
+        useItem({ autoLogErrors: true }).setAttributes,
       );
 
       const { incompleteItems, totalItems } = end();
@@ -120,7 +125,7 @@ describe("Given a SessionStore function", () => {
       const incompleteItems = 3;
       const completeItems = 2;
 
-      const { end, postItem } = SessionStore().init({
+      const { end, useItem } = SessionStore().init({
         ...mockSessionConfig,
         minimumItemsToSuccess: 0.5,
       });
@@ -128,9 +133,13 @@ describe("Given a SessionStore function", () => {
       postItems(
         incompleteItems,
         { name: "Test", surname: undefined },
-        postItem,
+        useItem({ autoLogErrors: true }).setAttributes,
       );
-      postItems(completeItems, { name: "Test", surname: "Test" }, postItem);
+      postItems(
+        completeItems,
+        { name: "Test", surname: "Test" },
+        useItem().setAttributes,
+      );
 
       expect(end().success).toBe(false);
     });
@@ -139,7 +148,7 @@ describe("Given a SessionStore function", () => {
       const incompleteItems = 3;
       const completeItems = 3;
 
-      const { end, postItem } = SessionStore().init({
+      const { end, useItem } = SessionStore().init({
         ...mockSessionConfig,
         limit: { items: 10 },
         minimumItemsToSuccess: 0.5,
@@ -148,9 +157,13 @@ describe("Given a SessionStore function", () => {
       postItems(
         incompleteItems,
         { name: "Test", surname: undefined },
-        postItem,
+        useItem().setAttributes,
       );
-      postItems(completeItems, { name: "Test", surname: "Test" }, postItem);
+      postItems(
+        completeItems,
+        { name: "Test", surname: "Test" },
+        useItem().setAttributes,
+      );
 
       expect(end().success).toBe(true);
     });
@@ -159,7 +172,7 @@ describe("Given a SessionStore function", () => {
       const incompleteItems = 10;
       const completeItems = 2;
 
-      const { end, postItem } = SessionStore().init({
+      const { end, useItem } = SessionStore().init({
         ...mockSessionConfig,
         limit: { items: 15 },
         minimumItemsToSuccess: 3,
@@ -168,9 +181,13 @@ describe("Given a SessionStore function", () => {
       postItems(
         incompleteItems,
         { name: "Test", surname: undefined },
-        postItem,
+        useItem({ autoLogErrors: true }).setAttributes,
       );
-      postItems(completeItems, { name: "Test", surname: "Test" }, postItem);
+      postItems(
+        completeItems,
+        { name: "Test", surname: "Test" },
+        useItem().setAttributes,
+      );
 
       expect(end().success).toBe(false);
     });
@@ -179,7 +196,7 @@ describe("Given a SessionStore function", () => {
       const incompleteItems = 10;
       const completeItems = 3;
 
-      const { end, postItem } = SessionStore().init({
+      const { end, useItem } = SessionStore().init({
         ...mockSessionConfig,
         limit: { items: 15 },
         minimumItemsToSuccess: 3,
@@ -188,9 +205,13 @@ describe("Given a SessionStore function", () => {
       postItems(
         incompleteItems,
         { name: "Test", surname: undefined },
-        postItem,
+        useItem({ autoLogErrors: true }).setAttributes,
       );
-      postItems(completeItems, { name: "Test", surname: "Test" }, postItem);
+      postItems(
+        completeItems,
+        { name: "Test", surname: "Test" },
+        useItem().setAttributes,
+      );
 
       expect(end().success).toBe(true);
     });
@@ -287,12 +308,12 @@ describe("Given a SessionStore.updateLocation function", () => {
       const page = 2;
 
       const {
-        updateLocation,
+        useLocation,
         current,
         end: cleanUpEnd,
       } = SessionStore().init(mockSessionConfig);
 
-      updateLocation({ page });
+      useLocation().updateLocation({ page });
 
       expect(current().location).toStrictEqual({
         ...mockSessionConfig.offset,
@@ -308,12 +329,12 @@ describe("Given a SessionStore.updateLocation function", () => {
       const url = "www.test.com";
 
       const {
-        updateLocation,
+        useLocation,
         current,
         end: cleanUpEnd,
       } = SessionStore().init(mockSessionConfig);
 
-      updateLocation({ url });
+      useLocation().updateLocation({ url });
 
       expect(current().location.url).toBe(url);
       expect(current().location.page).toBe(mockSessionConfig.offset.page);
@@ -332,11 +353,11 @@ describe("Given a SessionStore.nextPage function", () => {
 
       const {
         end: cleanUpEnd,
-        nextPage,
+        useLocation,
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      nextPage(url);
+      useLocation().nextPage(url);
 
       const currentStore = current();
 
@@ -348,12 +369,12 @@ describe("Given a SessionStore.nextPage function", () => {
     });
 
     test("Then it should increase the current page and end the session if it reached its limit", () => {
-      const { end: cleanUpEnd, nextPage } = SessionStore().init({
+      const { end: cleanUpEnd, useLocation } = SessionStore().init({
         ...mockSessionConfig,
         limit: { page: 1 },
       });
 
-      nextPage();
+      useLocation().nextPage();
 
       expect(mockEmit).toHaveBeenCalledWith("SESSION:ACTIVE", false);
       expect(mockEmit).toHaveBeenCalledTimes(1);
@@ -369,11 +390,11 @@ describe("Given a SessionStore.nextPage function", () => {
 
       const {
         end: cleanUpEnd,
-        nextPage,
+        useLocation,
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      nextPage();
+      useLocation().nextPage();
 
       const currentStore = current();
 
@@ -396,14 +417,14 @@ describe("Given a SessionStore.previousPage function", () => {
 
       const {
         end: cleanUpEnd,
-        previousPage,
+        useLocation,
         current,
       } = SessionStore().init({
         ...mockSessionConfig,
         offset: { ...mockSessionConfig.offset, page: initialPage },
       });
 
-      previousPage(url);
+      useLocation().previousPage(url);
 
       const currentStore = current();
 
@@ -423,15 +444,15 @@ describe("Given a SessionStore.previousPage function", () => {
 
       const {
         end: cleanUpEnd,
-        previousPage,
+        useLocation,
         current,
       } = SessionStore().init({
         ...mockSessionConfig,
         offset: { ...mockSessionConfig.offset, page: initialPage },
       });
 
-      previousPage();
-      previousPage();
+      useLocation().previousPage();
+      useLocation().previousPage();
 
       const currentStore = current();
 
@@ -455,11 +476,11 @@ describe("Given a SessionStore.previousPage function", () => {
 
       const {
         end: cleanUpEnd,
-        nextPage,
+        useLocation,
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      nextPage();
+      useLocation().nextPage();
 
       const currentStore = current();
 
@@ -480,7 +501,7 @@ describe("Given a SessionStore.logError function", () => {
       const {
         current,
         end: cleanUpEnd,
-        logError,
+        useLoggers,
       } = SessionStore().init(mockSessionConfig);
 
       jest.advanceTimersByTime(advancedTime);
@@ -503,7 +524,7 @@ describe("Given a SessionStore.logError function", () => {
         actionNumber: current().totalActions,
       };
 
-      logError(error, expectedLog.isCritical);
+      useLoggers().logError(error, expectedLog.isCritical);
 
       expect(current().errorLog).toStrictEqual([expectedLog]);
 
@@ -513,15 +534,15 @@ describe("Given a SessionStore.logError function", () => {
     test("Then it should update the usage data with the last error, if the feature is on", () => {
       const {
         end: cleanUpEnd,
-        logError,
+        useLoggers,
         current,
       } = SessionStore().init({ ...mockSessionConfig, usageData: true });
 
       const firstError = CreateError(new Error("test"));
       const secondError = CreateError(new Error("test-2"));
 
-      logError(firstError);
-      logError(secondError);
+      useLoggers().logError(firstError);
+      useLoggers().logError(secondError);
 
       expect(mockUsageDataLogError).toHaveBeenCalledWith(
         current().errorLog.at(-1),
@@ -537,14 +558,14 @@ describe("Given a SessionStore.logError function", () => {
     });
 
     test("Then it should not update the usage data if the feature is off", () => {
-      const { end: cleanUpEnd, logError } = SessionStore().init({
+      const { end: cleanUpEnd, useLoggers } = SessionStore().init({
         ...mockSessionConfig,
         usageData: false,
       });
 
       const error = CreateError(Error("test"));
 
-      logError(error);
+      useLoggers().logError(error);
 
       expect(mockUsageDataLogError).not.toHaveBeenCalled();
 
@@ -557,7 +578,7 @@ describe("Given a SessionStore.logError function", () => {
       const {
         current,
         end: cleanUpEnd,
-        logError,
+        useLoggers,
       } = SessionStore().init(mockSessionConfig);
 
       const error = CreateError(Error("test"));
@@ -578,7 +599,7 @@ describe("Given a SessionStore.logError function", () => {
         actionNumber: current().totalActions,
       };
 
-      logError(error, expectedLog.isCritical);
+      useLoggers().logError(error, expectedLog.isCritical);
 
       expect(current().errorLog).toStrictEqual([expectedLog]);
 
@@ -588,44 +609,44 @@ describe("Given a SessionStore.logError function", () => {
 });
 
 describe("Given a SessionStore.postItem function", () => {
-  describe("When called with an item and a selector", () => {
-    const selector = "h3";
-
+  describe("When called with an item", () => {
     test("Then it should post said item with its corresponding meta data", () => {
       const advancedTime = 10;
       const itemUrl = "test";
 
       const {
-        postItem,
+        useItem,
         end: cleanUpEnd,
         current,
-        nextPage,
+        useLocation,
       } = SessionStore().init(mockSessionConfig);
 
-      nextPage(itemUrl);
+      useLocation().nextPage(itemUrl);
 
       jest.advanceTimersByTime(advancedTime);
 
-      const expectedMeta: Pick<DefaultItem, "_meta"> = {
+      const expectedMeta: { _meta: ItemMeta } = {
         _meta: {
           id: "random-uuid" as UUID,
           itemNumber: 0,
           page: mockSessionConfig.offset.page! + 1,
           posted: new Date(),
           moment: advancedTime,
-          selector,
-          isComplete: true,
+          complete: true,
           errorLog: {},
           url: itemUrl,
         },
       };
 
-      postItem(mockItemWithoutMeta, {}, selector);
+      useItem().setAttributes(mockItemWithoutMeta).use();
 
       const item = current().items[0];
 
-      expect({ ...item, _meta: {} }).toStrictEqual(mockItemWithoutMeta);
-      expect(item!._meta).toStrictEqual(expectedMeta._meta);
+      expect({ ...item, _meta: undefined }).toStrictEqual({
+        ...mockItemWithoutMeta,
+        _meta: undefined,
+      });
+      expect(item?._meta).toStrictEqual(expectedMeta._meta);
       expect(current().totalItems).toBe(1);
 
       cleanUpEnd();
@@ -633,12 +654,12 @@ describe("Given a SessionStore.postItem function", () => {
 
     test("Then it should do nothing if the maximum amount of items was reached", () => {
       const {
-        postItem,
+        useItem,
         end: cleanUpEnd,
         current,
       } = SessionStore().init({ ...mockSessionConfig, limit: { items: 0 } });
 
-      postItem(mockItemWithoutMeta, {}, selector);
+      useItem().setAttributes(mockItemWithoutMeta).use();
 
       expect(current().items).toHaveLength(0);
 
@@ -647,12 +668,12 @@ describe("Given a SessionStore.postItem function", () => {
 
     test("Then it should post the item and call off the session if there are too many items", () => {
       const {
-        postItem,
+        useItem,
         end: cleanUpEnd,
         current,
       } = SessionStore().init({ ...mockSessionConfig, limit: { items: 1 } });
 
-      postItem(mockItemWithoutMeta, {}, selector);
+      useItem().setAttributes(mockItemWithoutMeta).use();
 
       expect(current().totalItems).toBe(1);
       expect(mockEmit).toHaveBeenCalledWith("SESSION:ACTIVE", false);
@@ -661,31 +682,17 @@ describe("Given a SessionStore.postItem function", () => {
       cleanUpEnd();
     });
 
-    describe("When called with no item and no selector", () => {
+    describe("When called with no item", () => {
       test("Then it mark the item as incomplete", () => {
         const {
-          postItem,
+          useItem,
           end: cleanUpEnd,
           current,
         } = SessionStore().init(mockSessionConfig);
 
-        postItem(undefined, {});
+        useItem({ autoLogErrors: true }).setAttributes({}).use();
 
-        expect(current().items[0]?._meta.isComplete).toBe(false);
-
-        cleanUpEnd();
-      });
-
-      test("Then it should set an empty selector", () => {
-        const {
-          postItem,
-          end: cleanUpEnd,
-          current,
-        } = SessionStore().init(mockSessionConfig);
-
-        postItem(mockItemWithoutMeta, {});
-
-        expect(current().items[0]?._meta.selector).toBe("");
+        expect(current().items[0]?._meta.complete).toBe(false);
 
         cleanUpEnd();
       });
@@ -695,14 +702,16 @@ describe("Given a SessionStore.postItem function", () => {
   describe("When called with an incomplete item", () => {
     test("Then it should mark the item as incomplete", () => {
       const {
-        postItem,
+        useItem,
         end: cleanUpEnd,
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      postItem({ name: "test", surname: undefined, age: undefined }, {});
+      useItem({ autoLogErrors: true })
+        .setAttributes({ name: "test", surname: undefined, age: undefined })
+        .use();
 
-      expect(current().items[0]?._meta.isComplete).toBe(false);
+      expect(current().items[0]?._meta.complete).toBe(false);
 
       cleanUpEnd();
     });
@@ -711,17 +720,20 @@ describe("Given a SessionStore.postItem function", () => {
   describe("When called with an error log", () => {
     test("Then it should register said log", () => {
       const {
-        postItem,
+        useItem,
         end: cleanUpEnd,
         current,
       } = SessionStore().init(mockSessionConfig);
 
       const errorLog = {
-        surname: Error("Selector not found"),
-        age: Error("Selector not found"),
+        surname: "Selector not found",
+        age: "Selector not found",
       };
 
-      postItem({ name: "test", surname: undefined, age: undefined }, errorLog);
+      useItem()
+        .setAttributes({ name: "test", surname: undefined, age: undefined })
+        .addErrors(errorLog)
+        .use();
 
       expect(current().items[0]?._meta.errorLog).toStrictEqual(errorLog);
 
@@ -732,12 +744,12 @@ describe("Given a SessionStore.postItem function", () => {
   describe("When called with no item and no errorLog", () => {
     test("Then it should register all the meta data, but no item", () => {
       const {
-        postItem,
+        useItem,
         end: cleanUpEnd,
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      postItem(undefined, undefined);
+      useItem().setAttributes({}).addErrors({}).use();
 
       expect(current().items[0]?._meta.errorLog).toStrictEqual({});
       expect(current().items[0]?._meta.id).toBe("random-uuid");
@@ -752,12 +764,12 @@ describe("Given a SessionStore.logMessage function", () => {
     test("Then it should push said message with a timestamp in the store", () => {
       const message = "test";
       const {
-        logMessage,
+        useLoggers,
         end: cleanUpEnd,
         current,
       } = SessionStore().init(mockSessionConfig);
 
-      logMessage(message);
+      useLoggers().logMessage(message);
 
       expect(current().logs).toStrictEqual([`[0] ${message}`]);
 
@@ -773,7 +785,7 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
       const itemsLimit = 3;
 
       const {
-        postItem,
+        useItem,
         hasReachedLimit,
         end: cleanUpEnd,
       } = SessionStore().init({
@@ -785,9 +797,11 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
 
       expect(hasReachedLimit()).toBe(false);
 
+      const { setAttributes } = useItem();
+
       Array(itemsLimit)
-        .fill(postItem)
-        .forEach((post) => post(undefined, {}));
+        .fill(undefined)
+        .forEach(() => setAttributes({}).use());
 
       expect(hasReachedLimit()).toBe(expectedResult);
 
@@ -801,7 +815,7 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
       const pagesLimit = 3;
 
       const {
-        nextPage,
+        useLocation,
         hasReachedLimit,
         end: cleanUpEnd,
       } = SessionStore().init({
@@ -817,7 +831,7 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
       expect(hasReachedLimit()).toBe(false);
 
       Array(pagesLimit)
-        .fill(nextPage)
+        .fill(useLocation().nextPage)
         .forEach((next) => next(""));
 
       expect(hasReachedLimit()).toBe(expectedResult);
@@ -831,7 +845,7 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
         Math.floor(Math.random() * 50) + (mockSessionConfig.offset.page ?? 0);
 
       const {
-        nextPage,
+        useLocation,
         hasReachedLimit,
         end: cleanUpEnd,
       } = SessionStore().init({
@@ -844,7 +858,7 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
       expect(hasReachedLimit()).toBe(false);
 
       Array(randomPageIncrease)
-        .fill(nextPage)
+        .fill(useLocation().nextPage)
         .forEach((next) => next(""));
 
       expect(hasReachedLimit()).toBe(expectedResult);
@@ -860,8 +874,8 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
       const itemsLimit = 10;
 
       const {
-        postItem,
-        nextPage,
+        useItem,
+        useLocation,
         hasReachedLimit,
         end: cleanUpEnd,
       } = SessionStore().init({
@@ -874,8 +888,8 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
 
       expect(hasReachedLimit()).toBe(false);
 
-      nextPage("");
-      postItem(undefined, {});
+      useLocation().nextPage("");
+      useItem().setAttributes({}).use();
 
       expect(hasReachedLimit()).toBe(expectedResult);
 
@@ -886,16 +900,12 @@ describe("Given a SessionStore.hasReachedLimit function", () => {
 
 // UTILS
 
-const postItems = (
+const postItems = <T extends ItemExtraAttributes = ItemExtraAttributes>(
   numberOfItems: number,
-  body: Partial<DefaultItem>,
-  postItem: (
-    item: Omit<DefaultItem, "_meta"> | undefined,
-    errorLog: Record<string, Error>,
-    selector?: string,
-  ) => void,
+  body: Item<T>,
+  setAttributes: ReturnType<typeof useItem>["setAttributes"],
 ): void => {
-  new Array(numberOfItems).fill(body).forEach((item) => {
-    postItem(item as DefaultItem, {});
+  new Array(numberOfItems).fill(body).forEach((item: Item<T>) => {
+    setAttributes(item).use();
   });
 };

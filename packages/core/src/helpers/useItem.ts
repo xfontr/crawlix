@@ -1,23 +1,20 @@
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { objectEntries } from "@personal/utils";
-import type { DefaultItem } from "../..";
 import type UseItemOptions from "../types/UseItemOptions";
 import t from "../i18n";
 import { ASCII_CHARS, WHITE_SPACES } from "../configs/constants";
+import type { ItemMeta, Item, ItemExtraAttributes } from "../types/Item";
 
-const useItem = <
-  T extends Record<string, string | number> = Record<string, string | number>,
->(
+const useItem = <T extends ItemExtraAttributes = ItemExtraAttributes>(
   { initialState, ...options }: UseItemOptions<T> = {
     autoClean: true,
   },
 ) => {
   const item = {
-    value: { ...(initialState ?? ({} as DefaultItem<T>)) },
+    value: { ...(initialState ?? ({} as Item<T>)) },
   };
 
   const errorLog = {
-    value: {} as DefaultItem<T>["_meta"]["errorLog"],
+    value: {} as ItemMeta<T>["errorLog"],
   };
 
   const itemHistory = {
@@ -27,19 +24,38 @@ const useItem = <
     }[],
   };
 
-  const addErrors = (
-    newErrors: Partial<Record<keyof DefaultItem<T>, string | void>>,
-  ): void => {
+  const addErrors = (newErrors: ItemMeta["errorLog"]) => {
     errorLog.value = {
       ...errorLog.value,
       ...newErrors,
+      ...(errorLog.value?._global ?? newErrors?._global
+        ? {
+            _global: {
+              ...(errorLog.value?._global ?? {}),
+              ...(newErrors?._global ?? {}),
+            },
+          }
+        : {}),
     };
+
+    return tools;
   };
 
   const checkErrors = (): void => {
-    Object.entries(item.value).forEach(([key, value]) => {
+    const itemEntries = objectEntries(item.value);
+
+    if (!itemEntries.length)
+      errorLog.value._global = {
+        ...errorLog.value._global,
+        [t("session_store.empty_item.key")]: t(
+          "session_store.empty_item.value",
+        ),
+      };
+
+    itemEntries.forEach(([key, value]) => {
       if (
         value === 0 ||
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         value ||
         (options.requiredType && !options.requiredType?.includes(key))
       )
@@ -49,6 +65,8 @@ const useItem = <
         ...errorLog.value,
         [key]: t("session_store.empty_attribute"),
       };
+
+      return tools;
     });
   };
 
@@ -61,15 +79,17 @@ const useItem = <
     JSON.parse(JSON.stringify(itemHistory.value));
 
   const setAttributes = (
-    newAttributes: Record<string, string | number> | DefaultItem<T>,
-  ): void => {
+    newAttributes: Record<string, string | number> | Item<T>,
+  ) => {
     item.value = {
       ...item.value,
       ...newAttributes,
     };
+
+    return tools;
   };
 
-  const clean = (customCleaner?: UseItemOptions["customCleaner"]): void => {
+  const clean = (customCleaner?: UseItemOptions["customCleaner"]) => {
     item.value = objectEntries(item.value).reduce(
       (cleanItem, [currentKey, currentValue]) => {
         if (typeof currentValue !== "string") {
@@ -93,38 +113,43 @@ const useItem = <
       },
       {} as typeof item.value,
     );
+
+    return tools;
   };
 
-  const reset = (fullReset?: boolean): void => {
-    item.value = {} as DefaultItem<T>;
-    errorLog.value = {} as DefaultItem<T>["_meta"]["errorLog"];
+  const reset = (fullReset?: boolean) => {
+    item.value = {} as Item<T>;
+    errorLog.value = {} as ItemMeta<T>["errorLog"];
 
     if (options.enableBackup && fullReset) itemHistory.value = [];
+
+    return tools;
   };
 
-  const use = <R>(
-    callback: (
-      item: Partial<DefaultItem<T>>,
-      errorLog?: DefaultItem<T>["_meta"]["errorLog"],
-      ...args: unknown[]
-    ) => R,
-  ): R => {
+  const use = (callback?: UseItemOptions["callbackUse"]) => {
     if (options.autoClean) clean();
-    if (options.autoLogErrors) checkErrors();
+    if (options.autoLogErrors) {
+      errorLog.value = (
+        errorLog.value?._global ? { _global: errorLog.value?._global } : {}
+      ) as ItemMeta<T>["errorLog"];
+      checkErrors();
+    }
     if (options.enableBackup)
       itemHistory.value.push({
         item: item.value,
         errorLog: errorLog.value,
       });
 
-    const result = callback(item.value, errorLog.value);
+    callback
+      ? callback(item.value as Item<T>, errorLog.value)
+      : options.callbackUse?.(item.value as Item<T>, errorLog.value);
 
     reset(false);
 
-    return result;
+    return tools;
   };
 
-  return {
+  const tools = {
     /**
      * @description Sets one or more of the items attributes. It can be ran as many
      * times as needed.
@@ -179,6 +204,8 @@ const useItem = <
      */
     clean,
   };
+
+  return tools;
 };
 
 export default useItem;
