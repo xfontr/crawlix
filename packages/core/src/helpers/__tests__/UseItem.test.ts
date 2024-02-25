@@ -1,4 +1,7 @@
+import { Item, ItemExtraAttributes } from "../../..";
 import t from "../../i18n";
+import { ItemMeta } from "../../types/Item";
+import UseItemOptions from "../../types/UseItemOptions";
 import useItem from "../useItem";
 
 describe("Given a UseItem function", () => {
@@ -217,7 +220,7 @@ describe("Given a UseItem function", () => {
   });
 
   describe("When called the use item function with all the clean up options enabled", () => {
-    test("Then it should call the callback with the item and its errors, after running every function", () => {
+    test("Then it should call the local callback with the item and its errors, after running every function", () => {
       const expectedItem = {
         dirty: "0241433444",
         test: "",
@@ -234,12 +237,16 @@ describe("Given a UseItem function", () => {
         },
       ];
 
-      const callback = <T, E>(item: T, errorLog: E) => ({
-        item,
-        errorLog,
-      });
+      const callback: UseItemOptions["callbackUse"] = <
+        T extends ItemExtraAttributes = ItemExtraAttributes,
+      >(
+        item: Item<T> | undefined,
+        errorLog?: ItemMeta<T>["errorLog"],
+      ): void => {
+        expect({ item, errorLog }).toStrictEqual(expectedHistory[0]);
+      };
 
-      const { use, setAttributes, getHistory } = useItem<{
+      const { use, setAttributes, getHistory, addErrors } = useItem<{
         test: string;
         dirty: string;
       }>({
@@ -251,12 +258,37 @@ describe("Given a UseItem function", () => {
         requiredType: ["test"],
       });
 
+      /**
+       * We run this to make sure that the use function cleans the previous stored values when
+       * auto checking
+       */
+      addErrors({ item: "Random error", dirty: "Random error" });
+
       setAttributes({ test: "" });
 
-      const result = use(callback);
+      use(callback);
 
-      expect(result).toStrictEqual(expectedHistory[0]);
       expect(getHistory()).toStrictEqual(expectedHistory);
+    });
+  });
+
+  describe("When called the use item function with no callback", () => {
+    test("Then it should anyways call the useItem callbackUse parameter", () => {
+      const callback: UseItemOptions["callbackUse"] = <
+        T extends ItemExtraAttributes = ItemExtraAttributes,
+      >(
+        item: Item<T> | undefined,
+        errorLog?: ItemMeta<T>["errorLog"],
+      ): void => {
+        expect({ item, errorLog }).toStrictEqual({
+          item: initialState,
+          errorLog: {},
+        });
+      };
+
+      const { use } = useItem({ initialState, callbackUse: callback });
+
+      use();
     });
   });
 });
