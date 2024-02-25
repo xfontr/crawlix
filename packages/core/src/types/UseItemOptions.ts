@@ -1,17 +1,12 @@
-import DefaultItem from "./DefaultItem";
+import { Item, ItemExtraAttributes, ItemMeta } from "./Item";
 
-interface UseItemOptions<
-  T extends Record<string, string | number | boolean> = Record<
-    string,
-    string | number | boolean
-  >,
-> {
-  initialState?: Partial<DefaultItem<T>>;
+interface UseItemOptions<T extends ItemExtraAttributes = ItemExtraAttributes> {
+  initialState?: Partial<Item<T>>;
   /**
    * @description List with the minimum attributes that the item must have.
    * @example ["name", "shop", "price"]
    */
-  requiredType?: Partial<keyof DefaultItem<T>>[];
+  requiredType?: Partial<keyof Item<T>>[];
   /**
    * @description If the item cleaner should run automatically before using the item.
    */
@@ -36,6 +31,11 @@ interface UseItemOptions<
    * @description If true, will store the item and its errors every time it's used.
    */
   enableBackup?: boolean;
+  /**
+   * @description Takes an external function and runs it with the item and error log as parameters.
+   * Runs when using the item.
+   */
+  callbackUse?: (item: Item<T>, errorLog?: ItemMeta<T>["errorLog"]) => void;
 }
 
 export default UseItemOptions;

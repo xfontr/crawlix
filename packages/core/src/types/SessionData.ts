@@ -1,14 +1,10 @@
 import { UUID } from "crypto";
 import SessionConfig from "./SessionConfig";
-import DefaultItem from "./DefaultItem";
 import CustomError from "./CustomError";
+import { FullItem, ItemExtraAttributes } from "./Item";
 
-interface SessionData<
-  T extends Record<string, string | number | object> = Record<
-    string,
-    string | number | object
-  >,
-> extends SessionConfig {
+interface SessionData<T extends ItemExtraAttributes = ItemExtraAttributes>
+  extends SessionConfig {
   /**
    * @description Session's ID in UUID format
    */
@@ -45,7 +41,7 @@ interface SessionData<
   /**
    * @description Scraped items
    */
-  items: DefaultItem<T>[];
+  items: FullItem<T>[];
   /**
    * @description History of accessed URLs
    */

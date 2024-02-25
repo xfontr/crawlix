@@ -1,11 +1,11 @@
-import { mkdir, readdir, unlink, writeFile } from "fs/promises";
+import { mkdir, readFile, readdir, unlink, writeFile } from "fs/promises";
 import t from "../i18n";
 import { errorMessage, infoMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
 import EventBus from "./EventBus";
 import setConfig from "../utils/setConfig";
 import SessionStore from "./SessionStore";
-import { tryCatch } from "@personal/utils";
+import { objectKeys, tryCatch, snakelise } from "@personal/utils";
 import { resolve } from "path";
 import ENVIRONMENT from "../configs/environment";
 import Email from "./Email";
@@ -14,7 +14,13 @@ import { type EmailRequest } from "../types/EmailContent";
 import CreateError from "../utils/CreateError";
 import { type CustomErrorProps } from "../types/CustomError";
 import EmailTemplates from "./EmailTemplates";
+import { createObjectCsvWriter } from "csv-writer";
+import { parse } from "papaparse";
 import { existsSync } from "fs";
+import { cleanItems } from "../utils/cleanItems";
+import { SESSION_ID_HEADER } from "../configs/constants";
+import promiseAllSeq from "../utils/sequentialPromises";
+import { type ItemMeta } from "../types/Item";
 
 let initialized = false;
 
@@ -69,7 +75,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
     const customError = CreateError(error, props);
 
-    store.logError(customError, isCritical);
+    store.useLoggers().logError(customError, isCritical);
     errorMessage(customError.publicMessage);
 
     if (isCritical) end(true);
@@ -119,7 +125,10 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     ]);
   };
 
-  const saveAsJson = async (route: string): Promise<void> => {
+  const saveAsJson = async (
+    route: string,
+    customName?: string,
+  ): Promise<void> => {
     const doesRouteExist = existsSync(route);
 
     const result = await tryCatch(async () => {
@@ -133,15 +142,84 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       const $s = store.current();
 
       await writeFile(
-        resolve(route, `${$s._id}.json`),
-        JSON.stringify({
-          ...$s,
-          emailing: {},
-        } as SessionData),
+        resolve(route, `${customName}${$s._id}.json`),
+        JSON.stringify(
+          {
+            ...$s,
+            emailing: {},
+          } as SessionData,
+          null,
+          4,
+        ),
       );
     });
 
     infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
+  };
+
+  const saveItemsLocally = async (path: string) => {
+    const { items } = store.current();
+
+    if (!existsSync(path)) {
+      const header = [
+        ...objectKeys(items[0] as Record<string, string>),
+        ...META_KEYS,
+      ].flatMap((key) =>
+        key === "_meta"
+          ? []
+          : {
+              id: key.startsWith("_") ? key : snakelise(key.toString()),
+              title: key.startsWith("_") ? key : snakelise(key.toString()),
+            },
+      );
+
+      header.push({
+        id: SESSION_ID_HEADER,
+        title: SESSION_ID_HEADER,
+      });
+
+      const cleanStuff = cleanItems(items, session.store()._id);
+
+      const sessionCsv = await createObjectCsvWriter({
+        path,
+        header,
+      }).writeRecords(cleanStuff);
+
+      return await writeFile(path, JSON.stringify(sessionCsv, null, 1));
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    const { data } = parse<Record<string, any>[]>(await readFile(path, "utf8"));
+
+    const headers = data.shift() as string[][];
+
+    const header = headers.map((key) => ({
+      id: snakelise(key.toString()),
+      title: snakelise(key.toString()),
+    }));
+
+    const parsedData = data.map((item) =>
+      item.reduce(
+        (allElements, element, index) => ({
+          ...allElements,
+          [headers[index] as unknown as string]:
+            typeof element === "string" ? element : JSON.stringify(element),
+        }),
+        {},
+      ),
+    );
+
+    const newCsv = await createObjectCsvWriter({
+      path,
+      header,
+      // eslint-disable-next-line, @typescript-eslint/no-unsafe-assignment
+    }).writeRecords([...parsedData, ...cleanItems(items, session.store()._id)]);
+
+    try {
+      await writeFile(path, JSON.stringify(newCsv, null, 1));
+    } catch (e) {
+      // This will always throw an error
+    }
   };
 
   /**
@@ -153,8 +231,21 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
    */
   const notify = async (
     contentType: EmailRequest,
+    storeEmailLocally = "",
   ): Promise<void | Error | object> => {
     const emailContent = EmailTemplates(store.current())[contentType]();
+
+    if (storeEmailLocally) {
+      await tryCatch(async () => {
+        await mkdir(storeEmailLocally, { recursive: true });
+
+        await writeFile(
+          resolve(storeEmailLocally, `EMAIL_${store.current()._id}.json`),
+          JSON.stringify(emailContent, null, 4),
+          "utf8",
+        );
+      });
+    }
 
     if (!emailContent.sendIfEmpty && !emailContent.text) return;
 
@@ -170,37 +261,86 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     return result;
   };
 
+  const loop = async <R>(callback: () => Promise<R> | R, safetyCheck = 2) => {
+    return await tryCatch(async () => {
+      let index = -1;
+
+      const {
+        offset,
+        totalItems,
+        location: { page },
+      } = session.store();
+
+      /** Will be updated only if there's a safetyCheck on */
+      const history = {
+        totalItems: 0,
+        page: offset.page,
+      };
+
+      const result = await promiseAllSeq(() => {
+        if (!initialized) return;
+
+        index += 1;
+
+        if (
+          safetyCheck &&
+          index % safetyCheck &&
+          history.totalItems === totalItems &&
+          history.page === page
+        ) {
+          throw CreateError(Error(t("scraper.error.loop_stuck")), {
+            name: t("error_index.session"),
+          });
+        } else if (safetyCheck) {
+          history.totalItems = totalItems;
+          history.page = page;
+        }
+
+        return callback();
+      }, store.hasReachedLimit);
+
+      return result;
+    });
+  };
+
+  const useConnectors = () => ({
+    saveAsJson,
+    saveItemsLocally,
+    notify,
+  });
+
+  const useUtils = () => ({
+    loop,
+    error,
+    setGlobalTimeout,
+    hasReachedLimit: store.hasReachedLimit,
+  });
+
   const session = {
     init,
     end,
-    error,
-    /**
-     * @return Current store data
-     */
     store: store.current,
-    storeHooks: {
-      /**
-       * @description Force set the current location. If the limit is reached, ends the session
-       */
-      updateLocation: store.updateLocation,
-      /**
-       * @description Updates current location to next page
-       */
-      nextPage: store.nextPage,
-      /**
-       * @description Updates current location to previous page
-       */
-      previousPage: store.previousPage,
-      postItem: store.postItem,
-      logMessage: store.logMessage,
-      hasReachedLimit: store.hasReachedLimit,
+    hooks: {
+      useLocation: store.useLocation,
+      useItem: store.useItem,
+      useLoggers: store.useLoggers,
+      useConnectors,
+      useUtils,
     },
-    setGlobalTimeout,
-    saveAsJson,
-    notify,
   };
 
   return session;
 };
 
 export default Session;
+
+const META_KEYS: `_${keyof ItemMeta}`[] | `_${string}`[] = [
+  "_error_log",
+  "_id",
+  "_complete",
+  "_item_number",
+  "_moment",
+  "_page",
+  "_posted",
+  "_url",
+];
