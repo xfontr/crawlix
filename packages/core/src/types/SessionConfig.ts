@@ -1,4 +1,4 @@
-import ScraperTools from "./ScraperTools";
+import ScraperTool from "./ScraperTool";
 
 interface SessionConfig {
   enabled?: boolean;
@@ -100,7 +100,7 @@ interface SessionConfig {
 export type SessionConfigInit<
   T extends Record<string, unknown> = Record<string, unknown>,
 > = {
-  ScraperTool: ScraperTools<T>;
+  ScraperTool: ScraperTool<T>;
 } & Partial<SessionConfig>;
 
 export default SessionConfig;
