@@ -38,7 +38,6 @@ const A = async () => {
         // 1.- We grab all the H2
         items.value =
           (await $$a(() => page.$$(SELECTORS.ITEMS_LIST.bookLinks)))[0] ?? [];
-
         // 2.- For each item
         await loop(
           async (index) => {
@@ -47,8 +46,11 @@ const A = async () => {
               await items.value[index]?.click();
               await waitForNavigation();
             });
-            // 3.- We loop the product details
 
+            // 3.- We loop the product details
+            if (index === 1) {
+              throw new Error("abort");
+            }
             // 4.- For each item (li) -> There are two spans, we grab the 1st one as the title and the second one as the content
             const [itemDetails] = await $a(async () => {
               const itemDetails = await page.$$(SELECTORS.ITEM.details);
@@ -69,29 +71,65 @@ const A = async () => {
 
             $i.setAttributes({ details: JSON.stringify(itemDetails) });
 
-            const attributes: [keyof Book, keyof HTMLImageElement][] = [
-              ["author", "textContent"],
-              ["title", "textContent"],
-              ["description", "textContent"],
-              ["price", "textContent"],
-              ["recoPrice", "textContent"],
-              ["img", "src"],
-            ];
-
-            await Promise.all(
-              attributes.map(async ([attribute, key]) => {
-                const [element] = await $a(() =>
-                  page.$eval(
-                    SELECTORS.ITEM[attribute],
-                    (node) => node?.[key as keyof typeof node],
-                  ),
-                );
-
-                $i.setAttributes({
-                  [attribute]: element ? JSON.stringify(element) : undefined,
-                });
-              }),
+            const [author] = await $a(
+              async () =>
+                await page.$eval(
+                  SELECTORS.ITEM.author,
+                  (node) => node.textContent,
+                ),
             );
+
+            $i.setAttributes({ author: author ?? undefined });
+
+            const [title] = await $a(
+              async () =>
+                await page.$eval(
+                  SELECTORS.ITEM.title,
+                  (node) => node.textContent,
+                ),
+            );
+
+            $i.setAttributes({ title: title ?? undefined });
+
+            const [description] = await $a(
+              async () =>
+                await page.$eval(
+                  SELECTORS.ITEM.description,
+                  (node) => node.textContent,
+                ),
+            );
+
+            $i.setAttributes({ description: description ?? undefined });
+
+            const [price] = await $a(
+              async () =>
+                await page.$eval(
+                  SELECTORS.ITEM.price,
+                  (node) => node.textContent,
+                ),
+            );
+
+            $i.setAttributes({ price: price ?? undefined });
+
+            const [recoPrice] = await $a(
+              async () =>
+                await page.$eval(
+                  SELECTORS.ITEM.recoPrice,
+                  (node) => node.textContent,
+                ),
+            );
+
+            $i.setAttributes({ recoPrice: recoPrice ?? undefined });
+
+            const [img] = await $a(
+              async () =>
+                await page.$eval(
+                  SELECTORS.ITEM.img,
+                  (node) => (node as HTMLImageElement).src,
+                ),
+            );
+
+            $i.setAttributes({ img: img ?? undefined });
 
             const currentValues = $i.get();
 
@@ -103,7 +141,7 @@ const A = async () => {
                     .trim()
                     .split("€")[0] ?? "",
               });
-
+            debugger;
             $i.use();
 
             await $a(async () => {
@@ -111,7 +149,7 @@ const A = async () => {
               await waitForNavigation();
             });
           },
-          { limit: items.value.length },
+          { limit: 1 ?? items.value.length },
         );
       });
     },
@@ -123,7 +161,7 @@ const A = async () => {
     await tryCatch(
       async () => await saveItemsLocally(resolve(__dirname, "../../../.out/")),
     );
-    
+
     await tryCatch(async () =>
       saveAsJson(resolve(__dirname, "../../../.out/tests"), "amazon"),
     );
