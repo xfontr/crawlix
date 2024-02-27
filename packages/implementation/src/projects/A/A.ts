@@ -1,121 +1,132 @@
 import { ElementHandle } from "puppeteer";
 import Scraper from "./A.init";
 import { resolve } from "path";
-
-const SELECTORS = {
-  ITEMS_LIST: {
-    bookLinks: "h2 > a",
-  },
-  ITEM: {
-    details: "[data-feature-name='detailBullets'] li",
-    title: "#productTitle",
-    author: ".author",
-    description: "[data-feature-name='productDescription']",
-    price: ".priceToPay",
-    recoPrice: ".basisPrice",
-    img: "#landingImage",
-  },
-};
-
-// const PAGE_TIMEOUT = 15_000;
+import { SELECTORS } from "./A.constants";
+import { Book } from "./A.types";
+import { infoMessage } from "@scraper/core/src/logger";
+import { tryCatch } from "@personal/utils";
 
 const A = async () => {
-  const { runInLoop, afterAll } = await Scraper();
+  const { afterAll, run } = await Scraper();
 
-  const customStore = {
-    books: [] as ElementHandle<Element>[],
+  const items = {
+    value: [] as ElementHandle<Element>[],
   };
 
-  await runInLoop(async ({ page, index, hooks: { postItem, $a, $$a } }) => {
-    // await page.waitForNavigation({ timeout: PAGE_TIMEOUT });
-    debugger;
-    // 1.- We grab all the freaky H2
-    customStore.books =
-      (await $$a(() => page.$$(SELECTORS.ITEMS_LIST.bookLinks)))[0] ?? [];
-
-    // 2.- For each, we click its inner <a> tag
-    await $a(async () => {
-      await customStore.books[index]?.click();
-      await page.waitForNavigation();
-      // 3.- We loop the product details
-
-      // 4.- For each item (li) -> There are two spans, we grab the 1st one as the title and the second one as the content
-      const [itemDetails] = await $a(async () => {
-        const itemDetails = await page.$$(SELECTORS.ITEM.details);
-
-        const allDetails = itemDetails.map(async (currentDetail, index) => {
-          const detail = await currentDetail.$$eval("span", (e) =>
-            e?.map((d) => d?.textContent),
-          );
-
-          return [detail[0] ?? `unknown-${index}`, detail[1] ?? ""];
-        }, []);
-
-        return await Promise.all(allDetails);
+  await run(
+    async ({ page, useUtils, useItem, useAction, waitForNavigation }) => {
+      const $i = useItem<Book>({
+        autoClean: true,
+        autoLogErrors: true,
+        initialState: {},
+        requiredType: [
+          "author",
+          "title",
+          "description",
+          "price",
+          "recoPrice",
+          "img",
+        ],
       });
 
-      // # 5.- Author -> a span with class ".author"
-      const author = await $a(() =>
-        page.$eval(SELECTORS.ITEM.author, (t) => t?.textContent),
-      );
+      const { loop } = useUtils();
 
-      // # 6.- Title -> a span with id "#productTitle"
-      const title = await $a(() =>
-        page.$eval(SELECTORS.ITEM.title, (t) => t?.textContent),
-      );
+      const { $$a, $a } = useAction;
 
-      // # 7.- Description -> There are some divs with weird names. The most explicitly named one is quite high. The selector is -> [data-feature-name='productDescription'].
-      // ** Even though the actual content is about 6 divs in, the only text content is the description. So we can take the super high div and do textContent on it
-      const description = await $a(() =>
-        page.$eval(SELECTORS.ITEM.description, (t) => t?.textContent),
-      );
+      await loop(async (pageIndex) => {
+        infoMessage(`Scanning page - ${pageIndex}`);
+        // 1.- We grab all the H2
+        items.value =
+          (await $$a(() => page.$$(SELECTORS.ITEMS_LIST.bookLinks)))[0] ?? [];
 
-      // # 8.- Price -> span ".priceToPay"
-      const price = await $a(() =>
-        page.$eval(SELECTORS.ITEM.price, (t) => t?.textContent),
-      );
+        // 2.- For each item
+        await loop(
+          async (index) => {
+            await $a(async () => {
+              // 2.1.- We click its inner <a> tag and navigate to the page
+              await items.value[index]?.click();
+              await waitForNavigation();
+            });
+            // 3.- We loop the product details
 
-      // # 9.- Recommended price -> a bit trickier, but this should work:
-      // ** [node].textContent.replace("Precio recomendado:", "").trim().split("€")[0]
-      const recoPrice = await $a(() =>
-        page.$eval(
-          SELECTORS.ITEM.recoPrice,
-          (t) =>
-            t?.textContent
-              ?.replace("Precio recomendado:", "")
-              .trim()
-              .split("€")[0],
-        ),
-      );
+            // 4.- For each item (li) -> There are two spans, we grab the 1st one as the title and the second one as the content
+            const [itemDetails] = await $a(async () => {
+              const itemDetails = await page.$$(SELECTORS.ITEM.details);
 
-      // # 10.- Image url -> img "#landingImg"
-      const img = await $a(() =>
-        page.$eval(SELECTORS.ITEM.img, (t) => (t as HTMLImageElement)?.src),
-      );
+              const allDetails = itemDetails.map(
+                async (currentDetail, index) => {
+                  const detail = await currentDetail.$$eval("span", (e) =>
+                    e?.map((d) => d?.textContent),
+                  );
 
-      postItem(
-        {
-          img,
-          author,
-          description,
-          title,
-          details: itemDetails,
-          price,
-          recoPrice,
-        },
-        {},
-      );
-    });
+                  return [detail[0] ?? `unknown-${index}`, detail[1] ?? ""];
+                },
+                [],
+              );
 
-    process.abort();
-    throw new Error("bye bye");
+              return await Promise.all(allDetails);
+            });
 
-    await page.goBack();
-    await page.waitForNavigation();
-  });
+            $i.setAttributes({ details: JSON.stringify(itemDetails) });
 
-  return await afterAll(async ({ saveAsJson }) => {
-    await saveAsJson(resolve(__dirname, "../../../data"), "amazon");
+            const attributes: [keyof Book, keyof HTMLImageElement][] = [
+              ["author", "textContent"],
+              ["title", "textContent"],
+              ["description", "textContent"],
+              ["price", "textContent"],
+              ["recoPrice", "textContent"],
+              ["img", "src"],
+            ];
+
+            await Promise.all(
+              attributes.map(async ([attribute, key]) => {
+                const [element] = await $a(() =>
+                  page.$eval(
+                    SELECTORS.ITEM[attribute],
+                    (node) => node?.[key as keyof typeof node],
+                  ),
+                );
+
+                $i.setAttributes({
+                  [attribute]: element ? JSON.stringify(element) : undefined,
+                });
+              }),
+            );
+
+            const currentValues = $i.get();
+
+            if (currentValues.recoPrice)
+              $i.setAttributes({
+                recoPrice:
+                  currentValues.recoPrice
+                    ?.replace("Precio recomendado:", "")
+                    .trim()
+                    .split("€")[0] ?? "",
+              });
+
+            $i.use();
+
+            await $a(async () => {
+              await page.goBack();
+              await waitForNavigation();
+            });
+          },
+          { limit: items.value.length },
+        );
+      });
+    },
+  );
+
+  return await afterAll(async ({ useConnectors }) => {
+    const { saveAsJson, saveItemsLocally } = useConnectors();
+
+    await tryCatch(
+      async () => await saveItemsLocally(resolve(__dirname, "../../../.out/")),
+    );
+    
+    await tryCatch(async () =>
+      saveAsJson(resolve(__dirname, "../../../.out/tests"), "amazon"),
+    );
   });
 };
 

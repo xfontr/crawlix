@@ -1,5 +1,5 @@
 import { resolve } from "path";
-import Scraper from "../scraper.init";
+import Scraper from "./scraper.init";
 
 const ITEM_DATA = {
   title: ".ct-headline.landingH3",

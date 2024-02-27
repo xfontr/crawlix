@@ -188,7 +188,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       return await writeFile(path, JSON.stringify(sessionCsv, null, 1));
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = parse<Record<string, any>[]>(await readFile(path, "utf8"));
 
     const headers = data.shift() as string[][];
@@ -261,7 +261,15 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     return result;
   };
 
-  const loop = async <R>(callback: () => Promise<R> | R, safetyCheck = 2) => {
+  interface LoopOptions {
+    safetyCheck?: number;
+    limit?: number;
+  }
+
+  const loop = async <R>(
+    callback: (index: number) => Promise<R> | R,
+    { limit, safetyCheck }: LoopOptions = { safetyCheck: 2 },
+  ) => {
     return await tryCatch(async () => {
       let index = -1;
 
@@ -277,7 +285,13 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
         page: offset.page,
       };
 
+      // TODO: Can we be sure the promiseAllSeq won't stop one item before finishing?
+       
+      const hasReachedLimit = () =>
+        (limit && index === limit) || store.hasReachedLimit();
+
       const result = await promiseAllSeq(() => {
+        if (index === limit) return;
         if (!initialized) return;
 
         index += 1;
@@ -296,8 +310,8 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
           history.page = page;
         }
 
-        return callback();
-      }, store.hasReachedLimit);
+        return callback(index);
+      }, hasReachedLimit);
 
       return result;
     });

@@ -79,7 +79,7 @@ const useItem = <T extends ItemExtraAttributes = ItemExtraAttributes>(
     JSON.parse(JSON.stringify(itemHistory.value));
 
   const setAttributes = (
-    newAttributes: Record<string, string | number> | Item<T>,
+    newAttributes: Partial<Record<string, string | number> | Item<T>>,
   ) => {
     item.value = {
       ...item.value,
