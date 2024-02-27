@@ -36,6 +36,7 @@
     }
   },
   "session_actions": {
+    "navigation": "Navigated to the requested page",
     "page_up": "Page increased",
     "page_down": "Page decreased",
     "package_complete": "Package of items scraped",

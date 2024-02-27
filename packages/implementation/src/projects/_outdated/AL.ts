@@ -1,4 +1,4 @@
-import Scraper from "../scraper.init";
+import Scraper from "./scraper.init";
 import { resolve } from "path";
 
 const ELEMENT_SELECTOR =

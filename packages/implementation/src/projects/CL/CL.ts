@@ -1,4 +1,4 @@
-import Scraper from "../../scraper.init";
+import Scraper from "../_outdated/scraper.init";
 import { resolve } from "path";
 
 const ELEMENT_SELECTOR = ".compact-product";
