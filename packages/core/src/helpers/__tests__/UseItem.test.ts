@@ -22,6 +22,7 @@ describe("Given a UseItem function", () => {
       "                                        :\n" +
       "                                    ‎\n" +
       "                                 0241433444 ",
+    dirty2: "test test ",
   };
 
   describe("When called the setAttributes returned function several times with several item attributes", () => {
@@ -154,7 +155,7 @@ describe("Given a UseItem function", () => {
   describe("When called the cleaner", () => {
     test("Then it should clean each item of dirty strings", () => {
       const globalExpectedItem = {
-        dirty: "-10:0241433444",
+        dirty: "-10 : 0241433444",
       };
 
       const localExpectedItem = {
@@ -170,7 +171,7 @@ describe("Given a UseItem function", () => {
 
       expect(get().dirty).toStrictEqual(globalExpectedItem.dirty);
 
-      clean(["-10:", ""]);
+      clean(["-10 : ", ""]);
 
       expect(get().dirty).toStrictEqual(localExpectedItem.dirty);
     });
@@ -224,6 +225,7 @@ describe("Given a UseItem function", () => {
       const expectedItem = {
         dirty: "0241433444",
         test: "",
+        dirty2: mockDirtyItem.dirty2.trim(),
       };
 
       const expectedErrors = {
@@ -253,7 +255,7 @@ describe("Given a UseItem function", () => {
         initialState: mockDirtyItem,
         autoClean: true,
         autoLogErrors: true,
-        customCleaner: ["ISBN-10:", ""],
+        customCleaner: ["ISBN-10 : ", ""],
         enableBackup: true,
         requiredType: ["test"],
       });

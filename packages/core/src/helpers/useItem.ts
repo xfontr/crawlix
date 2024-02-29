@@ -97,8 +97,8 @@ const useItem = <T extends ItemExtraAttributes = ItemExtraAttributes>(
         }
 
         const defaultClean = currentValue
-          .replace(WHITE_SPACES, "")
           .replace(ASCII_CHARS, "")
+          .replace(WHITE_SPACES, " ")
           .trim();
 
         const globalClean = options.customCleaner
