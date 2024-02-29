@@ -1,8 +1,8 @@
-import { snakelise } from "@personal/utils";
 import { mockItem } from "../../test-utils/mocks/mockItem";
 import type { UnknownItem } from "../../types/Item";
 import {
-  clean,
+  SESSION_ID_HEADER,
+  cleanItems,
   convertToItems,
   createHeader,
   currentFileLocation,
@@ -129,22 +129,42 @@ describe("Given a currentFileLocation function", () => {
 });
 
 describe("Given a cleanItems function", () => {
-  describe("When called with a key and a value", () => {
-    test("Then it should return an object with an snakelised key and value", () => {
-      const key = "keyTest";
-      const value = "keyValue";
-
-      const expectedResult = {
-        [snakelise(key)]: value,
+  describe("When called with a list of items and an id", () => {
+    test("Then it should return the same list but with updated keys and stringified values", () => {
+      const mockSimpleItem = {
+        authorName: "tester",
+        imgAlt: 109,
+        categories: ["one", "two"],
+        posted: {
+          date: 10,
+        },
+        _meta: {
+          randomData: "",
+        },
       };
 
-      const result = clean(key, value);
+      const items = new Array(2).fill(
+        mockSimpleItem,
+      ) as (typeof mockSimpleItem)[];
 
-      expect(result).toStrictEqual(expectedResult);
+      const expectedItems = new Array(2).fill({
+        author_name: "tester",
+        img_alt: "109",
+        categories: JSON.stringify(["one", "two"]),
+        posted: JSON.stringify({
+          date: 10,
+        }),
+        _session_id: "id",
+        _random_data: "",
+        _more_meta: "test",
+      });
+
+      const result = cleanItems(items, {
+        [SESSION_ID_HEADER]: "id",
+        moreMeta: "test",
+      });
+
+      expect(result).toStrictEqual(expectedItems);
     });
-  });
-
-  describe("When called with a key and a non-string value", () => {
-    test("Then it should return an object with an snakelised key and a stringified value", () => {});
   });
 });
