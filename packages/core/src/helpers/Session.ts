@@ -1,11 +1,11 @@
-import { mkdir, readFile, readdir, unlink, writeFile } from "fs/promises";
+import { mkdir, readdir, unlink, writeFile } from "fs/promises";
 import t from "../i18n";
 import { errorMessage, infoMessage } from "../logger";
 import type SessionConfig from "../types/SessionConfig";
 import EventBus from "./EventBus";
 import setConfig from "../utils/setConfig";
 import SessionStore from "./SessionStore";
-import { objectKeys, tryCatch, snakelise } from "@personal/utils";
+import { tryCatch } from "@personal/utils";
 import { resolve } from "path";
 import ENVIRONMENT from "../configs/environment";
 import Email from "./Email";
@@ -14,13 +14,11 @@ import { type EmailRequest } from "../types/EmailContent";
 import CreateError from "../utils/CreateError";
 import { type CustomErrorProps } from "../types/CustomError";
 import EmailTemplates from "./EmailTemplates";
-import { createObjectCsvWriter } from "csv-writer";
-import { parse } from "papaparse";
 import { existsSync } from "fs";
-import { cleanItems } from "../utils/cleanItems";
-import { SESSION_ID_HEADER } from "../configs/constants";
 import promiseAllSeq from "../utils/sequentialPromises";
-import { type ItemMeta } from "../types/Item";
+import LoopOptions from "../types/LoopOptions";
+import updateCsv from "../utils/csv";
+import UpdateCsvOptions from "../types/UpdateCsvOptions";
 
 let initialized = false;
 
@@ -157,69 +155,10 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     infoMessage(t(result[1] ? "session.error.not_saved" : "session.saved"));
   };
 
-  const saveItemsLocally = async (path: string) => {
-    const { items } = store.current();
+  const storeInCsv = async (options?: Omit<UpdateCsvOptions, "id">) => {
+    const { _id, items } = store.current();
 
-    if (!existsSync(path)) {
-      const header = [
-        ...objectKeys(items[0] as Record<string, string>),
-        ...META_KEYS,
-      ].flatMap((key) =>
-        key === "_meta"
-          ? []
-          : {
-              id: key.startsWith("_") ? key : snakelise(key.toString()),
-              title: key.startsWith("_") ? key : snakelise(key.toString()),
-            },
-      );
-
-      header.push({
-        id: SESSION_ID_HEADER,
-        title: SESSION_ID_HEADER,
-      });
-
-      const cleanStuff = cleanItems(items, session.store()._id);
-
-      const sessionCsv = await createObjectCsvWriter({
-        path,
-        header,
-      }).writeRecords(cleanStuff);
-
-      return await writeFile(path, JSON.stringify(sessionCsv, null, 1));
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = parse<Record<string, any>[]>(await readFile(path, "utf8"));
-
-    const headers = data.shift() as string[][];
-
-    const header = headers.map((key) => ({
-      id: snakelise(key.toString()),
-      title: snakelise(key.toString()),
-    }));
-
-    const parsedData = data.map((item) =>
-      item.reduce(
-        (allElements, element, index) => ({
-          ...allElements,
-          [headers[index] as unknown as string]:
-            typeof element === "string" ? element : JSON.stringify(element),
-        }),
-        {},
-      ),
-    );
-
-    const newCsv = await createObjectCsvWriter({
-      path,
-      header,
-      // eslint-disable-next-line, @typescript-eslint/no-unsafe-assignment
-    }).writeRecords([...parsedData, ...cleanItems(items, session.store()._id)]);
-
-    try {
-      await writeFile(path, JSON.stringify(newCsv, null, 1));
-    } catch (e) {
-      // This will always throw an error
-    }
+    return await updateCsv(items, { ...options, id: _id });
   };
 
   /**
@@ -261,11 +200,6 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
     return result;
   };
 
-  interface LoopOptions {
-    safetyCheck?: number;
-    limit?: number;
-  }
-
   const loop = async <R>(
     callback: (index: number) => Promise<R> | R,
     { limit, safetyCheck }: LoopOptions = { safetyCheck: 2 },
@@ -286,8 +220,9 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
       };
 
       // TODO: Can we be sure the promiseAllSeq won't stop one item before finishing?
-       
+
       const hasReachedLimit = () =>
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         (limit && index === limit) || store.hasReachedLimit();
 
       const result = await promiseAllSeq(() => {
@@ -319,7 +254,7 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 
   const useConnectors = () => ({
     saveAsJson,
-    saveItemsLocally,
+    storeInCsv,
     notify,
   });
 
@@ -347,14 +282,3 @@ const Session = (baseConfig?: Partial<SessionConfig>) => {
 };
 
 export default Session;
-
-const META_KEYS: `_${keyof ItemMeta}`[] | `_${string}`[] = [
-  "_error_log",
-  "_id",
-  "_complete",
-  "_item_number",
-  "_moment",
-  "_page",
-  "_posted",
-  "_url",
-];
