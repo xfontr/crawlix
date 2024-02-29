@@ -1,17 +1,56 @@
-import { objectKeys, snakelise, tryCatch } from "@personal/utils";
+import {
+  objectKeys,
+  snakelise,
+  tryCatch,
+  objectEntries,
+} from "@personal/utils";
 import { createObjectCsvWriter } from "csv-writer";
 import { existsSync } from "fs";
 import { readFile, readdir, writeFile } from "fs/promises";
 import { parse } from "papaparse";
-import { cleanItems } from "./cleanItems";
 import { ObjectCsvWriterParams } from "csv-writer/src/lib/csv-writer-factory";
-import { SESSION_ID_HEADER } from "../configs/constants";
 import { extname, resolve } from "path";
 import { randomUUID } from "crypto";
 import UpdateCsvOptions from "../types/UpdateCsvOptions";
-import { UnknownItem } from "../types/Item";
+import { ItemMeta, UnknownItem } from "../types/Item";
+
+const SESSION_ID_HEADER: `_${string}` = "_session_id";
 
 export const namePrefix = (index: number, name: string) => `[${index}]-${name}`;
+
+export const clean = <T extends string, R = unknown>(
+  key: T,
+  value: R,
+): Record<string, string> => ({
+  [snakelise(key)]: typeof value === "string" ? value : JSON.stringify(value),
+});
+
+export const cleanElement = (
+  key: string,
+  rawElement: unknown,
+): Record<string, string> =>
+  key === "_meta"
+    ? objectEntries(rawElement as ItemMeta).reduce(
+        (allElements, [$key, value]) => ({
+          ...allElements,
+          ...clean(`_${$key}`, value),
+        }),
+        {},
+      )
+    : clean(key, rawElement);
+
+export const cleanItems = <T extends UnknownItem>(items: T[], id: string) =>
+  items.map((item) =>
+    Object.entries(item).reduce(
+      (allElements, [key, element]) => ({
+        ...allElements,
+        ...cleanElement(key, element),
+      }),
+      {
+        [SESSION_ID_HEADER]: id,
+      },
+    ),
+  );
 
 const save = async <T>(path: string, name: string, newCsv: T) =>
   await tryCatch(

@@ -3,7 +3,6 @@
 
 export const DEFAULT_ERROR_NAME = Error("").name;
 
-export const SESSION_ID_HEADER: `_${string}` = "_session_id";
 /**
  * Selects all whitespace characters, \s being a general selector for that purpose
  */

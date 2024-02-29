@@ -57,11 +57,12 @@ const A = async () => {
 
               const allDetails = itemDetails.map(
                 async (currentDetail, index) => {
-                  const detail = await currentDetail.$$eval("span", (e) =>
-                    e?.map((d) => d?.textContent),
+                  const [key, value] = await currentDetail.$$eval(
+                    "span",
+                    (element) => element?.map((detail) => detail?.textContent),
                   );
 
-                  return [detail[0] ?? `unknown-${index}`, detail[1] ?? ""];
+                  return [key ?? `unknown-${index}`, value];
                 },
                 [],
               );
@@ -69,7 +70,15 @@ const A = async () => {
               return await Promise.all(allDetails);
             });
 
-            $i.setAttributes({ details: JSON.stringify(itemDetails) });
+            $i.setAttributes(
+              itemDetails.reduce(
+                (allDetails, [key, value]) => ({
+                  ...allDetails,
+                  [key]: value,
+                }),
+                {},
+              ),
+            );
 
             const [author] = await $a(
               async () =>
@@ -141,7 +150,7 @@ const A = async () => {
                     .trim()
                     .split("€")[0] ?? "",
               });
-            debugger;
+
             $i.use();
 
             await $a(async () => {
@@ -156,10 +165,14 @@ const A = async () => {
   );
 
   return await afterAll(async ({ useConnectors }) => {
-    const { saveAsJson, saveItemsLocally } = useConnectors();
+    const { saveAsJson, storeInCsv } = useConnectors();
 
     await tryCatch(
-      async () => await saveItemsLocally(resolve(__dirname, "../../../.out/")),
+      async () =>
+        await storeInCsv({
+          path: resolve(__dirname, "../../../.out/"),
+          name: "amazon-items",
+        }),
     );
 
     await tryCatch(async () =>
