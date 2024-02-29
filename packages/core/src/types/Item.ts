@@ -69,3 +69,7 @@ export type FullItem<T extends ItemExtraAttributes = ItemExtraAttributes> =
   Item<T> & {
     _meta: ItemMeta;
   };
+
+export type UnknownItem<T = unknown, L = any> = Record<string, T> & {
+  _meta?: Record<string, L>;
+};

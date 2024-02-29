@@ -38,8 +38,8 @@ const ScraperTool: IScraperTool<CustomTools> = async ({
 
   const init = async (): Promise<void> => {
     t("session_actions.navigation");
+
     await $$a(() => page.goto(offset.url!));
-    await waitForNavigation();
   };
 
   const addAttributes = <T>(
