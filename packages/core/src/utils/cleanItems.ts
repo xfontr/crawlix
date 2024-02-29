@@ -1,6 +1,6 @@
 import { objectEntries, snakelise } from "@personal/utils";
 import { SESSION_ID_HEADER } from "../configs/constants";
-import type { ItemMeta } from "../types/Item";
+import type { ItemMeta, UnknownItem } from "../types/Item";
 
 export const clean = <T extends string, R = unknown>(
   key: T,
@@ -23,10 +23,7 @@ export const cleanElement = (
       )
     : clean(key, rawElement);
 
-export const cleanItems = (
-  items: Record<string, unknown>[],
-  sessionId: string,
-) =>
+export const cleanItems = <T extends UnknownItem>(items: T[], id: string) =>
   items.map((item) =>
     Object.entries(item).reduce(
       (allElements, [key, element]) => ({
@@ -34,7 +31,7 @@ export const cleanItems = (
         ...cleanElement(key, element),
       }),
       {
-        [SESSION_ID_HEADER]: sessionId,
+        [SESSION_ID_HEADER]: id,
       },
     ),
   );
