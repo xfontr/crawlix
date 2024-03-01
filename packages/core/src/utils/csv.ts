@@ -14,7 +14,7 @@ import { randomUUID } from "crypto";
 import UpdateCsvOptions from "../types/UpdateCsvOptions";
 import { ItemMeta, UnknownItem } from "../types/Item";
 
-const SESSION_ID_HEADER: `_${string}` = "_session_id";
+export const SESSION_ID_HEADER = "sessionId";
 
 export const namePrefix = (index: number, name: string) => `[${index}]-${name}`;
 
@@ -39,16 +39,23 @@ export const cleanElement = (
       )
     : clean(key, rawElement);
 
-export const cleanItems = <T extends UnknownItem>(items: T[], id: string) =>
+export const cleanItems = <
+  T extends UnknownItem,
+  E extends Record<string, string>,
+>(
+  items: T[],
+  extraMeta?: E,
+) =>
   items.map((item) =>
-    Object.entries(item).reduce(
+    Object.entries({
+      ...item,
+      _meta: { ...(extraMeta ?? {}), ...item._meta },
+    }).reduce(
       (allElements, [key, element]) => ({
         ...allElements,
         ...cleanElement(key, element),
       }),
-      {
-        [SESSION_ID_HEADER]: id,
-      },
+      {},
     ),
   );
 
@@ -86,13 +93,13 @@ export const createHeader = ({
 const createCsv = async <T extends UnknownItem = UnknownItem>(
   path: string,
   name: string,
-  sessionId: string,
+  id: string,
   items: T[],
 ) => {
   const sessionCsv = await newWriter(
     path,
     [...createHeader(items[0]!), newKey(SESSION_ID_HEADER)],
-    ...cleanItems(items, sessionId),
+    ...cleanItems(items, { [SESSION_ID_HEADER]: id }),
   );
 
   return await save(path, name, sessionCsv);
@@ -162,7 +169,10 @@ const updateCsv = async <T extends UnknownItem>(
 
   const headers = data.shift()!;
   const previousItems = convertToItems(data, headers as unknown as string[]);
-  const totalItems = [...previousItems, ...cleanItems(items, id)];
+  const totalItems = [
+    ...previousItems,
+    ...cleanItems(items, { [SESSION_ID_HEADER]: id }),
+  ];
 
   if (totalItems.length >= breakpoint) {
     const [previous, next] = splitItems(totalItems, breakpoint);
