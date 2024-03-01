@@ -14,6 +14,8 @@ import {
   ALLOW_DEFAULT_CONFIGS_DEFAULT,
   AFTER_ALL_TIMEOUT_MAX,
   AFTER_ALL_TIMEOUT_DEFAULT,
+  TASK_LENGTH_RANDOM_MULTIPLIER_DEFAULT,
+  TASK_LENGTH_RANDOM_MULTIPLIER_MAX,
 } from "../../configs/session";
 import t from "../../i18n";
 import mockSessionConfig from "../../test-utils/mocks/mockSessionConfig";
@@ -51,6 +53,7 @@ describe("Given a setConfig function", () => {
         afterAllTimeout: AFTER_ALL_TIMEOUT_MAX + 1,
         timeout: TIMEOUT_MAX + 1,
         taskLength: TASK_LENGTH_MAX + 1,
+        taskLengthRandomMultiplier: TASK_LENGTH_RANDOM_MULTIPLIER_MAX + 1,
       });
 
       expect(config).toStrictEqual({
@@ -63,6 +66,7 @@ describe("Given a setConfig function", () => {
         afterAllTimeout: AFTER_ALL_TIMEOUT_MAX,
         timeout: TIMEOUT_MAX,
         taskLength: TASK_LENGTH_MAX,
+        taskLengthRandomMultiplier: TASK_LENGTH_RANDOM_MULTIPLIER_MAX,
       });
     });
 
@@ -77,6 +81,7 @@ describe("Given a setConfig function", () => {
         afterAllTimeout: AFTER_ALL_TIMEOUT_MAX + 1,
         timeout: TIMEOUT_MAX + 1,
         taskLength: TASK_LENGTH_MAX + 1,
+        taskLengthRandomMultiplier: TASK_LENGTH_RANDOM_MULTIPLIER_MAX + 1,
         safeMode: false,
       });
 
@@ -90,6 +95,7 @@ describe("Given a setConfig function", () => {
         afterAllTimeout: AFTER_ALL_TIMEOUT_MAX + 1,
         timeout: TIMEOUT_MAX + 1,
         taskLength: TASK_LENGTH_MAX + 1,
+        taskLengthRandomMultiplier: TASK_LENGTH_RANDOM_MULTIPLIER_MAX + 1,
         safeMode: false,
       });
     });
@@ -280,6 +286,7 @@ describe("Given a defaultSessionConfig function", () => {
           page: 1,
         },
         taskLength: TASK_LENGTH_DEFAULT,
+        taskLengthRandomMultiplier: TASK_LENGTH_RANDOM_MULTIPLIER_DEFAULT,
         timeout: TIMEOUT_DEFAULT,
         usageData: USAGE_DATA_DEFAULT,
         emailing: {
@@ -328,6 +335,7 @@ describe("Given a defaultSessionConfig function", () => {
       ENVIRONMENT.limitPage = "20";
       ENVIRONMENT.timeout = "9000";
       ENVIRONMENT.taskLength = "100";
+      ENVIRONMENT.taskLengthRandomMultiplier = "0.5";
       ENVIRONMENT.globalTimeout = "100";
       ENVIRONMENT.afterAllTimeout = "100";
       ENVIRONMENT.minimumItemsToSuccess = "0.6";
@@ -353,6 +361,7 @@ describe("Given a defaultSessionConfig function", () => {
           page: 1,
         },
         taskLength: 100,
+        taskLengthRandomMultiplier: 0.5,
         timeout: 9000,
         usageData: true,
         emailing: {

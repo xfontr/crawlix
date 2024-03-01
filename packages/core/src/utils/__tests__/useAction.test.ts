@@ -4,7 +4,7 @@ import t from "../../i18n";
 import Events from "../../types/Events";
 import ScraperSpeed from "../../types/ScraperSpeed";
 import EventBus from "../../helpers/EventBus";
-import useAction from "../useAction";
+import useAction, { randomize } from "../useAction";
 import CreateError from "../CreateError";
 import { CustomError } from "../../..";
 
@@ -25,6 +25,7 @@ jest.mock("pino", () => () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.spyOn(Math, "random").mockReturnValue(1);
 });
 
 describe("Given an useAction function", () => {
@@ -190,6 +191,23 @@ describe("Given an useAction function", () => {
         publicMessage: t("session_actions.error.default"),
         isCritical: true,
       });
+    });
+  });
+});
+
+describe("Given a randomize function", () => {
+  describe("When called with a multiplier of 1", () => {
+    test("Then it should return a random number between 1 and 2 and one decimal", () => {
+      const expectedMinNumber = 1;
+      const expectedMaxNumber = 2;
+      const multiplier = 1;
+
+      const result = randomize(multiplier);
+      const decimals = result.toString().split(".")?.[0];
+
+      expect(result >= expectedMinNumber).toBeTruthy();
+      expect(result <= expectedMaxNumber).toBeTruthy();
+      expect(decimals).toHaveLength(decimals ? decimals.length : 0);
     });
   });
 });
