@@ -4,7 +4,10 @@ import EventBus from "../helpers/EventBus";
 import t from "../i18n";
 import { DEFAULT_ERROR_NAME } from "../configs/constants";
 
-const useAction = (taskLength: number) => {
+export const randomize = (multiplier: number): number =>
+  +(Math.random() * multiplier).toFixed(1) + 1;
+
+const useAction = (taskLength: number, randomMultiplier = 1) => {
   let isSessionOn = true;
 
   EventBus.on("SESSION:ACTIVE", (status: boolean) => {
@@ -18,9 +21,12 @@ const useAction = (taskLength: number) => {
     if (speed * taskLength === 0) return callback();
 
     return await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(callback());
-      }, speed * taskLength);
+      setTimeout(
+        () => {
+          resolve(callback());
+        },
+        speed * taskLength * randomize(randomMultiplier), // TODO: Is this being added to the time counter?
+      );
     });
   };
 
