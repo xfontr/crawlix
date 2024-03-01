@@ -31,7 +31,10 @@ const scraper =
       };
 
     const session = Session(baseConfig).init();
-    const actions = useAction(session.store().taskLength);
+    const actions = useAction(
+      session.store().taskLength,
+      session.store().taskLengthRandomMultiplier,
+    );
     const utils = session.hooks.useUtils();
 
     let tools = setDefaultTools(session, actions);

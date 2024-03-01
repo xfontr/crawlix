@@ -35,8 +35,8 @@ export const PUPPETEER_DEFAULT_OPTIONS: PuppeteerOptions = {
 const Puppeteer = async <T>(
   puppeteer: any,
   options: PuppeteerOptions = PUPPETEER_DEFAULT_OPTIONS,
-): Promise<T> => {
-  const [page, error] = await tryCatch<T>(async () => {
+) => {
+  const [page, error] = await tryCatch<any>(async () => {
     const browser = await puppeteer.launch({
       headless: options.headless,
       executablePath: options.executablePath,
@@ -53,7 +53,7 @@ const Puppeteer = async <T>(
     return page;
   });
 
-  if (error) {
+  if (!page || error) {
     EventBus.emit("SESSION:ERROR", error, {
       name: t("error_index.init"),
       publicMessage: t("scraper.puppeteer.error"),
@@ -61,7 +61,35 @@ const Puppeteer = async <T>(
     });
   }
 
-  return page as T;
+  const moveMouse = async (
+    beginning: [number, number],
+    end?: [number, number],
+    options?: {
+      clickWhenDone?: boolean;
+      randomSpeedMultiplier?: boolean;
+      speed?: number;
+    },
+  ) => {
+    const move = async (y: number, x: number) =>
+      await page.mouse.move(x, y, {
+        steps: options?.randomSpeedMultiplier
+          ? (+Math.random().toFixed(1) + 1) * (options?.speed ?? 1)
+          : options?.speed,
+      });
+
+    await move(beginning[0], beginning[1]);
+
+    if (end) {
+      await move(end[0], end[1]);
+      if (options?.clickWhenDone) await page.mouse.click(end[0], end[1]);
+      return;
+    }
+
+    if (options?.clickWhenDone)
+      await page.mouse.click(beginning[0], beginning[1]);
+  };
+
+  return { page: page as T, moveMouse };
 };
 
 export default Puppeteer;
