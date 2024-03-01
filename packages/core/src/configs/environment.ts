@@ -9,6 +9,8 @@ const ENVIRONMENT = {
   limitPage: process.env["SCRAPER_LIMIT_PAGE"],
   timeout: process.env["SCRAPER_TIMEOUT"],
   taskLength: process.env["SCRAPER_TASK_LENGTH"],
+  taskLengthRandomMultiplier:
+    process.env["SCRAPER_TASK_LENGTH_RANDOM_MULTIPLIER"],
   globalTimeout: process.env["SCRAPER_GLOBAL_TIMEOUT"],
   afterAllTimeout: process.env["SCRAPER_AFTER_ALL_TIMEOUT"],
   minimumItemsToSuccess: process.env["SCRAPER_MINIMUM_ITEMS_TO_SUCCESS"],

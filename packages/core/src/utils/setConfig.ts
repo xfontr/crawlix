@@ -17,6 +17,8 @@ import {
   AFTER_ALL_TIMEOUT_DEFAULT,
   AFTER_ALL_TIMEOUT_MAX,
   SAFE_MODE_DEFAULT,
+  TASK_LENGTH_RANDOM_MULTIPLIER_DEFAULT,
+  TASK_LENGTH_RANDOM_MULTIPLIER_MAX,
 } from "../configs/session";
 import t from "../i18n";
 import { warningMessage } from "../logger";
@@ -101,6 +103,10 @@ export const defaultSessionConfig = (
       receiverEmail: env.email.receiverEmail ?? "",
     },
     safeMode: $b(env.safeMode, SAFE_MODE_DEFAULT),
+    taskLengthRandomMultiplier: $n(
+      env.taskLengthRandomMultiplier,
+      TASK_LENGTH_RANDOM_MULTIPLIER_DEFAULT,
+    ),
   };
 };
 
@@ -151,6 +157,11 @@ export const setConfig = (config?: Partial<SessionConfig>): SessionConfig => {
       TASK_LENGTH_MAX,
       defaults.taskLength,
       config?.taskLength,
+    ),
+    taskLengthRandomMultiplier: getMax(
+      TASK_LENGTH_RANDOM_MULTIPLIER_MAX,
+      defaults.taskLengthRandomMultiplier,
+      config?.taskLengthRandomMultiplier,
     ),
   };
 };

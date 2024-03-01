@@ -18,6 +18,9 @@ export const AFTER_ALL_TIMEOUT_MAX: T["afterAllTimeout"] = 15 * 10 * 10_000;
 export const TASK_LENGTH_DEFAULT: T["taskLength"] = 800;
 export const TASK_LENGTH_MAX: T["taskLength"] = 10 * 1_000;
 
+export const TASK_LENGTH_RANDOM_MULTIPLIER_DEFAULT: T["taskLengthRandomMultiplier"] = 0.3;
+export const TASK_LENGTH_RANDOM_MULTIPLIER_MAX: T["taskLengthRandomMultiplier"] = 30;
+
 export const MINIMUM_ITEMS_TO_SUCCESS_DEFAULT: T["minimumItemsToSuccess"] = 0.99;
 
 export const USAGE_DATA_DEFAULT: T["usageData"] = false;

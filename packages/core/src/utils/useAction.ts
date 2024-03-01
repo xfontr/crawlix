@@ -25,7 +25,7 @@ const useAction = (taskLength: number, randomMultiplier = 1) => {
         () => {
           resolve(callback());
         },
-        speed * taskLength * randomize(randomMultiplier), // TODO: Is this being added to the time counter?
+        speed * taskLength * randomize(randomMultiplier), // TODO: Test actual implementation + Is this being added to the time counter?
       );
     });
   };

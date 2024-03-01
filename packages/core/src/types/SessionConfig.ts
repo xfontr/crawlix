@@ -1,4 +1,5 @@
-import ScraperTool from "./ScraperTool";
+import type ScraperSpeed from "./ScraperSpeed";
+import type ScraperTool from "./ScraperTool";
 
 interface SessionConfig {
   enabled?: boolean;
@@ -53,6 +54,14 @@ interface SessionConfig {
    * @default 80 0ms
    */
   taskLength: number;
+  /**
+   * @description Generates a random number between 1 and this parameter. The task length will be
+   * multiplied by this random number (with one random decimal, too)
+   * @example speed * taskLength * taskLengthRandomMultiplier
+   * 0.5 * 800 * 0.2
+   * @default 0.3
+   */
+  taskLengthRandomMultiplier: ScraperSpeed;
   /**
    * @description Minimum amount of full items the scraper needs in order to consider the session
    * successful. An item is considered "not full" when one or more fields are missing due to an error.

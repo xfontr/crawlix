@@ -20,6 +20,8 @@ type ScraperSpeed =
   | 9
   | 10
   | 15
-  | 20;
+  | 20
+  | 30
+  | (number & NonNullable<unknown>);
 
 export default ScraperSpeed;
