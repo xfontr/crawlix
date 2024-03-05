@@ -2,9 +2,10 @@ import { ElementHandle } from "puppeteer";
 import Scraper from "./A.init";
 import { resolve } from "path";
 import { SELECTORS } from "./A.constants";
-import { Book } from "./A.types";
+import { Book, BookDetails } from "./A.types";
 import { infoMessage } from "@scraper/core/src/logger";
-import { tryCatch } from "@personal/utils";
+import { objectKeys, tryCatch } from "@personal/utils";
+import { ITEM_DETAILS } from "../../config/constants";
 
 const A = async () => {
   const { afterAll, run } = await Scraper();
@@ -45,7 +46,7 @@ const A = async () => {
               // 2.1.- We click its inner <a> tag and navigate to the page
               await items.value[index]?.click();
               await waitForNavigation();
-            });
+            }, 0.2);
 
             // 3.- We loop the product details
             if (index === 1) {
@@ -55,30 +56,31 @@ const A = async () => {
             const [itemDetails] = await $a(async () => {
               const itemDetails = await page.$$(SELECTORS.ITEM.details);
 
-              const allDetails = itemDetails.map(
-                async (currentDetail, index) => {
-                  const [key, value] = await currentDetail.$$eval(
-                    "span",
-                    (element) => element?.map((detail) => detail?.textContent),
-                  );
+              const allDetails = itemDetails.flatMap(async (currentDetail) => {
+                const key = await currentDetail.$eval("span", (node) =>
+                  node.textContent?.trim(),
+                );
 
-                  return [key ?? `unknown-${index}`, value];
-                },
-                [],
-              );
+                const actualKey = objectKeys(ITEM_DETAILS).find(
+                  (itemDetailKey) =>
+                    key?.toLocaleLowerCase().includes(itemDetailKey),
+                );
+
+                return actualKey ? [actualKey, key?.split(":")[1]] : [];
+              }, []);
 
               return await Promise.all(allDetails);
             });
 
-            $i.setAttributes(
-              itemDetails.reduce(
-                (allDetails, [key, value]) => ({
-                  ...allDetails,
-                  [key]: value,
-                }),
-                {},
-              ),
+            const cleanDetails = (itemDetails as string[][]).reduce(
+              (allDetails, [key, value]) => ({
+                ...allDetails,
+                [key!]: value,
+              }),
+              {} as BookDetails,
             );
+
+            $i.setAttributes(cleanDetails);
 
             const [author] = await $a(
               async () =>
@@ -141,7 +143,7 @@ const A = async () => {
             $i.setAttributes({ img: img ?? undefined });
 
             const currentValues = $i.get();
-
+            debugger;
             if (currentValues.recoPrice)
               $i.setAttributes({
                 recoPrice:
@@ -156,7 +158,7 @@ const A = async () => {
             await $a(async () => {
               await page.goBack();
               await waitForNavigation();
-            });
+            }, 0.3);
           },
           { limit: 1 ?? items.value.length },
         );

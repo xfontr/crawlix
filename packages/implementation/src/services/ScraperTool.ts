@@ -15,6 +15,14 @@ export type CustomTools = {
     selectors: Record<keyof T, string>,
     callback: (...args: unknown[]) => void,
   ) => void;
+  moveMouse: (
+    beginning: [number, number],
+    end?: [number, number],
+    options?: {
+      clickWhenDone?: boolean;
+      speed?: number;
+    },
+  ) => Promise<void>;
 };
 
 const ScraperTool: IScraperTool<CustomTools> = async ({
@@ -24,7 +32,7 @@ const ScraperTool: IScraperTool<CustomTools> = async ({
   const { offset, taskLength } = store();
   puppeteer.use(StealthPlugin());
 
-  const page = await Puppeteer<Page>(puppeteer);
+  const { page, moveMouse } = await Puppeteer<Page>(puppeteer);
 
   await $a(() => page.setViewport({ width: 1920, height: 1080 }));
 
@@ -66,6 +74,7 @@ const ScraperTool: IScraperTool<CustomTools> = async ({
     init,
     waitForNavigation,
     addAttributes,
+    moveMouse,
   };
 };
 
