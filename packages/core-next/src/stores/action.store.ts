@@ -1,23 +1,79 @@
-import type { Action } from "../types/Action.type";
+import type {
+  ActionAsyncData,
+  ActionData,
+  ActionStore,
+  ActionSyncInstance,
+} from "../types";
+import { clone, generateId, stringifyWithKeys } from "../utils/utils";
+import useLocationStore from "./location.store";
+import useLogStore from "./log.store";
+import useRuntimeConfigStore from "./runtimeConfig.store";
 import useSessionStore from "./session.store";
 
-const state: Action = { depth: 0, index: 0 };
+const state: ActionStore = {
+  totalActions: 0,
+  totalMockedPausesDuration: 0,
+  actionLog: [],
+  current: {} as ActionSyncInstance,
+};
 
 const useActionStore = () => {
-  const pushAction = (depth: Action["depth"]): void => {
-    if (!useSessionStore().isInProgress()) {
+  const initAction = (action: ActionData, forceLog?: boolean) => {
+    let _tempSyncAction: ActionSyncInstance | undefined = undefined;
+
+    const { logging } = useRuntimeConfigStore().configs();
+
+    if (useSessionStore().isIDLE()) {
       throw new Error("Cannot execute actions before initializing the session");
     }
 
-    state.depth = depth ?? state.depth;
-    state.index += 1;
+    state.totalActions += 1;
+    state.totalMockedPausesDuration += action.mockedDuration ?? 0;
+
+    const id = generateId();
+
+    _tempSyncAction = {
+      index: state.totalActions,
+      location: useLocationStore().getCurrentLocation(),
+      id,
+      ...action,
+    };
+
+    state.current = _tempSyncAction;
+
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    if (forceLog || action.depth <= logging.actionsDepth) {
+      useLogStore().pushLog({
+        name: action.name
+          ? `[ACTION #${state.totalActions}] - ${action.name}`
+          : `[ACTION #${state.totalActions}]`,
+        message: stringifyWithKeys({
+          id,
+          depth: action.depth,
+          mocked_duration: action.mockedDuration,
+        }),
+        type: "INFO",
+        // We add +1 to make sure that an action will never have the same criticality as a fatal error
+        criticality: action.depth + 1,
+      });
+    }
+
+    return (asyncAction: ActionAsyncData): void => {
+      state.actionLog.push({
+        ..._tempSyncAction!,
+        ...asyncAction,
+      });
+    };
   };
 
-  const getAction = (): Action => ({ ...state });
+  const current = (): ActionSyncInstance => clone(state.current);
+
+  const output = (): ActionStore => clone(state);
 
   return {
-    pushAction,
-    getAction,
+    initAction,
+    current,
+    output,
   };
 };
 

@@ -5,15 +5,21 @@ export interface LocationData {
 }
 
 export interface Location extends LocationData {
-  actionDepth: number;
-  actionIndex: number;
+  date: string;
   timestamp: string;
+  lastActionId: string | undefined;
 }
 
 export interface LocationMeta {
   id: string;
   index: number;
   errors: string[];
+}
+
+export interface LocationStamp {
+  id: string;
+  timestamp: string;
+  lastActionId: string | undefined;
 }
 
 export type LocationInstance = Location & LocationMeta;

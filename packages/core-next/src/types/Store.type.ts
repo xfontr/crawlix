@@ -1,9 +1,10 @@
+import type { ActionInstance, ActionSyncInstance } from "./Action.type";
 import type { CustomError } from "./Error.type";
 import type { Item } from "./Item.type";
 import type { LocationInstance } from "./Location.type";
 import type { Log } from "./Log.type";
-import { RuntimeConfig } from "./RuntimeConfig.type";
-import { Session } from "./Session.type";
+import type { RuntimeConfig } from "./RuntimeConfig.type";
+import type { Session } from "./Session.type";
 
 export interface LogStore {
   totalLogs: number;
@@ -27,14 +28,24 @@ export interface ErrorStore {
   errorLog: CustomError[];
 }
 
+export interface ActionStore {
+  totalActions: number;
+  current: ActionSyncInstance;
+  actionLog: ActionInstance[];
+  totalMockedPausesDuration: number;
+}
+
 export type SessionStore = Session;
 
 export type RuntimeConfigStore = RuntimeConfig;
 
-export interface App extends SessionStore {
+export interface AppData {
   logData: LogStore;
   locationData: LocationStore;
   errorData: ErrorStore;
   itemData: ItemStore;
+  actionData: ActionStore;
   configs: RuntimeConfigStore;
 }
+
+export type App = SessionStore & AppData;

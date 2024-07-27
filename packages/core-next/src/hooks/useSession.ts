@@ -1,71 +1,92 @@
-import useErrorStore from "../stores/error.store";
-import useItemStore from "../stores/item.store";
-import useLocationStore from "../stores/location.store";
-import useLogStore from "../stores/log.store";
-import useRuntimeConfigStore from "../stores/runtimeConfig.store";
-import useSessionStore from "../stores/session.store";
-import type { FullFunction } from "../types/Object.type";
-import type { Session } from "../types/Session.type";
-import { App } from "../types/Store.type";
+import * as stores from "../stores";
+import type {
+  App,
+  AppData,
+  FullFunction,
+  FullFunctionWithApp,
+  FullFunctionWithIndex,
+  Session,
+} from "../types";
 import EventBus from "../utils/EventBus";
-import { promiseAllSeq, promiseLoop } from "../utils/promises";
+import { runAfterAllInSeq, promiseLoop } from "../utils/promises";
 import useAction from "./useAction";
+import useError from "./useError";
 
 const state = {
   afterAllEffects: [] as FullFunction[],
 };
 
 const useSession = () => {
-  const sessionStore = useSessionStore();
-  const { getRuntimeConfig } = useRuntimeConfigStore();
-  const locationStore = useLocationStore();
+  const sessionStore = stores.useSessionStore();
+  const { configs } = stores.useRuntimeConfigStore();
+  const locationStore = stores.useLocationStore();
   const { $a } = useAction();
 
   const init = () => {
     sessionStore.init();
 
     setTimeout(() => {
-      EventBus.emit("SESSION:END");
-    }, getRuntimeConfig().limit.timeout);
+      useError().createError({
+        criticality: "FATAL",
+        message: "Session timed out",
+        name: "GLOBAL TIMEOUT",
+        type: "TIMEOUT",
+      });
+    }, configs().limit.timeout);
 
     return options;
   };
 
-  const end = async (status?: Session["status"]): Promise<App> => {
-    if (sessionStore.isSessionOver()) return {} as Promise<App>;
+  const end = async (status?: Session["status"]): Promise<void> => {
+    if (sessionStore.isSessionOver()) return;
 
-    await $a(() => promiseAllSeq(...state.afterAllEffects), {
-      name: "AFTER ALL EFFECTS",
-      type: "DEV",
-    });
+    const { storeContent } = stores.useRuntimeConfigStore().configs();
 
-    locationStore.pushLocation({ name: "END_LOCATION" });
+    locationStore.pushLocation({ name: "END LOCATION" });
 
     sessionStore.end(status);
 
-    const output: App = {
-      ...sessionStore.output(),
-      configs: getRuntimeConfig(),
-      logData: useLogStore().output(),
-      errorData: useErrorStore().output(),
-      locationData: locationStore.output(),
-      itemData: useItemStore().output(),
+    const storeDictionary: Record<keyof AppData, string> = {
+      configs: "useRuntimeConfigStore",
+      actionData: "useActionStore",
+      logData: "useLogStore",
+      errorData: "useErrorStore",
+      locationData: "useLocationStore",
+      itemData: "useItemStore",
     };
 
-    return output;
+    const output = Object.entries(storeDictionary).reduce(
+      (finalStore, [key, value]) => {
+        if (!storeContent.includes(key as keyof AppData)) return finalStore;
+        return {
+          ...finalStore,
+          // eslint-disable-next-line, import/namespace
+          // eslint-disable-next-line import/namespace
+          [key]: (
+            stores[value as keyof typeof stores]?.() as { output: () => object }
+          )?.output?.(),
+        };
+      },
+      stores.useSessionStore().output(),
+    ) as App & Partial<AppData>;
+
+    await $a(() => runAfterAllInSeq(output, ...state.afterAllEffects), {
+      name: "AFTER ALL EFFECTS",
+    });
+
+    EventBus.emit("SESSION:CLEAN_UP");
   };
 
   const loop = async (
-    callback: FullFunction,
-    breakingCondition: () => boolean,
+    callback: FullFunctionWithIndex,
+    breakingCondition: (index: number) => boolean,
   ): Promise<void> => {
     await $a(() => promiseLoop(callback, breakingCondition), {
       name: "LOOP",
-      type: "DEV",
     });
   };
 
-  const afterAll = (callback: FullFunction): void => {
+  const afterAll = (callback: FullFunctionWithApp): void => {
     state.afterAllEffects.push(callback);
   };
 

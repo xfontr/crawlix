@@ -1,21 +1,23 @@
 import { randomUUID } from "crypto";
-import { FullFunction } from "../types/Object.type";
+import { FullFunction, FullObject } from "../types";
 
 export const generateId = (): string => randomUUID();
 
-export const generateTimestamp = (): string => new Date().toLocaleDateString();
+export const generateTimestamp = (): string =>
+  new Date().getUTCMilliseconds().toString();
 
-export const tryCatch = async <
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  R = any,
-  T extends FullFunction<R> = FullFunction<R>,
-  E extends any = Error,
->(
-  callback: T,
-  ...args: Parameters<T>
+export const generateDate = (): string => new Date().getTime().toString();
+
+export const randomize = (
+  value: number,
+  [max, min]: [number, number],
+): number => +((Math.random() * (max - min) + min) * value).toFixed(2);
+
+export const tryCatch = async <R = unknown, E = Error>(
+  callback: FullFunction<R>,
 ): Promise<[R, void] | [void, E]> => {
   try {
-    const response: void | R = await callback(...args);
+    const response: void | R = await callback();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return [response!, undefined];
   } catch (error) {
@@ -26,4 +28,14 @@ export const tryCatch = async <
 export const getPercentage = (numberA: number, numberB: number): number =>
   100 - (numberA / numberB) * 100;
 
-export const clone = <T>(item: T): T => JSON.parse(JSON.stringify(item));
+export const clone = <T>(item?: T): T =>
+  item ? JSON.parse(JSON.stringify(item)) : undefined;
+
+export const stringifyWithKeys = <T extends FullObject = FullObject>(
+  item: T,
+): string =>
+  Object.entries(item)
+    .flatMap(([key, value]) =>
+      value ? `[${key.toLocaleUpperCase()}] ${value}` : [],
+    )
+    .join("; ");

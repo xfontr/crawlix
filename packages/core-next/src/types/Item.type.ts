@@ -1,5 +1,5 @@
-import { LocationInstance } from "./Location.type";
-import { FullObject } from "./Object.type";
+import type { LocationStamp } from "./Location.type";
+import type { FullObject } from "./Object.type";
 
 export type ItemErrors<T extends FullObject = FullObject> = Record<
   keyof T,
@@ -9,7 +9,7 @@ export type ItemErrors<T extends FullObject = FullObject> = Record<
 export interface ItemMeta {
   id: string;
   index: number;
-  location: LocationInstance;
+  location: LocationStamp;
   isComplete: boolean;
   itemErrors: ItemErrors;
   completion: number;

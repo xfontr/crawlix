@@ -1,6 +1,10 @@
-import type { FullObject } from "../types/Object.type";
-import type { ItemData, ItemErrors, ItemMeta } from "../types/Item.type";
-import type { ItemStore } from "../types/Store.type";
+import type {
+  FullObject,
+  ItemData,
+  ItemErrors,
+  ItemMeta,
+  ItemStore,
+} from "../types";
 import { clone, generateId, getPercentage } from "../utils/utils";
 import useLocationStore from "./location.store";
 

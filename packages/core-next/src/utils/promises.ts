@@ -1,28 +1,44 @@
+import {
+  App,
+  FullFunction,
+  FullFunctionWithApp,
+  FullFunctionWithIndex,
+} from "../types";
+
 export const promiseLoop = async <T>(
-  callback: () => Promise<T> | T,
-  breakingCondition: () => boolean,
-): Promise<T[]> => {
-  const results = [];
+  callback: FullFunctionWithIndex<T>,
+  breakingCondition: (index: number) => boolean,
+) => {
+  let index = 0;
 
   do {
-    results.push(await callback());
-  } while (breakingCondition() === false);
-
-  return results;
+    await callback(index);
+    index += 1;
+  } while (breakingCondition(index) === false);
 };
 
-export const promiseAllSeq = async <T>(
-  ...callbacks: ((index?: number) => Promise<T> | T)[]
-): Promise<(Promise<T> | T)[]> => {
-  if (!callbacks?.length) return [];
+export const runAfterAllInSeq = async (
+  output: App,
+  ...callbacks: FullFunctionWithApp[]
+): Promise<void> => {
+  if (!callbacks?.length) return;
 
   let index = 0;
-  const results = [];
-
   do {
-    results.push(await callbacks[index]!(index));
+    await callbacks[index]!(output);
     index += 1;
   } while (index < callbacks.length);
+};
 
-  return results;
+export const delay = async <T>(
+  callback: FullFunction<T>,
+  delay?: number,
+): Promise<T | void> => {
+  if (!delay) return callback();
+
+  return await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(callback());
+    }, delay);
+  });
 };

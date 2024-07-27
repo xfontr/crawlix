@@ -2,7 +2,11 @@ import { EventEmitter } from "stream";
 
 const EventBus = new EventEmitter();
 
-type Events = "SESSION:END" | "SESSION:BLOCK_ACTIONS";
+type Events =
+  | "SESSION:END"
+  | "SESSION:CLEAN_UP"
+  | "SESSION:BLOCK_ACTIONS"
+  | "LOGGER:LOG";
 
 export default EventBus as EventEmitter & {
   on: (eventName: Events, listener: Parameters<EventEmitter["on"]>[1]) => void;

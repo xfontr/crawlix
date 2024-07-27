@@ -1,0 +1,253 @@
+{
+    "status": "SUCCESS",
+    "id": "fb4debab-3e00-40a8-8c4b-69a1570ec496",
+    "startLocation": {
+        "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+        "timestamp": "326"
+    },
+    "endLocation": {
+        "id": "60ba508f-ebd4-4ab0-b725-b3c0bb480de2",
+        "timestamp": "356",
+        "lastActionId": "98dff88f-2839-415b-bbd6-3ceef3a32541"
+    },
+    "duration": 30,
+    "actionData": {
+        "totalActions": 6,
+        "totalMockedPausesDuration": 3000,
+        "actionLog": [
+            {
+                "index": 1,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "327"
+                },
+                "id": "53d39d2d-9224-4725-9cef-c2086aacfcfc",
+                "name": "FIRST ACTION",
+                "depth": 1,
+                "mockedDuration": 500,
+                "duration": 504
+            },
+            {
+                "index": 4,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "839",
+                    "lastActionId": "e5245132-e24d-4156-93dd-b652f6e1b2d3"
+                },
+                "id": "245eb3c6-f789-41d8-bc0c-d3e3ee00cc20",
+                "name": "THIRD INNER LOOP ACTION",
+                "depth": 2,
+                "mockedDuration": 500,
+                "duration": 505
+            },
+            {
+                "index": 3,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "335",
+                    "lastActionId": "dbc89fd4-d228-48b4-9935-6ee118f60c49"
+                },
+                "id": "e5245132-e24d-4156-93dd-b652f6e1b2d3",
+                "name": "INNER LOOP ACTION",
+                "depth": 1,
+                "mockedDuration": 500,
+                "duration": 1009
+            },
+            {
+                "index": 6,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "850",
+                    "lastActionId": "47cdb83a-cdbf-4939-addc-94c25f691438"
+                },
+                "id": "98dff88f-2839-415b-bbd6-3ceef3a32541",
+                "name": "THIRD INNER LOOP ACTION",
+                "depth": 2,
+                "mockedDuration": 500,
+                "duration": 505
+            },
+            {
+                "index": 5,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "345",
+                    "lastActionId": "245eb3c6-f789-41d8-bc0c-d3e3ee00cc20"
+                },
+                "id": "47cdb83a-cdbf-4939-addc-94c25f691438",
+                "name": "INNER LOOP ACTION",
+                "depth": 1,
+                "mockedDuration": 500,
+                "duration": 1009
+            },
+            {
+                "index": 2,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "832",
+                    "lastActionId": "53d39d2d-9224-4725-9cef-c2086aacfcfc"
+                },
+                "id": "dbc89fd4-d228-48b4-9935-6ee118f60c49",
+                "name": "LOOP",
+                "depth": 1,
+                "mockedDuration": 500,
+                "duration": 2522
+            }
+        ],
+        "current": {
+            "index": 6,
+            "location": {
+                "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                "timestamp": "850",
+                "lastActionId": "47cdb83a-cdbf-4939-addc-94c25f691438"
+            },
+            "id": "98dff88f-2839-415b-bbd6-3ceef3a32541",
+            "name": "THIRD INNER LOOP ACTION",
+            "depth": 2,
+            "mockedDuration": 500
+        }
+    },
+    "logData": {
+        "totalLogs": 8,
+        "logs": [
+            {
+                "id": "50c20933-6fd6-4fc7-9670-214ed59fe195",
+                "name": "[LOCATION UPDATE] OFFSET",
+                "criticality": 5,
+                "type": "INFO",
+                "message": "ID: 401f2a36-5fdd-48b7-8f14-e9e08b1bd52b; PAGE: 1; URL: fasdfad",
+                "index": 1,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "326"
+                }
+            },
+            {
+                "id": "f2bafcfc-5607-4a51-a511-ef163e76e0eb",
+                "name": "[ACTION #1] - FIRST ACTION",
+                "criticality": 2,
+                "type": "INFO",
+                "message": "ID: 53d39d2d-9224-4725-9cef-c2086aacfcfc; DEPTH: 1; MOCKED_DURATION: 500",
+                "index": 2,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "327",
+                    "lastActionId": "53d39d2d-9224-4725-9cef-c2086aacfcfc"
+                }
+            },
+            {
+                "id": "ce0e71a7-48df-48c7-a00e-7befc474024f",
+                "name": "[ACTION #2] - LOOP",
+                "criticality": 2,
+                "type": "INFO",
+                "message": "ID: dbc89fd4-d228-48b4-9935-6ee118f60c49; DEPTH: 1; MOCKED_DURATION: 500",
+                "index": 3,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "832",
+                    "lastActionId": "dbc89fd4-d228-48b4-9935-6ee118f60c49"
+                }
+            },
+            {
+                "id": "421eb545-ca53-47ad-a2bb-58298d6fcde6",
+                "name": "[ACTION #3] - INNER LOOP ACTION",
+                "criticality": 2,
+                "type": "INFO",
+                "message": "ID: e5245132-e24d-4156-93dd-b652f6e1b2d3; DEPTH: 1; MOCKED_DURATION: 500",
+                "index": 4,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "336",
+                    "lastActionId": "e5245132-e24d-4156-93dd-b652f6e1b2d3"
+                }
+            },
+            {
+                "id": "673257b6-6ed0-4128-8adc-788ec1104202",
+                "name": "[ACTION #4] - THIRD INNER LOOP ACTION",
+                "criticality": 3,
+                "type": "INFO",
+                "message": "ID: 245eb3c6-f789-41d8-bc0c-d3e3ee00cc20; DEPTH: 2; MOCKED_DURATION: 500",
+                "index": 5,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "840",
+                    "lastActionId": "245eb3c6-f789-41d8-bc0c-d3e3ee00cc20"
+                }
+            },
+            {
+                "id": "2dffab7e-3d62-4222-8bf5-672af1f3e616",
+                "name": "[ACTION #5] - INNER LOOP ACTION",
+                "criticality": 2,
+                "type": "INFO",
+                "message": "ID: 47cdb83a-cdbf-4939-addc-94c25f691438; DEPTH: 1; MOCKED_DURATION: 500",
+                "index": 6,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "345",
+                    "lastActionId": "47cdb83a-cdbf-4939-addc-94c25f691438"
+                }
+            },
+            {
+                "id": "0cfcdb4b-8f95-496e-bdff-ae917bbf56b9",
+                "name": "[ACTION #6] - THIRD INNER LOOP ACTION",
+                "criticality": 3,
+                "type": "INFO",
+                "message": "ID: 98dff88f-2839-415b-bbd6-3ceef3a32541; DEPTH: 2; MOCKED_DURATION: 500",
+                "index": 7,
+                "location": {
+                    "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                    "timestamp": "850",
+                    "lastActionId": "98dff88f-2839-415b-bbd6-3ceef3a32541"
+                }
+            },
+            {
+                "id": "42ffafef-35fd-40bf-bf7f-0deb0e88521b",
+                "name": "[LOCATION UPDATE] END LOCATION",
+                "criticality": 5,
+                "type": "INFO",
+                "message": "ID: 60ba508f-ebd4-4ab0-b725-b3c0bb480de2; PAGE: undefined; URL: undefined",
+                "index": 8,
+                "location": {
+                    "id": "60ba508f-ebd4-4ab0-b725-b3c0bb480de2",
+                    "timestamp": "355",
+                    "lastActionId": "98dff88f-2839-415b-bbd6-3ceef3a32541"
+                }
+            }
+        ]
+    },
+    "errorData": {
+        "totalErrors": 0,
+        "errorLog": []
+    },
+    "locationData": {
+        "totalLocations": 2,
+        "history": [
+            {
+                "id": "401f2a36-5fdd-48b7-8f14-e9e08b1bd52b",
+                "name": "OFFSET",
+                "url": "fasdfad",
+                "page": 1,
+                "errors": [],
+                "index": 1,
+                "timestamp": "326",
+                "date": "1722076829326"
+            },
+            {
+                "id": "60ba508f-ebd4-4ab0-b725-b3c0bb480de2",
+                "name": "END LOCATION",
+                "url": "fasdfad",
+                "page": 1,
+                "errors": [],
+                "index": 2,
+                "timestamp": "355",
+                "date": "1722076832355",
+                "lastActionId": "98dff88f-2839-415b-bbd6-3ceef3a32541"
+            }
+        ]
+    },
+    "itemData": {
+        "totalItems": 0,
+        "incompleteItems": 0,
+        "fullyCompleteItemsRate": 0,
+        "items": []
+    }
+}

@@ -1,6 +1,6 @@
-import { Session } from "../types/Session.type";
-import { SessionStore } from "../types/Store.type";
+import type { Session, SessionStore } from "../types";
 import { clone, generateId } from "../utils/utils";
+import useActionStore from "./action.store";
 import useItemStore from "./item.store";
 import useLocationStore from "./location.store";
 import useRuntimeConfigStore from "./runtimeConfig.store";
@@ -20,6 +20,15 @@ const useSessionStore = () => {
     }
 
     state.status = "IN_PROGRESS";
+
+    const startLocation = getLocationHistory()[0]!;
+
+    state.id = generateId();
+    state.startLocation = {
+      id: startLocation.id,
+      timestamp: startLocation.timestamp,
+      lastActionId: useActionStore().current().id,
+    };
   };
 
   const ready = (): void => {
@@ -29,8 +38,7 @@ const useSessionStore = () => {
   const isIDLE = (): boolean => state.status === "IDLE";
 
   const isSessionComplete = (): boolean => {
-    const { completionRateToSuccess } =
-      useRuntimeConfigStore().getRuntimeConfig();
+    const { completionRateToSuccess } = useRuntimeConfigStore().configs();
     const { fullyCompleteItemsRate } = useItemStore().getItemsStatus();
 
     return completionRateToSuccess >= fullyCompleteItemsRate;
@@ -39,10 +47,10 @@ const useSessionStore = () => {
   const end = (status?: Session["status"]): void => {
     const isComplete = isSessionComplete();
 
-    state.id = generateId();
     state.status = status ?? isComplete ? "SUCCESS" : "INCOMPLETE";
-    state.startLocation = getLocationHistory()[0]!;
     state.endLocation = getCurrentLocation();
+    state.duration =
+      +state.endLocation.timestamp - +state.startLocation!.timestamp;
   };
 
   const isSessionOver = (): boolean =>

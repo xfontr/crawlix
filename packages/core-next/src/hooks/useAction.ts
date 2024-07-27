@@ -1,8 +1,11 @@
-import useActionStore from "../stores/action.store";
-import useLogStore from "../stores/log.store";
-import type { LogData } from "../types/Log.type";
-import type { ActionFullFunction } from "../types/Object.type";
-import { tryCatch } from "../utils/utils";
+import { delay } from "../utils/promises";
+import { randomize, tryCatch } from "../utils/utils";
+import {
+  useActionStore,
+  useErrorStore,
+  useRuntimeConfigStore,
+} from "../stores";
+import type { ActionCustomData, FullFunction } from "../types";
 import useError from "./useError";
 
 const MAX_THREAD_DEPTH = 50;
@@ -11,25 +14,45 @@ const MAX_THREAD_DEPTH = 50;
 let blockedThread = MAX_THREAD_DEPTH;
 
 const useAction = () => {
-  const { pushLog } = useLogStore();
-  const { pushAction, getAction } = useActionStore();
+  const { initAction, current } = useActionStore();
+  const { configs } = useRuntimeConfigStore();
   let depth = 0;
 
   const $a = async <T>(
-    callback: ActionFullFunction<T>,
-    logOptions?: LogData,
+    callback: FullFunction<T>,
+    actionOptions: ActionCustomData & { forceLog?: boolean } = {},
   ) => {
     if (depth > blockedThread) {
       return;
     }
-
+    const {
+      mockUserPause: { duration, variationRange },
+    } = configs();
     setBlockedThread(MAX_THREAD_DEPTH);
 
-    depth += 1;
-    pushAction(depth);
-    const { index } = getAction();
+    const mockUserPause = randomize(duration, variationRange);
 
-    const [data, error] = await tryCatch(callback, depth, index, blockedThread);
+    depth += 1;
+
+    const { index } = current();
+
+    const start = Date.now();
+
+    const pushAction = initAction(
+      {
+        name: actionOptions?.name ?? "",
+        depth,
+        mockedDuration: mockUserPause,
+      },
+      !!actionOptions.forceLog,
+    );
+
+    const [data, error] = await tryCatch(() => delay(callback, mockUserPause));
+
+    pushAction({
+      errorId: useErrorStore().getLastError()?.id,
+      duration: Date.now() - start,
+    });
 
     if (error) {
       useError().createError({
@@ -40,15 +63,6 @@ const useAction = () => {
     }
 
     depth -= 1;
-
-    if (logOptions) {
-      pushLog({
-        ...logOptions,
-        name: logOptions?.name
-          ? `[ACTION] ${index} - ${logOptions.name}`
-          : `[ACTION] ${index}`,
-      });
-    }
 
     return data;
   };

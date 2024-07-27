@@ -1,30 +1,27 @@
-import useActionStore from "../stores/action.store";
-import useErrorStore from "../stores/error.store";
-import useLogStore from "../stores/log.store";
-import { CustomErrorData } from "../types/Error.type";
-import { Session } from "../types/Session.type";
+import { useActionStore, useErrorStore } from "../stores";
+import type { CustomErrorData, Session } from "../types";
 import EventBus from "../utils/EventBus";
 
 const useError = () => {
-  const createError = (error: CustomErrorData = {}): void => {
+  const createError = (
+    error: CustomErrorData = {},
+    forceLog?: boolean,
+  ): void => {
     const { pushError, getLastError } = useErrorStore();
-    const { depth } = useActionStore().getAction();
+    const { depth } = useActionStore().current();
 
-    pushError({ ...error });
+    pushError({ ...error }, forceLog);
 
-    const { criticality, id } = getLastError<true>();
-
-    useLogStore().pushLog({
-      name: `${criticality} ERROR`,
-      message: id,
-      type: "ERROR",
-    });
+    const { criticality, type } = getLastError<true>();
 
     if (criticality === "FATAL") {
-      EventBus.emit("SESSION:END", "FATAL_ERROR" as Session["status"]);
+      EventBus.emit(
+        "SESSION:END",
+        type === "TIMEOUT" ? "TIMED_OUT" : ("FATAL_ERROR" as Session["status"]),
+      );
     }
 
-    if (criticality !== "MILD") EventBus.emit("SESSION:BLOCK_ACTIONS", depth);
+    if (criticality !== "LOW") EventBus.emit("SESSION:BLOCK_ACTIONS", depth);
   };
 
   return { createError };

@@ -1,9 +1,10 @@
-import { LocationInstance } from "./Location.type";
+import type { LocationStamp } from "./Location.type";
 
 export interface SessionMeta {
   id: string;
-  startLocation: LocationInstance;
-  endLocation: LocationInstance;
+  startLocation: LocationStamp;
+  endLocation: LocationStamp;
+  duration: number;
 }
 
 export interface SessionStatus {
@@ -13,6 +14,7 @@ export interface SessionStatus {
     | "IN_PROGRESS"
     | "FATAL_ERROR"
     | "INCOMPLETE"
+    | "TIMED_OUT"
     | "SUCCESS";
 }
 

@@ -1,12 +1,16 @@
-export type FullObject = Record<string, string | boolean | number>;
+import { App } from "./Store.type";
+
+export type FullObject = Record<string, string | boolean | number | undefined>;
 
 export type FullFunction<R = unknown> = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
-) => Promise<R> | R | void | Promise<void>;
+) => Promise<R | void> | R | void;
 
-export type ActionFullFunction<R = unknown> = (
-  depth: number,
+export type FullFunctionWithIndex<R = unknown> = (
   index: number,
-  blockedThread: number,
-) => Promise<R> | R | void | Promise<void>;
+) => Promise<R | void> | R | void;
+
+export type FullFunctionWithApp<R = unknown> = (
+  app: App,
+) => Promise<R | void> | R | void;

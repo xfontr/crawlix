@@ -1,14 +1,14 @@
-import type { Log, LogData } from "../types/Log.type";
-import type { LogStore } from "../types/Store.type";
+import type { Log, LogData, LogStore } from "../types";
 import useLocationStore from "./location.store";
 import { clone, generateId } from "../utils/utils";
+import EventBus from "../utils/EventBus";
 
 const state: LogStore = { totalLogs: 0, logs: [] };
 
 const DEFAULT_OPTIONS: Required<Omit<LogData, "message">> = {
-  criticality: 0,
-  type: "INFO",
   name: "LOG ENTRY",
+  criticality: 5,
+  type: "INFO",
 };
 
 const useLogStore = () => {
@@ -17,13 +17,17 @@ const useLogStore = () => {
   const pushLog = (baseLog: LogData | string): void => {
     state.totalLogs += 1;
 
-    state.logs.push({
+    const logEntry = {
+      id: generateId(),
       ...DEFAULT_OPTIONS,
       ...(typeof baseLog === "string" ? { message: baseLog } : baseLog),
-      id: generateId(),
       index: state.totalLogs,
       location: getCurrentLocation(),
-    });
+    };
+
+    state.logs.push(logEntry);
+
+    EventBus.emit("LOGGER:LOG", logEntry);
   };
 
   const getLogs = (): Log[] => [...state.logs];
