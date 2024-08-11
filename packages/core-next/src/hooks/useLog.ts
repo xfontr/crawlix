@@ -25,7 +25,7 @@ const useLog = <T extends FullFunction = FullFunction>(baseLogger?: T) => {
   };
 
   const log = (logInstance: Log): void => {
-    const { logging, node } = useRuntimeConfigStore().configs();
+    const { logging, node } = useRuntimeConfigStore().current;
 
     const finalLogInstance = logging.isSimple
       ? `[${logInstance.name}] ${logInstance.message}`

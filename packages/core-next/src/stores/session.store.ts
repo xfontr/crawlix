@@ -1,66 +1,67 @@
 import type { Session, SessionStore } from "../types";
-import { clone, generateId } from "../utils/utils";
+import createStore from "../utils/stores";
+import { generateId } from "../utils/utils";
 import useActionStore from "./action.store";
 import useItemStore from "./item.store";
 import useLocationStore from "./location.store";
 import useRuntimeConfigStore from "./runtimeConfig.store";
 
-const state: Partial<SessionStore> & Required<Pick<SessionStore, "status">> = {
-  status: "IDLE",
-};
+const useSessionStore = createStore(
+  "session",
+  {
+    status: "IDLE",
+  } as Partial<SessionStore> & Required<Pick<SessionStore, "status">>,
+  (state) => {
+    const { getCurrentLocation, current } = useLocationStore();
 
-const useSessionStore = () => {
-  const { getCurrentLocation, getLocationHistory } = useLocationStore();
+    const init = (): void => {
+      if (state.status !== "READY") {
+        throw new Error(
+          "Session is not ready to be started. This could mean that the consumer hasn't set up the app yet, or that it tried to instantiate the session more than once",
+        );
+      }
 
-  const init = (): void => {
-    if (state.status !== "READY") {
-      throw new Error(
-        "Session is not ready to be started. This could mean that the consumer hasn't set up the app yet, or that it tried to instantiate the session more than once",
-      );
-    }
+      state.status = "IN_PROGRESS";
 
-    state.status = "IN_PROGRESS";
+      const startLocation = current.history[0]!;
 
-    const startLocation = getLocationHistory()[0]!;
-
-    state.id = generateId();
-    state.startLocation = {
-      id: startLocation.id,
-      timestamp: startLocation.timestamp,
-      lastActionId: useActionStore().current().id,
+      state.id = generateId();
+      state.startLocation = {
+        id: startLocation.id,
+        timestamp: startLocation.timestamp,
+        lastActionId: useActionStore().current.action.id,
+      };
     };
-  };
 
-  const ready = (): void => {
-    state.status = "READY";
-  };
+    const ready = (): void => {
+      state.status = "READY";
+    };
 
-  const isIDLE = (): boolean => state.status === "IDLE";
+    const isIDLE = (): boolean => state.status === "IDLE";
 
-  const isSessionComplete = (): boolean => {
-    const { completionRateToSuccess } = useRuntimeConfigStore().configs();
-    const { fullyCompleteItemsRate } = useItemStore().getItemsStatus();
+    const isSessionComplete = (): boolean => {
+      const { completionRateToSuccess } = useRuntimeConfigStore().current;
+      const { fullyCompleteItemsRate } = useItemStore().getItemsStatus();
 
-    return completionRateToSuccess >= fullyCompleteItemsRate;
-  };
+      return completionRateToSuccess >= fullyCompleteItemsRate;
+    };
 
-  const end = (status?: Session["status"]): void => {
-    const isComplete = isSessionComplete();
+    const end = (status?: Session["status"]): void => {
+      const isComplete = isSessionComplete();
 
-    state.status = status ?? isComplete ? "SUCCESS" : "INCOMPLETE";
-    state.endLocation = getCurrentLocation();
-    state.duration =
-      +state.endLocation.timestamp - +state.startLocation!.timestamp;
-  };
+      state.status = status ?? isComplete ? "SUCCESS" : "INCOMPLETE";
+      state.endLocation = getCurrentLocation();
+      state.duration =
+        +state.endLocation.timestamp - +state.startLocation!.timestamp;
+    };
 
-  const isSessionOver = (): boolean =>
-    state.status !== "IDLE" && state.status !== "IN_PROGRESS";
+    const isSessionOver = (): boolean =>
+      state.status !== "IDLE" && state.status !== "IN_PROGRESS";
 
-  const isInProgress = (): boolean => state.status === "IN_PROGRESS";
+    const isInProgress = (): boolean => state.status === "IN_PROGRESS";
 
-  const output = (): SessionStore => clone(state as SessionStore);
-
-  return { init, isIDLE, isInProgress, ready, end, isSessionOver, output };
-};
+    return { init, isIDLE, isInProgress, ready, end, isSessionOver };
+  },
+);
 
 export default useSessionStore;

@@ -3,15 +3,16 @@ import useAction from "./hooks/useAction";
 import useApp from "./hooks/useApp";
 import useSession from "./hooks/useSession";
 import { resolve } from "path";
+import process from "process";
 
 const save = true;
 
-const experiment = async () => {
+const main = () => {
   useApp().setUp();
-  const { afterAll, loop } = useSession().init();
-  const { $a } = useAction();
-  const { _dangerouslyAbort } = useApp();
+  const { afterAll } = useSession().init();
 
+  process.nextTick(scrapeItems);
+  // https://github.com/trevorr/async-cleanup/blob/master/src/index.ts
   afterAll(async (output) => {
     if (save) {
       await writeFile(
@@ -21,6 +22,23 @@ const experiment = async () => {
       );
     }
   });
+};
+
+const scrapeItem = async () => {
+  const { $a } = useAction();
+
+  await $a(
+    () => {
+      console.log("first action");
+    },
+    { name: "FIRST ACTION" },
+  );
+};
+
+const scrapeItems = async () => {
+  const { loop } = useSession();
+  const { $a } = useAction();
+  const { _dangerouslyAbort } = useApp();
 
   await $a(
     () => {
@@ -33,13 +51,7 @@ const experiment = async () => {
     async () => {
       await $a(
         async () => {
-          console.log("second action");
-          await $a(
-            () => {
-              console.log("third action");
-            },
-            { name: "THIRD INNER LOOP ACTION" },
-          );
+          await scrapeItem();
         },
         { name: "INNER LOOP ACTION" },
       );
@@ -50,4 +62,4 @@ const experiment = async () => {
   _dangerouslyAbort();
 };
 
-void experiment();
+main();

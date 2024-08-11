@@ -8,7 +8,7 @@ const useError = () => {
     forceLog?: boolean,
   ): void => {
     const { pushError, getLastError } = useErrorStore();
-    const { depth } = useActionStore().current();
+    const { depth } = useActionStore().current.action;
 
     pushError({ ...error }, forceLog);
 

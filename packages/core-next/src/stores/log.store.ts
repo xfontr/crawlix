@@ -1,9 +1,8 @@
-import type { Log, LogData, LogStore } from "../types";
+import type { LogData, LogStore } from "../types";
 import useLocationStore from "./location.store";
-import { clone, generateId } from "../utils/utils";
+import { generateId } from "../utils/utils";
 import EventBus from "../utils/EventBus";
-
-const state: LogStore = { totalLogs: 0, logs: [] };
+import createStore from "../utils/stores";
 
 const DEFAULT_OPTIONS: Required<Omit<LogData, "message">> = {
   name: "LOG ENTRY",
@@ -11,34 +10,30 @@ const DEFAULT_OPTIONS: Required<Omit<LogData, "message">> = {
   type: "INFO",
 };
 
-const useLogStore = () => {
-  const { getCurrentLocation } = useLocationStore();
+const useLogStore = createStore(
+  "log",
+  { totalLogs: 0, logs: [] } as LogStore,
+  (state) => {
+    const { getCurrentLocation } = useLocationStore();
 
-  const pushLog = (baseLog: LogData | string): void => {
-    state.totalLogs += 1;
+    const pushLog = (baseLog: LogData | string): void => {
+      state.totalLogs += 1;
 
-    const logEntry = {
-      id: generateId(),
-      ...DEFAULT_OPTIONS,
-      ...(typeof baseLog === "string" ? { message: baseLog } : baseLog),
-      index: state.totalLogs,
-      location: getCurrentLocation(),
+      const logEntry = {
+        id: generateId(),
+        ...DEFAULT_OPTIONS,
+        ...(typeof baseLog === "string" ? { message: baseLog } : baseLog),
+        index: state.totalLogs,
+        location: getCurrentLocation(),
+      };
+
+      state.logs.push(logEntry);
+
+      EventBus.emit("LOGGER:LOG", logEntry);
     };
 
-    state.logs.push(logEntry);
-
-    EventBus.emit("LOGGER:LOG", logEntry);
-  };
-
-  const getLogs = (): Log[] => [...state.logs];
-
-  const output = (): LogStore => clone(state);
-
-  return {
-    pushLog,
-    getLogs,
-    output,
-  };
-};
+    return { pushLog };
+  },
+);
 
 export default useLogStore;

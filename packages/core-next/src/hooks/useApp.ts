@@ -5,13 +5,14 @@ import {
   useSessionStore,
 } from "../stores";
 import type { FullFunction, Log, RuntimeConfig, Session } from "../types";
+import { cleanUpStores } from "../utils/stores";
 import EventBus from "../utils/EventBus";
 import useAction from "./useAction";
 import useLog from "./useLog";
 import useSession from "./useSession";
 
 const useApp = () => {
-  const { setRuntimeConfig, configs } = useRuntimeConfigStore();
+  const { setRuntimeConfig, current } = useRuntimeConfigStore();
   const { pushLocation } = useLocationStore();
   const { ready, isIDLE, isSessionOver } = useSessionStore();
   const { pushLog } = useLogStore();
@@ -22,9 +23,10 @@ const useApp = () => {
    * The process is supposed to finish naturally due to the set conditions (timeout, error or success).
    * Use this method only for testing.
    */
-  const cleanUp = () => {
+  const cleanUp = (exit = true) => {
     EventBus.removeAllListeners();
-    process.exit(0);
+    cleanUpStores(); // TODO: Do we really need to clean if we are exiting the process anyways. This should probably be conditional
+    if (exit) process.exit(0);
   };
 
   const setUp = <T extends FullFunction = FullFunction>(
@@ -35,7 +37,7 @@ const useApp = () => {
 
     if (forceConfigs) setRuntimeConfig(forceConfigs);
 
-    pushLocation({ ...configs().offset, name: "OFFSET" });
+    pushLocation({ ...current.offset, name: "OFFSET" });
 
     const { log } = useLog(logger);
 
@@ -54,7 +56,7 @@ const useApp = () => {
   const _dangerouslyAbort = (status?: Session["status"]): void => {
     if (isSessionOver()) return;
 
-    if (!configs().node.env.startsWith("dev")) {
+    if (!current.node.env.startsWith("dev")) {
       pushLog({
         type: "DEV",
         criticality: 0,

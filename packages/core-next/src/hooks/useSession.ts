@@ -1,12 +1,15 @@
-import * as stores from "../stores";
+import {
+  useLocationStore,
+  useRuntimeConfigStore,
+  useSessionStore,
+} from "../stores";
 import type {
-  App,
-  AppData,
   FullFunction,
   FullFunctionWithApp,
   FullFunctionWithIndex,
   Session,
 } from "../types";
+import { outputStores } from "../utils/stores";
 import EventBus from "../utils/EventBus";
 import { runAfterAllInSeq, promiseLoop } from "../utils/promises";
 import useAction from "./useAction";
@@ -17,9 +20,9 @@ const state = {
 };
 
 const useSession = () => {
-  const sessionStore = stores.useSessionStore();
-  const { configs } = stores.useRuntimeConfigStore();
-  const locationStore = stores.useLocationStore();
+  const sessionStore = useSessionStore();
+  const { limit, storeContent } = useRuntimeConfigStore().current;
+  const locationStore = useLocationStore();
   const { $a } = useAction();
 
   const init = () => {
@@ -32,7 +35,7 @@ const useSession = () => {
         name: "GLOBAL TIMEOUT",
         type: "TIMEOUT",
       });
-    }, configs().limit.timeout);
+    }, limit.timeout);
 
     return options;
   };
@@ -40,39 +43,17 @@ const useSession = () => {
   const end = async (status?: Session["status"]): Promise<void> => {
     if (sessionStore.isSessionOver()) return;
 
-    const { storeContent } = stores.useRuntimeConfigStore().configs();
-
     locationStore.pushLocation({ name: "END LOCATION" });
 
     sessionStore.end(status);
 
-    const storeDictionary: Record<keyof AppData, string> = {
-      configs: "useRuntimeConfigStore",
-      actionData: "useActionStore",
-      logData: "useLogStore",
-      errorData: "useErrorStore",
-      locationData: "useLocationStore",
-      itemData: "useItemStore",
-    };
-
-    const output = Object.entries(storeDictionary).reduce(
-      (finalStore, [key, value]) => {
-        if (!storeContent.includes(key as keyof AppData)) return finalStore;
-        return {
-          ...finalStore,
-          // eslint-disable-next-line, import/namespace
-          // eslint-disable-next-line import/namespace
-          [key]: (
-            stores[value as keyof typeof stores]?.() as { output: () => object }
-          )?.output?.(),
-        };
+    await $a(
+      () =>
+        runAfterAllInSeq(outputStores(storeContent), ...state.afterAllEffects),
+      {
+        name: "AFTER ALL EFFECTS",
       },
-      stores.useSessionStore().output(),
-    ) as App & Partial<AppData>;
-
-    await $a(() => runAfterAllInSeq(output, ...state.afterAllEffects), {
-      name: "AFTER ALL EFFECTS",
-    });
+    );
 
     EventBus.emit("SESSION:CLEAN_UP");
   };

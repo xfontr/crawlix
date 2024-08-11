@@ -1,5 +1,3 @@
-import { App } from "./Store.type";
-
 export type FullObject = Record<string, string | boolean | number | undefined>;
 
 export type FullFunction<R = unknown> = (
@@ -12,5 +10,5 @@ export type FullFunctionWithIndex<R = unknown> = (
 ) => Promise<R | void> | R | void;
 
 export type FullFunctionWithApp<R = unknown> = (
-  app: App,
+  app: string,
 ) => Promise<R | void> | R | void;

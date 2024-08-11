@@ -30,7 +30,7 @@ export interface ErrorStore {
 
 export interface ActionStore {
   totalActions: number;
-  current: ActionSyncInstance;
+  action: ActionSyncInstance;
   actionLog: ActionInstance[];
   totalMockedPausesDuration: number;
 }
@@ -39,13 +39,13 @@ export type SessionStore = Session;
 
 export type RuntimeConfigStore = RuntimeConfig;
 
-export interface AppData {
-  logData: LogStore;
-  locationData: LocationStore;
-  errorData: ErrorStore;
-  itemData: ItemStore;
-  actionData: ActionStore;
-  configs: RuntimeConfigStore;
-}
+// export interface AppData {
+//   logData: LogStore;
+//   locationData: LocationStore;
+//   errorData: ErrorStore;
+//   itemData: ItemStore;
+//   actionData: ActionStore;
+//   configs: RuntimeConfigStore;
+// }
 
-export type App = SessionStore & AppData;
+// export type App = SessionStore & AppData;

@@ -28,9 +28,6 @@ export const tryCatch = async <R = unknown, E = Error>(
 export const getPercentage = (numberA: number, numberB: number): number =>
   100 - (numberA / numberB) * 100;
 
-export const clone = <T>(item?: T): T =>
-  item ? JSON.parse(JSON.stringify(item)) : undefined;
-
 export const stringifyWithKeys = <T extends FullObject = FullObject>(
   item: T,
 ): string =>

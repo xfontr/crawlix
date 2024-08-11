@@ -15,26 +15,25 @@ let blockedThread = MAX_THREAD_DEPTH;
 
 const useAction = () => {
   const { initAction, current } = useActionStore();
-  const { configs } = useRuntimeConfigStore();
+  const {
+    mockUserPause: { duration, variationRange },
+  } = useRuntimeConfigStore().current;
+
   let depth = 0;
 
   const $a = async <T>(
     callback: FullFunction<T>,
     actionOptions: ActionCustomData & { forceLog?: boolean } = {},
   ) => {
-    if (depth > blockedThread) {
-      return;
-    }
-    const {
-      mockUserPause: { duration, variationRange },
-    } = configs();
+    if (depth > blockedThread) return;
+
     setBlockedThread(MAX_THREAD_DEPTH);
 
     const mockUserPause = randomize(duration, variationRange);
 
     depth += 1;
 
-    const { index } = current();
+    const { index } = current.action;
 
     const start = Date.now();
 

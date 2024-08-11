@@ -18,7 +18,7 @@ export const promiseLoop = async <T>(
 };
 
 export const runAfterAllInSeq = async (
-  output: App,
+  output: string,
   ...callbacks: FullFunctionWithApp[]
 ): Promise<void> => {
   if (!callbacks?.length) return;
