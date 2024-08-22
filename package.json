@@ -6,6 +6,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
+    "start": "pnpm --filter @scraper/implementation run start",
     "dev": "pnpm --filter @scraper/core run dev",
     "test": "pnpm --filter @scraper/core run test",
     "test:coverage": "pnpm --filter @scraper/core run test:coverage"

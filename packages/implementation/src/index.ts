@@ -1,4 +1,4 @@
-import A from "./projects/A/A";
+import A from "./projects/ASimple/A";
 
 /* ################################################################## */
 /* # Update this to get started ##################################### */
