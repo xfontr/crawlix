@@ -6,8 +6,8 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "dev": "pnpm --filter @scraper/core run dev",
-    "test": "pnpm --filter @scraper/core run test",
-    "test:coverage": "pnpm --filter @scraper/core run test:coverage"
+    "core:dev": "pnpm --filter @scraper/core run dev",
+    "test:serve": "pnpm --filter @scraper/test run integration:serve",
+    "test:integration": "pnpm --filter @scraper/test run integration:run"
   }
 }
