@@ -21,7 +21,7 @@ const state = {
 
 const useSession = () => {
   const sessionStore = useSessionStore();
-  const { limit, storeContent } = useRuntimeConfigStore().current.public;
+  const { limit, storeContent, model } = useRuntimeConfigStore().current.public;
   const locationStore = useLocationStore();
   const { $a } = useAction();
 
@@ -53,7 +53,10 @@ const useSession = () => {
 
     await $a(
       () =>
-        runAfterAllInSeq(outputStores(storeContent), ...state.afterAllEffects),
+        runAfterAllInSeq(
+          outputStores(model, storeContent),
+          ...state.afterAllEffects,
+        ),
       {
         name: "AFTER ALL EFFECTS",
       },

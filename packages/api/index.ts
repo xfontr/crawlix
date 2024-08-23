@@ -3,9 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
+const DEFAULT_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36";
+
 interface PuppeteerOptions {
   abortImages?: boolean;
-  userAgent?: string | undefined;
+  rotateUserAgent?: boolean;
   headless?: false | "new";
   args?: string[] | undefined;
   executablePath?: string | undefined;
@@ -14,12 +17,9 @@ interface PuppeteerOptions {
 
 const PUPPETEER_DEFAULT_OPTIONS: PuppeteerOptions = {
   abortImages: false,
-  userAgent:
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
-  executablePath:
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   ignoreDefaultArgs: ["--enable-automation"],
   headless: false,
+  rotateUserAgent: true,
 };
 
 const imageRequestHandler = async (request: any) => {
@@ -43,20 +43,37 @@ const Puppeteer = async <T>(
 ) => {
   options = { ...options, ...PUPPETEER_DEFAULT_OPTIONS };
 
-  const browser = await puppeteer.launch({
-    headless: options.headless,
-    executablePath: options.executablePath,
-    ignoreDefaultArgs: options.ignoreDefaultArgs,
-  });
+  let browser;
+  let page;
 
-  const page = await browser.newPage();
-
-  if (!page) {
-    throw new Error("[PUPPETEER:INIT] Could not find the page object");
+  try {
+    browser = await puppeteer.launch({
+      headless: options.headless,
+      executablePath: options.executablePath,
+      ignoreDefaultArgs: options.ignoreDefaultArgs,
+    });
+  } catch (error) {
+    (error as Error).name =
+      "[PUPPETEER:INIT] Could not init the puppeteer browser";
+    throw error;
   }
 
-  // TODO: Rotate user agent
-  if (options.userAgent) await page.setUserAgent(options.userAgent);
+  try {
+    page = await browser.newPage();
+    if (!page) throw new Error("No page");
+  } catch (error) {
+    (error as Error).name = "[PUPPETEER:INIT] Could not create a new page";
+    throw error;
+  }
+
+  if (options.rotateUserAgent) {
+    const { default: userAgents } = await import("./userAgents.js");
+    const index = Math.floor(Math.random() * userAgents.length);
+
+    await page.setUserAgent(userAgents[index]!.ua);
+  } else {
+    await page.setUserAgent(DEFAULT_USER_AGENT);
+  }
 
   if (options.abortImages) page.on("request", imageRequestHandler);
 

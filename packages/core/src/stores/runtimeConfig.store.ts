@@ -10,6 +10,7 @@ const v = (...keys: string[]): string =>
 
 const initialState: RuntimeConfigStore = {
   public: {
+    model: envVar(v("model"), "Scraper session"),
     node: {
       env: envVar("NODE_ENV", "dev"),
     },

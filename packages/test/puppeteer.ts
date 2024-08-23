@@ -5,7 +5,13 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 const Scraper = async () => {
   puppeteer.use(StealthPlugin());
-  return await Puppeteer<Page>(puppeteer, { abortImages: true });
+
+  return await Puppeteer<Page>(puppeteer, {
+    abortImages: true,
+    rotateUserAgent: true,
+    executablePath:
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  });
 };
 
 export default Scraper;

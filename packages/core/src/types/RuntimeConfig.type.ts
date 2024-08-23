@@ -3,6 +3,7 @@ import type { StoreNames } from "./Store.type";
 
 export interface RuntimeConfig {
   node: { env: "prod" | "production" | "dev" | "development" };
+  model: string;
   offset: {
     page: number;
     url: string;

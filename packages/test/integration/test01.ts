@@ -20,7 +20,7 @@ import { NAVIGATION_TIMEOUT } from "../configs/constants";
 const test01 = async () => {
   const { loop, afterAll } = useSession().run();
   const configs = useRuntimeConfigStore().current.public;
-  const { nextPage, previousPage } = useLocation();
+  const location = useLocation();
   const { $a } = useAction();
   const { log } = useLog();
 
@@ -58,6 +58,8 @@ const test01 = async () => {
                 await currentElement.click(),
                 await $p.waitForNavigation({ timeout: NAVIGATION_TIMEOUT }),
               ]);
+
+              location.goTo($p.url(), "Item page");
 
               const addAttribute = useItems().pushItem();
 
@@ -107,6 +109,8 @@ const test01 = async () => {
                   name: "Navigating back",
                 },
               );
+
+              location.goBack();
             },
             { name: "Navigating to element" },
           );
@@ -118,11 +122,14 @@ const test01 = async () => {
         async () => {
           const hasNextPage = !!(await $p.$(SELECTORS.pagination.nextPage));
 
-          if (hasNextPage)
+          if (hasNextPage) {
             await Promise.all([
               await $p.click(SELECTORS.pagination.nextPage),
               await $p.waitForNavigation({ timeout: NAVIGATION_TIMEOUT }),
             ]);
+
+            location.pageUp({ url: $p.url() });
+          }
         },
         { name: "Navigating to next page" },
       );

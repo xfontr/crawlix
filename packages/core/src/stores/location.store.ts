@@ -57,14 +57,14 @@ const useLocationStore = createStore(
 
       state.totalLocations += 1;
 
-      const { page: lastPage, url: lastUrl } = getCurrentLocation<true>(true);
-
-      if (typeof location === "function")
-        location = location({ page: lastPage, url: lastUrl });
+      if (typeof location === "function") {
+        const { page, url } = getCurrentLocation<true>(true);
+        location = location({ page, url });
+      }
 
       const id = generateId();
-      const page = location?.page ?? lastPage;
-      const url = location?.url ?? lastUrl;
+      const page = location?.page ?? getCurrentLocation<true>(true).page;
+      const url = location?.url ?? getCurrentLocation<true>(true).url;
 
       state.history.push({
         id,

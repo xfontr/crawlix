@@ -44,6 +44,7 @@ export const createStore = <T, R extends object = object>(
 };
 
 export const outputStores = (
+  model: string,
   storeContent: RuntimeConfigStore["public"]["storeContent"],
 ): string =>
   JSON.stringify(
@@ -52,7 +53,7 @@ export const outputStores = (
         ...allStores,
         [currentStore]: store[currentStore as keyof typeof store],
       }),
-      {},
+      { model },
     ),
     null,
     4,
