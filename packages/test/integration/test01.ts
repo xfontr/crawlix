@@ -24,11 +24,12 @@ const test01 = async () => {
   const { $a } = useAction();
   const { log } = useLog();
 
-  const $p = (await $a(
+  // Uncatched: We want the app to break if the scraper fails to init
+  const { page: $p } = await Scraper();
+
+  (await $a(
     async () => {
-      const { page: $p } = await Scraper();
       await $p.goto(useLocationStore().current.history.at(-1)!.url);
-      return $p;
     },
     { name: "BEFORE ALL" },
   ))!;
@@ -123,11 +124,7 @@ const test01 = async () => {
           const hasNextPage = !!(await $p.$(SELECTORS.pagination.nextPage));
 
           if (hasNextPage) {
-            await Promise.all([
-              await $p.click(SELECTORS.pagination.nextPage),
-              await $p.waitForNavigation({ timeout: NAVIGATION_TIMEOUT }),
-            ]);
-
+            await $p.click(SELECTORS.pagination.nextPage);
             location.pageUp({ url: $p.url() });
           }
         },

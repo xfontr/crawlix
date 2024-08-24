@@ -7,11 +7,7 @@ import {
 } from "../stores";
 import type { ActionCustomData, FullFunction } from "../types";
 import { useError } from ".";
-
-/**
- * TODO: All of this needs to be carefully tested
- */
-const MAX_THREAD_DEPTH = 50;
+import { MAX_THREAD_DEPTH } from "../configs/constants";
 
 let blockedThread = MAX_THREAD_DEPTH;
 
@@ -90,7 +86,7 @@ const useAction = () => {
             type: "INTERNAL",
           });
         }
-      }, 3_000);
+      }, inactivityTimeout);
     } else if (emptyStackTimeout) {
       clearTimeout(emptyStackTimeout);
     }

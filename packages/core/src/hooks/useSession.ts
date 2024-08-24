@@ -21,7 +21,7 @@ const state = {
 
 const useSession = () => {
   const sessionStore = useSessionStore();
-  const { limit, storeContent, model } = useRuntimeConfigStore().current.public;
+  const config = useRuntimeConfigStore().current;
   const locationStore = useLocationStore();
   const { $a } = useAction();
 
@@ -35,7 +35,7 @@ const useSession = () => {
         name: "GLOBAL TIMEOUT",
         type: "TIMEOUT",
       });
-    }, limit.timeout);
+    }, config.public.limit.timeout);
 
     EventBus.once("SESSION:END", (status: Session["status"]) => {
       if (status !== "TIMED_OUT") clearTimeout(globalTimeout);
@@ -54,7 +54,7 @@ const useSession = () => {
     await $a(
       () =>
         runAfterAllInSeq(
-          outputStores(model, storeContent),
+          outputStores(config.public.model, config.public.storeContent),
           ...state.afterAllEffects,
         ),
       {
