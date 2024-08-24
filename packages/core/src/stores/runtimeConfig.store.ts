@@ -68,8 +68,12 @@ const useRuntimeConfigStore = createStore(
       if (!useSessionStore().isIDLE()) return;
 
       state.public = Object.freeze(
-        deepmerge(state.public, configs as RuntimeConfig),
+        deepmerge(state.public, configs as RuntimeConfig, {
+          arrayMerge: (_, sourceArray) => sourceArray,
+        }),
       ) as RuntimeConfig;
+
+      console.log(state.public.storeContent);
     };
 
     return { setRuntimeConfig };

@@ -3,6 +3,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
+import userAgents from "./userAgents";
+
 const DEFAULT_USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36";
 
@@ -67,7 +69,6 @@ const Puppeteer = async <T>(
   }
 
   if (options.rotateUserAgent) {
-    const { default: userAgents } = await import("./userAgents.js");
     const index = Math.floor(Math.random() * userAgents.length);
 
     await page.setUserAgent(userAgents[index]!.ua);
