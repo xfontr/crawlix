@@ -6,12 +6,7 @@ import type {
 } from "../types";
 import { createStore } from "../utils/stores";
 import EventBus from "../utils/EventBus";
-import {
-  generateDate,
-  generateId,
-  generateTimestamp,
-  stringifyWithKeys,
-} from "../utils/utils";
+import { generateDate, generateId, generateTimestamp } from "../utils/utils";
 import { useRuntimeConfigStore, useLogStore, useActionStore } from ".";
 
 const useLocationStore = createStore(
@@ -50,10 +45,9 @@ const useLocationStore = createStore(
       location?:
         | Partial<LocationData>
         | ((current: Omit<LocationData, "name">) => Partial<LocationData>),
-      forceLog?: boolean,
+      log?: boolean,
     ): void => {
       const { id: actionId } = useActionStore().current.action;
-      const { logging } = useRuntimeConfigStore().current.public;
 
       state.totalLocations += 1;
 
@@ -62,40 +56,23 @@ const useLocationStore = createStore(
         location = location({ page, url });
       }
 
-      const id = generateId();
-      const page = location?.page ?? getCurrentLocation<true>(true).page;
-      const url = location?.url ?? getCurrentLocation<true>(true).url;
-
-      state.history.push({
-        id,
+      const finalLocation: LocationInstance = {
+        id: generateId(),
         name: location?.name ?? "",
-        url,
-        page,
+        url: location?.url ?? getCurrentLocation<true>(true).url,
+        page: location?.page ?? getCurrentLocation<true>(true).page,
         errors: [],
         index: state.totalLocations,
         timestamp: generateTimestamp(),
         date: generateDate(),
         lastActionId: actionId,
-      });
+      };
 
-      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-      if (forceLog || logging.locationUpdate) {
-        const { pushLog } = useLogStore();
+      state.history.push(finalLocation);
 
-        pushLog({
-          name: location?.name
-            ? `[LOCATION UPDATE] ${location.name}`
-            : "[LOCATION UPDATE]",
-          message: stringifyWithKeys({
-            id,
-            page: location?.page,
-            url: location?.url,
-          }),
-          type: "INFO",
-        });
-      }
+      useLogStore().logLocation(finalLocation, log);
 
-      handleMaxPage(page);
+      handleMaxPage(finalLocation.page);
     };
 
     const logLocationError = (errorId: string): void => {

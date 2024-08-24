@@ -43,11 +43,10 @@ const useSessionStore = createStore(
     const isIDLE = (): boolean => state.status === "IDLE";
 
     const isSessionComplete = (): boolean => {
-      const { completionRateToSuccess } =
-        useRuntimeConfigStore().current.public;
+      const { successCompletionRate } = useRuntimeConfigStore().current.public;
       const { fullyCompleteItemsRate } = useItemStore().current;
 
-      return completionRateToSuccess >= fullyCompleteItemsRate;
+      return successCompletionRate >= fullyCompleteItemsRate;
     };
 
     const end = (status?: Session["status"]): void => {

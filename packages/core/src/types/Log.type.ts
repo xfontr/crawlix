@@ -14,6 +14,7 @@ export interface LogCustomData {
 export interface LogMeta {
   type?: "WARN" | "ERROR" | "INFO" | "DEBUG" | "DEV";
   criticality?: number;
+  category?: "ACTION" | "LOCATION" | "ERROR" | "USER_INPUT";
 }
 
 export type LogData = LogMeta & LogCustomData;

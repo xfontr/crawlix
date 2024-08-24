@@ -3,7 +3,7 @@ import test01 from "./test01";
 
 app.init(
   {
-    endProcessIfOver: false,
+    endProcess: false,
     offset: { page: 0, url: "http://localhost:3000/" },
     limit: { page: 1 },
     storeContent: ["action", "error", "item", "location", "session"],

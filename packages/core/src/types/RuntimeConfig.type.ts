@@ -11,22 +11,20 @@ export interface RuntimeConfig {
   limit: {
     page: number;
     timeout: number;
-    inactivityTimeout: number;
+    inactivity: number;
   };
   logging: {
-    actionsDepth: number;
-    locationUpdate: boolean;
     maxCriticality: number;
-    logErrors: boolean;
-    typeFilter: Log["type"][];
+    types: Log["type"][];
+    categories: Log["category"][];
     isSimple: boolean;
   };
   mockUserPause: {
     duration: number;
     variationRange: [number, number];
   };
-  completionRateToSuccess: number;
+  successCompletionRate: number;
   fatalErrorDepth: number;
   storeContent: StoreNames[];
-  endProcessIfOver: boolean;
+  endProcess: boolean;
 }

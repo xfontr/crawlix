@@ -30,39 +30,23 @@ There is no need to manually set the "test" value for testing. We recommend to s
 
 This NODE_ENV variable is a must for the correct functioning of the app.
 
-### Set up configurations (optional, recommended)
+### Env variables
 
-The app defines a set of default configuration variables. With them, the script will run seamlessly without the need to actually do any set up. However, if you wish to customize the experience, take a look at the .env.example file to learn each possible .env option.
-
-It is important to note that you can also customize every single configuration variable from the code itself. These hard-coded configs will be placed above the .env, in case you accidentally have two configs for the same value.
-
-Example:
-
-```ts
-const session = Session({
-  globalTimeout: 100,
-  // Or any other variable
-}).init();
-```
-
-See below at "Set up configuration variables" in order to learn all the available options.
-
-### Set up a test email account (recommended for developers)
-
-Use the Ethereal email free service to get the required account credentials. This is required to pass the Email service tests.
-
-## Run
-
-```bash
-$ cd [project_root]
-$ pnpm i
-$ pnpm run dev
-$ pnpm run test # Optional
-```
-
-## Documentations
-
-See scraper/core/README.md for more information on the script.
+SCRAPER_MODEL
+SCRAPER_OFFSET_PAGE
+SCRAPER_OFFSET_URL
+SCRAPER_LIMIT_PAGE
+SCRAPER_LIMIT_TIMEOUT
+SCRAPER_LIMIT_INACTIVITY
+SCRAPER_LOGGING_MAX_CRITICALITY
+SCRAPER_LOGGING_TYPES
+SCRAPER_LOGGING_CATEGORIES
+SCRAPER_LOGGING_IS_SIMPLE
+SCRAPER_MOCK_USER_PAUSE_DURATION
+SCRAPER_MOCK_USER_PAUSE_VARIATION_RANGE
+SCRAPER_STORE_CONTENT
+SCRAPER_SUCCESS_COMPLETION_RATE
+SCRAPER_END_PROCESS
 
 ## TODOs
 
