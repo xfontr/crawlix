@@ -37,7 +37,7 @@ const useSession = () => {
       });
     }, config.public.limit.timeout);
 
-    EventBus.once("SESSION:END", (status: Session["status"]) => {
+    EventBus.endSession.once((status: Session["status"]) => {
       if (status !== "TIMED_OUT") clearTimeout(globalTimeout);
     });
 
@@ -64,7 +64,7 @@ const useSession = () => {
 
     state.afterAllEffects = [];
 
-    EventBus.emit("SESSION:CLEAN_UP");
+    EventBus.sessionCleanUp.emit();
   };
 
   const loop = async (

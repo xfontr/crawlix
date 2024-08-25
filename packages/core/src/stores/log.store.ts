@@ -62,7 +62,7 @@ const useLogStore = createStore(
       state.totalLogs += 1;
       state.logs.push(logEntry);
 
-      if (consoleLog) EventBus.emit("LOGGER:LOG", structuredClone(logEntry));
+      if (consoleLog) EventBus.log.emit(structuredClone(logEntry));
       return logEntry;
     };
 
