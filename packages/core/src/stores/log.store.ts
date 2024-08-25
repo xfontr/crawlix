@@ -66,9 +66,7 @@ const useLogStore = createStore(
     const logAction = (action: ActionSyncInstance, log?: boolean) => {
       pushLog(
         {
-          name: action.name
-            ? `[ACTION #${action.index}] - ${action.name}`
-            : `[ACTION #${action.index}]`,
+          name: action.name ?? `Executed action n. '${action.index}'`,
           message: stringifyWithKeys({
             id: action.id,
             depth: action.depth,
@@ -86,7 +84,7 @@ const useLogStore = createStore(
     const logError = (error: CustomError, log?: boolean) => {
       pushLog(
         {
-          name: `[${error.criticality} ERROR] ${error?.name}`,
+          name: `Logged a '${error.criticality}' error: '${error.name}'`,
           message: stringifyWithKeys({
             id: error.id,
             message: error?.message,
@@ -105,9 +103,7 @@ const useLogStore = createStore(
     const logLocation = (location: LocationInstance, log?: boolean) => {
       pushLog(
         {
-          name: location?.name
-            ? `[LOCATION UPDATE] ${location.name}`
-            : "[LOCATION UPDATE]",
+          name: location?.name ?? "Location updated",
           message: stringifyWithKeys({
             id: location.id,
             page: location?.page,

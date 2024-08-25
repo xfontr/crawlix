@@ -5,10 +5,8 @@ import { useSessionStore } from ".";
 import { DeepPartial } from "../types/UtilityTypes";
 import deepmerge from "deepmerge";
 
-const v = (...keys: string[]): string => {
-  console.log(`SCRAPER_${keys.join("_")}`.toLocaleUpperCase());
-  return `SCRAPER_${keys.join("_")}`.toLocaleUpperCase();
-};
+const v = (...keys: string[]): string =>
+  `SCRAPER_${keys.join("_")}`.toLocaleUpperCase();
 
 const initialState: RuntimeConfigStore = {
   public: {

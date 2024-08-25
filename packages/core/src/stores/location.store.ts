@@ -35,7 +35,7 @@ const useLocationStore = createStore(
 
       return {
         id: lastLocation.id,
-        timestamp: generateTimestamp(),
+        timestamp: generateTimestamp(state.history[0]!.date),
         lastActionId: useActionStore().current.action.id,
         ...(fullInstance ? lastLocation : {}),
       } as FullInstance extends true ? LocationInstance : LocationStamp;
@@ -46,7 +46,7 @@ const useLocationStore = createStore(
         | Partial<LocationData>
         | ((current: Omit<LocationData, "name">) => Partial<LocationData>),
       log?: boolean,
-    ): void => {
+    ) => {
       const { id: actionId } = useActionStore().current.action;
 
       state.totalLocations += 1;
@@ -56,15 +56,17 @@ const useLocationStore = createStore(
         location = location({ page, url });
       }
 
+      const date = generateDate();
+
       const finalLocation: LocationInstance = {
         id: generateId(),
+        index: state.totalLocations,
         name: location?.name ?? "",
         url: location?.url ?? getCurrentLocation<true>(true).url,
         page: location?.page ?? getCurrentLocation<true>(true).page,
         errors: [],
-        index: state.totalLocations,
-        timestamp: generateTimestamp(),
-        date: generateDate(),
+        timestamp: generateTimestamp(state.history[0]?.date ?? date, date),
+        date,
         lastActionId: actionId,
       };
 
@@ -76,7 +78,7 @@ const useLocationStore = createStore(
     };
 
     const logLocationError = (errorId: string): void => {
-      state.history.at(-1)?.errors.push(errorId);
+      state.history.at(-1)!.errors.push(errorId);
     };
 
     return {

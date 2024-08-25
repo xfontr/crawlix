@@ -1,6 +1,6 @@
 import type { Session, SessionStore } from "../types";
 import { createStore } from "../utils/stores";
-import { generateId } from "../utils/utils";
+import { generateId, generateTimestamp } from "../utils/utils";
 import {
   useRuntimeConfigStore,
   useLocationStore,
@@ -50,12 +50,15 @@ const useSessionStore = createStore(
     };
 
     const end = (status?: Session["status"]): void => {
-      const isComplete = isSessionComplete();
-
-      state.status = status ?? isComplete ? "SUCCESS" : "INCOMPLETE";
+      state.status = status ?? isSessionComplete() ? "SUCCESS" : "INCOMPLETE";
       state.endLocation = getCurrentLocation();
-      state.duration =
-        +state.endLocation.timestamp - +state.startLocation!.timestamp;
+
+      state.duration = generateTimestamp(
+        current.history[0]!.date,
+        getCurrentLocation<true>(true).date,
+      );
+
+      console.log(state.duration);
     };
 
     const isSessionOver = (): boolean =>

@@ -53,7 +53,6 @@ SCRAPER_END_PROCESS
 ### Pending
 
 2.- Setting to enable text cleaning (trim, replace "\n" and "\t").ScraperTools module.
-8.- Timeout: either remove it, or update it as an attribute only used for pages
 9.- Pass a hook that takes care of the errors within the item, if possible
 
 ### Done
@@ -61,10 +60,3 @@ SCRAPER_END_PROCESS
 7.- Failed sessions in a row: Config that the consumer passes, informing the amount of failed sessions prior to the current one. The program will automatically reset the counter or increase it by one depending on the success of the session. After, implement a new notification type that will trigger when X amount of fails happen. Goal: inform the consumer that there is probably a critical error that is preventing the scrapper to run at all.
 8.- Premade config packages
 9.- Loading bar for the runInLoop function
-10.- Better history: store also the moment when the page was reached, and how many items did the scraper take out of that page
-11.- IMPORTANT: Spread the \_meta attribute and delete it and/or give the consumer the option to have it spread or as an attribute. This allows to have all the meta data in normal csv columns instead of an annoying stringified object, or instead of having to do additional absurd logic to spread it.
-
-12.- Add try catches and curate everything at Scraper.ts
-13.- For the sleeps, allow a random multiplier, so that the await times are even more realistic
-
-14.- For the postItem, have a curry function that allows to add only partial item data. And then the final postItem that submits the thing

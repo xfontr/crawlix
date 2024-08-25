@@ -3,10 +3,10 @@ import { FullFunction, FullObject } from "../types";
 
 export const generateId = (): string => randomUUID();
 
-export const generateTimestamp = (): string =>
-  new Date().getUTCMilliseconds().toString();
+export const generateTimestamp = (start: number, end?: number): number =>
+  (end ?? new Date().getTime()) - new Date(start).getTime();
 
-export const generateDate = (): string => new Date().getTime().toString();
+export const generateDate = (): number => new Date().getTime();
 
 export const randomize = (
   value: number,
