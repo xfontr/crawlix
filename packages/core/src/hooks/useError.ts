@@ -12,13 +12,12 @@ const useError = () => {
     const { criticality, type } = getLastError<true>();
 
     if (criticality === "FATAL") {
-      EventBus.emit(
-        "SESSION:END",
+      EventBus.endSession.emit(
         type === "TIMEOUT" ? "TIMED_OUT" : ("FATAL_ERROR" as Session["status"]),
       );
     }
 
-    if (criticality !== "LOW") EventBus.emit("SESSION:BLOCK_ACTIONS", depth);
+    if (criticality !== "LOW") EventBus.blockActions.emit(depth);
   };
 
   return { createError };

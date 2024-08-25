@@ -19,7 +19,7 @@ const useLocationStore = createStore(
     const handleMaxPage = (currentPage: number): void => {
       const { page } = useRuntimeConfigStore().current.public.limit;
 
-      if (page === currentPage) EventBus.emit("SESSION:END");
+      if (page === currentPage) EventBus.endSession.emit();
     };
 
     const getCurrentLocation = <FullInstance extends boolean = false>(

@@ -4,7 +4,7 @@ import {
   useRuntimeConfigStore,
   useSessionStore,
 } from "./stores";
-import type { FullFunction, Log, RuntimeConfig, Session } from "./types";
+import type { FullFunction, RuntimeConfig, Session } from "./types";
 import { cleanUpStores } from "./utils/stores";
 import EventBus from "./utils/EventBus";
 import { useAction, useSession, useLog } from "./hooks";
@@ -44,13 +44,13 @@ export const init = <T extends FullFunction = FullFunction>(
 
   const { log } = useLog();
 
-  EventBus.prependOnceListener("SESSION:END", (status?: Session["status"]) => {
-    EventBus.emit("SESSION:BLOCK_ACTIONS", 0);
+  EventBus.endSession.prependOnceListener((status?: Session["status"]) => {
+    EventBus.blockActions.emit(0);
     void end(status);
   });
-  EventBus.prependOnceListener("SESSION:CLEAN_UP", cleanUp);
-  EventBus.on("SESSION:BLOCK_ACTIONS", setBlockedThread);
-  EventBus.on("LOGGER:LOG", (logInstance: Log) => log(logInstance));
+  EventBus.sessionCleanUp.prependOnceListener(cleanUp);
+  EventBus.blockActions.on(setBlockedThread);
+  EventBus.log.on(log);
 
   ready();
 };
@@ -68,5 +68,5 @@ export const _dangerouslyAbort = (status?: Session["status"]): void => {
     });
   }
 
-  EventBus.emit("SESSION:END", status);
+  EventBus.app.end(status);
 };
