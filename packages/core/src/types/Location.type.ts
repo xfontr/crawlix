@@ -5,8 +5,8 @@ export interface LocationData {
 }
 
 export interface Location extends LocationData {
-  date: string;
-  timestamp: string;
+  date: number;
+  timestamp: number;
   lastActionId: string | undefined;
 }
 
@@ -18,7 +18,7 @@ export interface LocationMeta {
 
 export interface LocationStamp {
   id: string;
-  timestamp: string;
+  timestamp: number;
   lastActionId: string | undefined;
 }
 

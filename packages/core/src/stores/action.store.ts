@@ -5,13 +5,8 @@ import type {
   ActionSyncInstance,
 } from "../types";
 import { createStore } from "../utils/stores";
-import { generateId, stringifyWithKeys } from "../utils/utils";
-import {
-  useLocationStore,
-  useRuntimeConfigStore,
-  useLogStore,
-  useSessionStore,
-} from ".";
+import { generateId } from "../utils/utils";
+import { useLocationStore, useLogStore, useSessionStore } from ".";
 
 const useActionStore = createStore(
   "action",
@@ -22,10 +17,8 @@ const useActionStore = createStore(
     action: {} as ActionSyncInstance,
   } as ActionStore,
   (state) => {
-    const initAction = (action: ActionData, forceLog?: boolean) => {
+    const initAction = (action: ActionData, log?: boolean) => {
       let _tempSyncAction: ActionSyncInstance | undefined = undefined;
-
-      const { logging } = useRuntimeConfigStore().current.public;
 
       if (useSessionStore().isIDLE()) {
         throw new Error(
@@ -47,22 +40,7 @@ const useActionStore = createStore(
 
       state.action = _tempSyncAction;
 
-      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-      if (forceLog || action.depth <= logging.actionsDepth) {
-        useLogStore().pushLog({
-          name: action.name
-            ? `[ACTION #${state.totalActions}] - ${action.name}`
-            : `[ACTION #${state.totalActions}]`,
-          message: stringifyWithKeys({
-            id,
-            depth: action.depth,
-            mocked_duration: action.mockedDuration,
-          }),
-          type: "INFO",
-          // We add +1 to make sure that an action will never have the same criticality as a fatal error
-          criticality: action.depth + 1,
-        });
-      }
+      useLogStore().logAction(_tempSyncAction, log);
 
       return (asyncAction: ActionAsyncData): void => {
         state.actionLog.push({

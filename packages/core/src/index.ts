@@ -21,9 +21,9 @@ const { setBlockedThread } = useAction();
 
 const cleanUp = () => {
   EventBus.removeAllListeners();
-  cleanUpStores(config.public.endProcessIfOver);
+  cleanUpStores(config.public.endProcess);
 
-  if (config.public.endProcessIfOver) {
+  if (config.public.endProcess) {
     process.exit(0);
   }
 

@@ -24,7 +24,7 @@ const test01 = async () => {
   const { $a } = useAction();
   const { log } = useLog();
 
-  // Uncatched: We want the app to break if the scraper fails to init
+  // Uncaught: We want the app to break if the scraper fails to init
   const { page: $p } = await Scraper();
 
   (await $a(

@@ -6,12 +6,7 @@ import type {
 } from "../types";
 import { createStore } from "../utils/stores";
 import EventBus from "../utils/EventBus";
-import {
-  generateDate,
-  generateId,
-  generateTimestamp,
-  stringifyWithKeys,
-} from "../utils/utils";
+import { generateDate, generateId, generateTimestamp } from "../utils/utils";
 import { useRuntimeConfigStore, useLogStore, useActionStore } from ".";
 
 const useLocationStore = createStore(
@@ -40,7 +35,7 @@ const useLocationStore = createStore(
 
       return {
         id: lastLocation.id,
-        timestamp: generateTimestamp(),
+        timestamp: generateTimestamp(state.history[0]!.date),
         lastActionId: useActionStore().current.action.id,
         ...(fullInstance ? lastLocation : {}),
       } as FullInstance extends true ? LocationInstance : LocationStamp;
@@ -50,10 +45,9 @@ const useLocationStore = createStore(
       location?:
         | Partial<LocationData>
         | ((current: Omit<LocationData, "name">) => Partial<LocationData>),
-      forceLog?: boolean,
-    ): void => {
+      log?: boolean,
+    ) => {
       const { id: actionId } = useActionStore().current.action;
-      const { logging } = useRuntimeConfigStore().current.public;
 
       state.totalLocations += 1;
 
@@ -62,44 +56,29 @@ const useLocationStore = createStore(
         location = location({ page, url });
       }
 
-      const id = generateId();
-      const page = location?.page ?? getCurrentLocation<true>(true).page;
-      const url = location?.url ?? getCurrentLocation<true>(true).url;
+      const date = generateDate();
 
-      state.history.push({
-        id,
-        name: location?.name ?? "",
-        url,
-        page,
-        errors: [],
+      const finalLocation: LocationInstance = {
+        id: generateId(),
         index: state.totalLocations,
-        timestamp: generateTimestamp(),
-        date: generateDate(),
+        name: location?.name ?? "",
+        url: location?.url ?? getCurrentLocation<true>(true).url,
+        page: location?.page ?? getCurrentLocation<true>(true).page,
+        errors: [],
+        timestamp: generateTimestamp(state.history[0]?.date ?? date, date),
+        date,
         lastActionId: actionId,
-      });
+      };
 
-      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-      if (forceLog || logging.locationUpdate) {
-        const { pushLog } = useLogStore();
+      state.history.push(finalLocation);
 
-        pushLog({
-          name: location?.name
-            ? `[LOCATION UPDATE] ${location.name}`
-            : "[LOCATION UPDATE]",
-          message: stringifyWithKeys({
-            id,
-            page: location?.page,
-            url: location?.url,
-          }),
-          type: "INFO",
-        });
-      }
+      useLogStore().logLocation(finalLocation, log);
 
-      handleMaxPage(page);
+      handleMaxPage(finalLocation.page);
     };
 
     const logLocationError = (errorId: string): void => {
-      state.history.at(-1)?.errors.push(errorId);
+      state.history.at(-1)!.errors.push(errorId);
     };
 
     return {

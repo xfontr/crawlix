@@ -17,14 +17,14 @@ const useAction = () => {
   const { initAction, current } = useActionStore();
   const {
     mockUserPause: { duration, variationRange },
-    limit: { inactivityTimeout },
+    limit: { inactivity },
   } = useRuntimeConfigStore().current.public;
 
   let depth = 0;
 
   const $a = async <T>(
     callback: FullFunction<T>,
-    actionOptions: ActionCustomData & { forceLog?: boolean } = {},
+    actionOptions: ActionCustomData & { log?: boolean } = {},
   ) => {
     if (depth > blockedThread) return;
     const key = Symbol("action");
@@ -47,7 +47,7 @@ const useAction = () => {
         depth,
         mockedDuration: mockUserPause,
       },
-      !!actionOptions.forceLog,
+      !!actionOptions.log,
     );
 
     const [data, error] = await tryCatch(() => delay(callback, mockUserPause));
@@ -81,12 +81,12 @@ const useAction = () => {
           actionStack.clear();
           createError({
             name: "INACTIVITY",
-            message: `No activity detected for the last ${inactivityTimeout}ms`,
+            message: `No activity detected for the last ${inactivity}ms`,
             criticality: "FATAL",
             type: "INTERNAL",
           });
         }
-      }, inactivityTimeout);
+      }, inactivity);
     } else if (emptyStackTimeout) {
       clearTimeout(emptyStackTimeout);
     }

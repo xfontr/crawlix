@@ -1,40 +1,125 @@
-import type { LogData, LogStore } from "../types";
-import { useLocationStore } from ".";
-import { generateId } from "../utils/utils";
+import type {
+  ActionSyncInstance,
+  CustomError,
+  LocationInstance,
+  Log,
+  LogData,
+  LogStore,
+} from "../types";
+import { useLocationStore, useRuntimeConfigStore } from ".";
+import { generateId, stringifyWithKeys } from "../utils/utils";
 import EventBus from "../utils/EventBus";
 import { createStore } from "../utils/stores";
 
 const DEFAULT_OPTIONS: Required<Omit<LogData, "message">> = {
-  name: "LOG ENTRY",
+  name: "Unnamed",
   criticality: 5,
   type: "INFO",
+  category: "USER_INPUT",
 };
+
+const ERROR_CRITICALITY: Record<Required<CustomError>["criticality"], number> =
+  {
+    FATAL: 0,
+    HIGH: 1,
+    MEDIUM: 2,
+    LOW: 3,
+  };
 
 const useLogStore = createStore(
   "log",
   { totalLogs: 0, logs: [] } as LogStore,
   (state) => {
     const { getCurrentLocation } = useLocationStore();
+    const { logging } = useRuntimeConfigStore().current.public;
 
-    const pushLog = (baseLog: LogData | string, emit = true): void => {
-      state.totalLogs += 1;
-
-      const logEntry = {
+    const pushLog = (
+      baseLog: LogData | string,
+      forceLog?: boolean,
+      consoleLog = true,
+    ): Log | undefined => {
+      const logEntry: Log = {
         id: generateId(),
         ...DEFAULT_OPTIONS,
         ...(typeof baseLog === "string"
-          ? { message: baseLog }
+          ? { name: baseLog }
           : structuredClone(baseLog)),
         index: state.totalLogs,
         location: getCurrentLocation(),
       };
 
+      if (!forceLog)
+        if (
+          !(
+            logging.categories.includes(logEntry.category) &&
+            logging.types.includes(logEntry.type)
+          ) ||
+          logging.maxCriticality < logEntry.criticality
+        ) {
+          return;
+        }
+
+      state.totalLogs += 1;
       state.logs.push(logEntry);
 
-      if (emit) EventBus.emit("LOGGER:LOG", structuredClone(logEntry));
+      if (consoleLog) EventBus.emit("LOGGER:LOG", structuredClone(logEntry));
+      return logEntry;
     };
 
-    return { pushLog };
+    const logAction = (action: ActionSyncInstance, log?: boolean) => {
+      pushLog(
+        {
+          name: action.name ?? `Executed action n. '${action.index}'`,
+          message: stringifyWithKeys({
+            id: action.id,
+            depth: action.depth,
+            mocked_duration: action.mockedDuration,
+          }),
+          type: "INFO",
+          // +1 ensures that an action criticality won't equal a fatal error
+          criticality: action.depth + 1,
+          category: "ACTION",
+        },
+        log,
+      );
+    };
+
+    const logError = (error: CustomError, log?: boolean) => {
+      pushLog(
+        {
+          name: `Logged a '${error.criticality}' error: '${error.name}'`,
+          message: stringifyWithKeys({
+            id: error.id,
+            message: error?.message,
+            stack: error?.stack,
+          }),
+          type: "ERROR",
+          ...(error.criticality
+            ? { criticality: ERROR_CRITICALITY[error.criticality] }
+            : {}),
+          category: "ERROR",
+        },
+        log,
+      );
+    };
+
+    const logLocation = (location: LocationInstance, log?: boolean) => {
+      pushLog(
+        {
+          name: location?.name ?? "Location updated",
+          message: stringifyWithKeys({
+            id: location.id,
+            page: location?.page,
+            url: location?.url,
+          }),
+          type: "INFO",
+          category: "LOCATION",
+        },
+        log,
+      );
+    };
+
+    return { pushLog, logAction, logError, logLocation };
   },
 );
 

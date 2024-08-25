@@ -1,22 +1,23 @@
 import { FullFunction, Log } from "../types";
 
-const headLog = ({ name, message }: Log): string => `[${name}] ${message}`;
+const SIMPLE_INSTANCE_LENGTH = 2;
+
+const headLog = ({ name, message, category }: Log): string => {
+  if (!message) return `${category}: ${name}`;
+  return `${name}. Details: ${message}`;
+};
 
 const bodyLog = (logInstance: Log): string => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { message, name, ...rest } = logInstance;
+  const { name, message, ...rest } = logInstance;
+
+  if (Object.keys(rest).length === SIMPLE_INSTANCE_LENGTH) return "";
 
   return JSON.stringify(rest, null, 4);
 };
 
-export const consoleLog = (logInstance: Log | string): void => {
-  if (
-    typeof logInstance !== "object" ||
-    (typeof logInstance === "object" && !logInstance.type)
-  ) {
-    console.log(logInstance);
-    return;
-  }
+export const consoleLog = (logInstance: Log): void => {
+  if (!logInstance.type) return;
 
   const options: Record<Log["type"], FullFunction> = {
     DEBUG: console.debug,

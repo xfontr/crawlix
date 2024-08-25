@@ -3,14 +3,11 @@ import type { CustomErrorData, Session } from "../types";
 import EventBus from "../utils/EventBus";
 
 const useError = () => {
-  const createError = (
-    error: CustomErrorData = {},
-    forceLog?: boolean,
-  ): void => {
+  const createError = (error: CustomErrorData = {}, log?: boolean): void => {
     const { pushError, getLastError } = useErrorStore();
     const { depth } = useActionStore().current.action;
 
-    pushError({ ...error }, forceLog);
+    pushError({ ...error }, log);
 
     const { criticality, type } = getLastError<true>();
 

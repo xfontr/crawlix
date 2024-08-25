@@ -1,6 +1,6 @@
 import type { Session, SessionStore } from "../types";
 import { createStore } from "../utils/stores";
-import { generateId } from "../utils/utils";
+import { generateId, generateTimestamp } from "../utils/utils";
 import {
   useRuntimeConfigStore,
   useLocationStore,
@@ -43,20 +43,20 @@ const useSessionStore = createStore(
     const isIDLE = (): boolean => state.status === "IDLE";
 
     const isSessionComplete = (): boolean => {
-      const { completionRateToSuccess } =
-        useRuntimeConfigStore().current.public;
+      const { successCompletionRate } = useRuntimeConfigStore().current.public;
       const { fullyCompleteItemsRate } = useItemStore().current;
 
-      return completionRateToSuccess >= fullyCompleteItemsRate;
+      return successCompletionRate >= fullyCompleteItemsRate;
     };
 
     const end = (status?: Session["status"]): void => {
-      const isComplete = isSessionComplete();
-
-      state.status = status ?? isComplete ? "SUCCESS" : "INCOMPLETE";
+      state.status = status ?? isSessionComplete() ? "SUCCESS" : "INCOMPLETE";
       state.endLocation = getCurrentLocation();
-      state.duration =
-        +state.endLocation.timestamp - +state.startLocation!.timestamp;
+
+      state.duration = generateTimestamp(
+        current.history[0]!.date,
+        getCurrentLocation<true>(true).date,
+      );
     };
 
     const isSessionOver = (): boolean =>
