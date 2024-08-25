@@ -48,14 +48,16 @@ const useLogStore = createStore(
         location: getCurrentLocation(),
       };
 
-      if (
-        !forceLog &&
-        !logging.categories.includes(logEntry.category) &&
-        !logging.types.includes(logEntry.type) &&
-        logging.maxCriticality <= logEntry.criticality
-      ) {
-        return;
-      }
+      if (!forceLog)
+        if (
+          !(
+            logging.categories.includes(logEntry.category) &&
+            logging.types.includes(logEntry.type)
+          ) ||
+          logging.maxCriticality < logEntry.criticality
+        ) {
+          return;
+        }
 
       state.totalLogs += 1;
       state.logs.push(logEntry);
