@@ -12,7 +12,7 @@ import EventBus from "../utils/EventBus";
 import { createStore } from "../utils/stores";
 
 const DEFAULT_OPTIONS: Required<Omit<LogData, "message">> = {
-  name: "LOG ENTRY",
+  name: "Unnamed",
   criticality: 5,
   type: "INFO",
   category: "USER_INPUT",
@@ -36,12 +36,13 @@ const useLogStore = createStore(
     const pushLog = (
       baseLog: LogData | string,
       forceLog?: boolean,
+      consoleLog = true,
     ): Log | undefined => {
       const logEntry: Log = {
         id: generateId(),
         ...DEFAULT_OPTIONS,
         ...(typeof baseLog === "string"
-          ? { message: baseLog }
+          ? { name: baseLog }
           : structuredClone(baseLog)),
         index: state.totalLogs,
         location: getCurrentLocation(),
@@ -49,9 +50,9 @@ const useLogStore = createStore(
 
       if (
         !forceLog &&
-        (logging.categories.includes(logEntry.category) ||
-          logging.types.includes(logEntry.type) ||
-          logEntry.criticality <= logging.maxCriticality)
+        !logging.categories.includes(logEntry.category) &&
+        !logging.types.includes(logEntry.type) &&
+        logging.maxCriticality <= logEntry.criticality
       ) {
         return;
       }
@@ -59,7 +60,7 @@ const useLogStore = createStore(
       state.totalLogs += 1;
       state.logs.push(logEntry);
 
-      EventBus.emit("LOGGER:LOG", structuredClone(logEntry));
+      if (consoleLog) EventBus.emit("LOGGER:LOG", structuredClone(logEntry));
       return logEntry;
     };
 
@@ -110,7 +111,7 @@ const useLogStore = createStore(
             url: location?.url,
           }),
           type: "INFO",
-          category: "USER_INPUT",
+          category: "LOCATION",
         },
         log,
       );

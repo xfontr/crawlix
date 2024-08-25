@@ -57,8 +57,6 @@ const useSessionStore = createStore(
         current.history[0]!.date,
         getCurrentLocation<true>(true).date,
       );
-
-      console.log(state.duration);
     };
 
     const isSessionOver = (): boolean =>
