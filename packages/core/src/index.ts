@@ -68,5 +68,5 @@ export const _dangerouslyAbort = (status?: Session["status"]): void => {
     });
   }
 
-  EventBus.app.end(status);
+  EventBus.endSession.emit(status);
 };

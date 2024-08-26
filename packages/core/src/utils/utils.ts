@@ -15,11 +15,11 @@ export const randomize = (
 
 export const tryCatch = async <R = unknown, E = Error>(
   callback: FullFunction<R>,
-): Promise<[R, void] | [void, E]> => {
+): Promise<[R, undefined] | [undefined, E]> => {
   try {
     const response: void | R = await callback();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return [response!, undefined];
+    return [response as R, undefined];
   } catch (error) {
     return [undefined, error as E];
   }

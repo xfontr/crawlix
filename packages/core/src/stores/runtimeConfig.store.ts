@@ -72,7 +72,6 @@ const useRuntimeConfigStore = createStore(
   (state) => {
     const setRuntimeConfig = (configs?: DeepPartial<RuntimeConfig>) => {
       if (!useSessionStore().isIDLE()) return;
-
       state.public = Object.freeze(
         deepmerge(state.public, configs as RuntimeConfig, {
           arrayMerge: (_, sourceArray) => sourceArray,

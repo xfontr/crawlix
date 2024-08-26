@@ -76,8 +76,7 @@ const useLogStore = createStore(
             mocked_duration: action.mockedDuration,
           }),
           type: "INFO",
-          // +1 ensures that an action criticality won't equal a fatal error
-          criticality: action.depth + 1,
+          criticality: action.depth + 1, // So that it won't be as critical as a fatal error
           category: "ACTION",
         },
         log,
