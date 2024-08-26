@@ -10,12 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@scraper/api": "workspace:*",
+    "@scraper/puppeteer": "workspace:*",
     "@scraper/core": "workspace:*",
     "nodemon": "^3.0.1",
-    "puppeteer": "^23.0.2",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "serve": "^14.2.3"
   }
 }

@@ -1,12 +1,7 @@
-import Puppeteer from "@scraper/api";
-import type { Page } from "puppeteer";
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import Puppeteer from "@scraper/puppeteer";
 
 const Scraper = async () => {
-  puppeteer.use(StealthPlugin());
-
-  return await Puppeteer<Page>(puppeteer, {
+  return await Puppeteer({
     abortImages: true,
     rotateUserAgent: true,
     executablePath:
