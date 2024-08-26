@@ -1,6 +1,7 @@
 {
-  "include": ["src/**/*", "src/index.ts", "src/*", "index.ts"],
+  "include": ["src/**/*", "src/*", "index.ts"],
   "compilerOptions": {
+    "outDir": "dist",
     "target": "es2016",
     "module": "node16",
     "lib": ["ESNext"],
@@ -19,10 +20,6 @@
     "resolveJsonModule": true,
     // Generate d.ts files
     "declaration": true,
-    // Tells TypeScript to read JS files, as normally they are ignored as source files
-    // "allowJs": true,
-    // This compiler run should only output d.ts files
-    "emitDeclarationOnly": true,
     // go to js file when using IDE functions like "Go to Definition" in VSCode
     "declarationMap": true,
     "types": ["jest", "node"]

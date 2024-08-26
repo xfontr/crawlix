@@ -13,11 +13,41 @@ let blockedThread = MAX_THREAD_DEPTH;
 
 const actionStack = new Set<symbol>();
 
+const trackActivity = () => {
+  let key: symbol | undefined = Symbol("action");
+  actionStack.add(key);
+
+  return () => {
+    actionStack.delete(key!);
+    key = undefined; // GC
+
+    let emptyStackTimeout;
+
+    if (!actionStack.size) {
+      const { limit } = useRuntimeConfigStore().current.public;
+
+      emptyStackTimeout = setTimeout(() => {
+        if (actionStack.size) return;
+
+        actionStack.clear();
+
+        useError().createError({
+          name: "INACTIVITY",
+          message: `No activity detected for the last ${limit.inactivity}ms`,
+          criticality: "FATAL",
+          type: "INTERNAL",
+        });
+      }, limit.inactivity);
+    }
+
+    if (actionStack.size && emptyStackTimeout) clearTimeout(emptyStackTimeout);
+  };
+};
+
 const useAction = () => {
   const { initAction, current } = useActionStore();
   const {
     mockUserPause: { duration, variationRange },
-    limit: { inactivity },
   } = useRuntimeConfigStore().current.public;
 
   let depth = 0;
@@ -27,10 +57,9 @@ const useAction = () => {
     actionOptions: ActionCustomData & { log?: boolean } = {},
   ) => {
     if (depth > blockedThread) return;
-    const key = Symbol("action");
     const { createError } = useError();
-    actionStack.add(key);
 
+    const endTracking = trackActivity();
     setBlockedThread(MAX_THREAD_DEPTH);
 
     const mockUserPause = randomize(duration, variationRange);
@@ -71,25 +100,7 @@ const useAction = () => {
     }
 
     depth -= 1;
-    actionStack.delete(key);
-
-    let emptyStackTimeout;
-
-    if (!actionStack.size) {
-      emptyStackTimeout = setTimeout(() => {
-        if (!actionStack.size) {
-          actionStack.clear();
-          createError({
-            name: "INACTIVITY",
-            message: `No activity detected for the last ${inactivity}ms`,
-            criticality: "FATAL",
-            type: "INTERNAL",
-          });
-        }
-      }, inactivity);
-    } else if (emptyStackTimeout) {
-      clearTimeout(emptyStackTimeout);
-    }
+    endTracking();
 
     return data;
   };
