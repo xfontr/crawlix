@@ -2,8 +2,8 @@
   "name": "@scraper/core",
   "description": "Scraper",
   "version": "1.0.0",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": "Xifré Font",
   "license": "MIT",
   "scripts": {
