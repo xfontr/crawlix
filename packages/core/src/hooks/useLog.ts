@@ -13,14 +13,18 @@ const useLog = () => {
 
     if (!logResult) return;
 
+    print(logResult);
+  };
+
+  const print = (logInstance: LogData): void => {
     rawLog(
-      logging.isSimple
+      logging.isSimple.includes(logInstance.category!)
         ? {
-            category: logResult.category,
-            type: logResult.type,
-            name: logResult.name ?? logResult.message,
+            category: logInstance.category,
+            type: logInstance.type,
+            body: `[${logInstance.type}] ${logInstance.category}: ${logInstance.name} - ${logInstance.message}`,
           }
-        : logResult,
+        : logInstance,
     );
   };
 
@@ -28,7 +32,7 @@ const useLog = () => {
     rawLog = newLogger;
   };
 
-  return { log, rawLog, setLogger };
+  return { log, print, rawLog, setLogger };
 };
 
 export default useLog;
