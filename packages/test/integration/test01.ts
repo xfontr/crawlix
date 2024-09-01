@@ -62,8 +62,6 @@ const test01 = async () => {
 
               location.goTo($p.url(), "Item page");
 
-              const addAttribute = useItems().pushItem();
-
               const author = await $a(
                 async () => {
                   return await $p.$eval(
@@ -74,7 +72,7 @@ const test01 = async () => {
                 { name: "Author tag" },
               );
 
-              addAttribute({ author });
+              const { addAttribute, post } = useItems().initItem({ author });
 
               const price = await $a(
                 async () => {
@@ -98,9 +96,9 @@ const test01 = async () => {
                 { name: "Title tag" },
               );
 
-              const push = addAttribute({ title });
+              addAttribute({ title });
 
-              push();
+              post();
 
               await $a(
                 async () => {

@@ -4,6 +4,7 @@ import {
   useSessionStore,
 } from "../stores";
 import type {
+  ActionCustomData,
   FullFunction,
   FullFunctionWithApp,
   FullFunctionWithIndex,
@@ -12,7 +13,7 @@ import type {
 import { outputStores } from "../utils/stores";
 import EventBus from "../utils/EventBus";
 import { runAfterAllInSeq, promiseLoop } from "../utils/promises";
-import { useAction, useError } from ".";
+import { useAction, useError, useLog } from ".";
 
 const state = {
   beforeAllEffects: [] as FullFunction[],
@@ -23,6 +24,7 @@ const useSession = () => {
   const sessionStore = useSessionStore();
   const config = useRuntimeConfigStore().current;
   const locationStore = useLocationStore();
+  const { log } = useLog();
   const { $a } = useAction();
 
   const run = () => {
@@ -68,11 +70,20 @@ const useSession = () => {
   };
 
   const loop = async (
-    callback: FullFunctionWithIndex,
     breakingCondition: (index: number) => boolean,
+    callback: FullFunctionWithIndex,
+    options?: ActionCustomData,
   ): Promise<void> => {
-    await $a(() => promiseLoop(callback, breakingCondition), {
-      name: "LOOP",
+    const index = await $a(
+      () => promiseLoop(callback, breakingCondition),
+      options,
+    );
+
+    log({
+      category: "ACTION",
+      type: "INFO",
+      name: "Loop ends",
+      message: `Loop with name '${options?.name}' has been fulfilled at index '${index}'`,
     });
   };
 

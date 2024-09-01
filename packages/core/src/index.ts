@@ -42,7 +42,7 @@ export const init = <T extends FullFunction = FullFunction>(
 
   if (logger) useLog().setLogger(logger);
 
-  const { log } = useLog();
+  const { print } = useLog();
 
   EventBus.endSession.prependOnceListener((status?: Session["status"]) => {
     EventBus.blockActions.emit(0);
@@ -50,7 +50,7 @@ export const init = <T extends FullFunction = FullFunction>(
   });
   EventBus.sessionCleanUp.prependOnceListener(cleanUp);
   EventBus.blockActions.on(setBlockedThread);
-  EventBus.log.on(log);
+  EventBus.log.on(print);
 
   ready();
 };

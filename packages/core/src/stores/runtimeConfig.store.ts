@@ -35,7 +35,11 @@ const initialState: RuntimeConfigStore = {
         ["USER_INPUT", "ERROR", "ACTION", "LOCATION"],
         { type: "array" },
       ),
-      isSimple: envVar(v("logging", "is_simple"), false),
+      isSimple: envVar(
+        v("logging", "is_simple"),
+        ["USER_INPUT", "ACTION", "LOCATION"],
+        { type: "array" },
+      ),
     },
     mockUserPause: {
       duration: envVar(v("mock_user_pause", "duration"), 500),
