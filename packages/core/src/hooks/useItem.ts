@@ -1,9 +1,9 @@
 import { useItemStore } from "../stores";
 
 const useItems = () => {
-  const { pushItem } = useItemStore();
+  const { initItem } = useItemStore();
 
-  return { pushItem };
+  return { initItem };
 };
 
 export default useItems;

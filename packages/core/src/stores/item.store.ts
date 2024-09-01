@@ -8,6 +8,7 @@ import type {
 import { createStore } from "../utils/stores";
 import { generateId, getPercentage } from "../utils/utils";
 import { useLocationStore } from ".";
+import { ASCII_CHARS, WHITE_SPACES } from "../configs/constants";
 
 const useItemStore = createStore(
   "item",
@@ -45,16 +46,34 @@ const useItemStore = createStore(
       return { isComplete, completion };
     };
 
-    const pushItem = <T extends FullObject>() => {
-      const itemInProgress = { value: {} as Partial<ItemData<T>> };
+    const initItem = <T extends FullObject>(
+      attributes: Partial<ItemData<T>> = {},
+    ) => {
+      const itemInProgress = { value: attributes };
 
-      return (attributes: Partial<ItemData<T>>) => {
-        itemInProgress.value = {
-          ...itemInProgress.value,
-          ...structuredClone(attributes),
-        };
-
-        return (): void => {
+      return {
+        addAttribute: (attributes: Partial<ItemData<T>>): void => {
+          itemInProgress.value = {
+            ...itemInProgress.value,
+            ...structuredClone(
+              Object.entries(attributes).reduce(
+                (all, [key, value]) => ({
+                  ...all,
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  [key]:
+                    typeof value === "string"
+                      ? value
+                          .replace(ASCII_CHARS, "")
+                          .replace(WHITE_SPACES, " ")
+                          .trim()
+                      : value,
+                }),
+                {},
+              ),
+            ),
+          };
+        },
+        post: (): void => {
           state.totalItems += 1;
 
           const itemErrors = computeErrors(itemInProgress.value);
@@ -84,13 +103,11 @@ const useItemStore = createStore(
               state.incompleteItems,
             );
           }
-        };
+        },
       };
     };
 
-    return {
-      pushItem,
-    };
+    return { initItem };
   },
 );
 
