@@ -15,6 +15,7 @@ const initialState: RuntimeConfigStore = {
       env: envVar("NODE_ENV", "dev"),
     },
     offset: {
+      index: envVar(v("offset", "index"), 0),
       page: envVar(v("offset", "page"), 0),
       url: envVar(v("offset", "url"), ""),
     },
@@ -52,9 +53,9 @@ const initialState: RuntimeConfigStore = {
       ),
     },
     output: {
-      isSimple: envVar(v("is_simple"), [], { type: "array" }),
+      isSimple: envVar(v("output", "is_simple"), [], { type: "array" }),
       include: envVar(
-        v("include"),
+        v("output", "include"),
         [
           "action",
           "runtimeConfig",
@@ -66,7 +67,7 @@ const initialState: RuntimeConfigStore = {
         ],
         { type: "array" },
       ),
-      itemWithMetaLayer: envVar(v("item_with_meta_layer"), true),
+      itemWithMetaLayer: envVar(v("output", "item_with_meta_layer"), true),
     },
     fatalErrorDepth: envVar("fatal_error_depth", 0),
     successCompletionRate: envVar(v("success_completion_rate"), 95),

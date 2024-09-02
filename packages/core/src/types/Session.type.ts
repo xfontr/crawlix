@@ -5,6 +5,7 @@ export interface SessionMeta {
   startLocation: LocationStamp;
   endLocation: LocationStamp;
   duration: number;
+  itemRange: [number, number];
 }
 
 export interface SessionStatus {

@@ -10,7 +10,7 @@ app.init({
     duration: 0,
     variationRange: [0, 0],
   },
-  logging: { isSimple: true, categories: ["USER_INPUT"] },
+  logging: { isSimple: ["USER_INPUT"], categories: ["USER_INPUT"] },
 });
 
 export const SELECTORS = {

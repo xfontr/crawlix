@@ -5,6 +5,7 @@ export interface RuntimeConfig {
   node: { env: "prod" | "production" | "dev" | "development" };
   model: string;
   offset: {
+    index: number;
     page: number;
     url: string;
   };

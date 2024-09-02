@@ -41,7 +41,7 @@ const useItemStore = createStore(
           state.totalItems += 1;
 
           const meta = getItemMeta(
-            state.totalItems,
+            state.totalItems + config.offset.index,
             itemInProgress.value,
             getCurrentLocation(),
             config.output.itemWithMetaLayer,
