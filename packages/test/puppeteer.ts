@@ -2,7 +2,7 @@ import Puppeteer from "@scraper/puppeteer";
 
 const Scraper = async () => {
   return await Puppeteer({
-    abortImages: true,
+    abortImages: false,
     executablePath:
       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   });

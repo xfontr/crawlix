@@ -15,6 +15,7 @@ const initialState: RuntimeConfigStore = {
       env: envVar("NODE_ENV", "dev"),
     },
     offset: {
+      index: envVar(v("offset", "index"), 0),
       page: envVar(v("offset", "page"), 0),
       url: envVar(v("offset", "url"), ""),
     },
@@ -46,24 +47,26 @@ const initialState: RuntimeConfigStore = {
       variationRange: envVar(
         v("mock_user_pause", "variation_range"),
         [0.6, 1],
-        {
-          type: "array",
-        },
+        { type: "array" },
       ),
     },
-    storeContent: envVar(
-      v("store_content"),
-      [
-        "action",
-        "runtimeConfig",
-        "error",
-        "item",
-        "session",
-        "location",
-        "log",
-      ],
-      { type: "array" },
-    ),
+    output: {
+      schema: envVar(v("output", "schema"), "RELATIONAL"),
+      include: envVar(
+        v("output", "include"),
+        [
+          "action",
+          "runtimeConfig",
+          "error",
+          "item",
+          "session",
+          "location",
+          "log",
+        ],
+        { type: "array" },
+      ),
+      itemWithMetaLayer: envVar(v("output", "item_with_meta_layer"), true),
+    },
     fatalErrorDepth: envVar("fatal_error_depth", 0),
     successCompletionRate: envVar(v("success_completion_rate"), 95),
     endProcess: envVar(v("end_process"), true),
@@ -83,7 +86,9 @@ const useRuntimeConfigStore = createStore(
       ) as RuntimeConfig;
     };
 
-    return { setRuntimeConfig };
+    const isRelational = () => state.public.output.schema === "RELATIONAL";
+
+    return { setRuntimeConfig, isRelational };
   },
 );
 

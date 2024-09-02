@@ -45,13 +45,13 @@ export const createStore = <T, R extends object = object>(
 
 export const outputStores = (
   model: string,
-  storeContent: RuntimeConfigStore["public"]["storeContent"],
+  include: RuntimeConfigStore["public"]["output"]["include"],
 ): string =>
   JSON.stringify(
-    storeContent.reduce(
-      (allStores, currentStore) => ({
+    include.reduce(
+      (allStores, current) => ({
         ...allStores,
-        [currentStore]: store[currentStore as keyof typeof store],
+        [current]: store[current as keyof typeof store],
       }),
       { model },
     ),

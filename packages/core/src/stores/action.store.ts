@@ -5,8 +5,8 @@ import type {
   ActionSyncInstance,
 } from "../types";
 import { createStore } from "../utils/stores";
-import { generateId } from "../utils/utils";
 import { useLocationStore, useLogStore, useSessionStore } from ".";
+import { getMeta } from "../utils/metaData";
 
 const useActionStore = createStore(
   "action",
@@ -29,12 +29,9 @@ const useActionStore = createStore(
       state.totalActions += 1;
       state.totalMockedPausesDuration += action.mockedDuration ?? 0;
 
-      const id = generateId();
-
       _tempSyncAction = {
-        index: state.totalActions,
+        ...getMeta(state.totalActions),
         location: useLocationStore().getCurrentLocation(),
-        id,
         ...action,
       };
 

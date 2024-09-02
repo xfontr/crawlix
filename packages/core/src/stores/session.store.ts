@@ -1,12 +1,12 @@
 import type { Session, SessionStore } from "../types";
 import { createStore } from "../utils/stores";
-import { generateId, generateTimestamp } from "../utils/utils";
 import {
   useRuntimeConfigStore,
   useLocationStore,
   useItemStore,
   useActionStore,
 } from ".";
+import { generateTimestamp, getMeta } from "../utils/metaData";
 
 const useSessionStore = createStore(
   "session",
@@ -15,6 +15,15 @@ const useSessionStore = createStore(
   } as Partial<SessionStore> & Required<Pick<SessionStore, "status">>,
   (state) => {
     const { getCurrentLocation, current } = useLocationStore();
+    const {
+      isRelational,
+      current: {
+        public: {
+          successCompletionRate,
+          offset: { index },
+        },
+      },
+    } = useRuntimeConfigStore();
 
     const init = (): void => {
       if (state.status !== "READY") {
@@ -27,12 +36,13 @@ const useSessionStore = createStore(
       state.status = "IN_PROGRESS";
 
       const startLocation = current.history[0]!;
+      const { action: lastAction } = useActionStore().current;
 
-      state.id = generateId();
+      state.id = getMeta().id;
       state.startLocation = {
         id: startLocation.id,
         timestamp: startLocation.timestamp,
-        lastActionId: useActionStore().current.action.id,
+        lastAction: isRelational() ? lastAction.id : lastAction,
       };
     };
 
@@ -43,7 +53,6 @@ const useSessionStore = createStore(
     const isIDLE = (): boolean => state.status === "IDLE";
 
     const isSessionComplete = (): boolean => {
-      const { successCompletionRate } = useRuntimeConfigStore().current.public;
       const { fullyCompleteItemsRate } = useItemStore().current;
 
       return successCompletionRate >= fullyCompleteItemsRate;
@@ -52,11 +61,14 @@ const useSessionStore = createStore(
     const end = (status?: Session["status"]): void => {
       state.status = status ?? isSessionComplete() ? "SUCCESS" : "INCOMPLETE";
       state.endLocation = getCurrentLocation();
+      const lastItem = useItemStore().current.totalItems;
 
       state.duration = generateTimestamp(
         current.history[0]!.date,
-        getCurrentLocation<true>(true).date,
+        getCurrentLocation(true).date,
       );
+
+      state.itemRange = [index, lastItem + index];
     };
 
     const isSessionOver = (): boolean =>

@@ -7,3 +7,4 @@ export * from "./Object.type";
 export * from "./RuntimeConfig.type";
 export * from "./Session.type";
 export * from "./Store.type";
+export * from "./Meta.type";

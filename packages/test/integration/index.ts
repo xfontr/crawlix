@@ -5,12 +5,14 @@ app.init({
   endProcess: false,
   offset: { page: 0, url: "http://localhost:3000/" },
   limit: { page: 1 },
-  storeContent: ["action", "error", "item", "location", "session", "log"],
+  output: {
+    include: ["action", "error", "item", "location", "session", "log"],
+  },
   mockUserPause: {
     duration: 0,
     variationRange: [0, 0],
   },
-  logging: { isSimple: true, categories: ["USER_INPUT"] },
+  logging: { isSimple: ["USER_INPUT"], categories: ["USER_INPUT"] },
 });
 
 export const SELECTORS = {

@@ -7,9 +7,10 @@ import type {
   LogStore,
 } from "../types";
 import { useLocationStore, useRuntimeConfigStore } from ".";
-import { generateId, stringifyWithKeys } from "../utils/utils";
+import { stringifyWithKeys } from "../utils/utils";
 import EventBus from "../utils/EventBus";
 import { createStore } from "../utils/stores";
+import { getMeta } from "../utils/metaData";
 
 const DEFAULT_OPTIONS: Required<Omit<LogData, "message">> = {
   name: "Unnamed",
@@ -39,12 +40,11 @@ const useLogStore = createStore(
       consoleLog = true,
     ): Log | undefined => {
       const logEntry: Log = {
-        id: generateId(),
+        ...getMeta(state.totalLogs),
         ...DEFAULT_OPTIONS,
         ...(typeof baseLog === "string"
           ? { name: baseLog }
           : structuredClone(baseLog)),
-        index: state.totalLogs,
         location: getCurrentLocation(),
       };
 
