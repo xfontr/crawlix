@@ -1,4 +1,5 @@
 import type { LocationStamp } from "./Location.type";
+import type { Meta } from "./Meta.type";
 
 export interface ActionCustomData {
   name?: string;
@@ -15,13 +16,13 @@ export interface ActionAsyncData {
 }
 
 export interface ActionLocation {
-  index: number;
+  index: Meta["index"];
   depth: number;
 }
 
 export type ActionSyncInstance = ActionData &
   ActionLocation & {
-    id: string;
+    id: Meta["id"];
     location: LocationStamp;
   };
 

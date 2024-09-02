@@ -1,4 +1,5 @@
 import type {
+  CustomError,
   LocationData,
   LocationInstance,
   LocationStamp,
@@ -6,8 +7,8 @@ import type {
 } from "../types";
 import { createStore } from "../utils/stores";
 import EventBus from "../utils/EventBus";
-import { generateDate, generateId, generateTimestamp } from "../utils/utils";
 import { useRuntimeConfigStore, useLogStore, useActionStore } from ".";
+import { generateDate, generateTimestamp, getMeta } from "../utils/metaData";
 
 const useLocationStore = createStore(
   "location",
@@ -16,6 +17,8 @@ const useLocationStore = createStore(
     history: [],
   } as LocationStore,
   (state) => {
+    const { isRelational } = useRuntimeConfigStore();
+
     const handleMaxPage = (currentPage: number): void => {
       const { page } = useRuntimeConfigStore().current.public.limit;
 
@@ -23,8 +26,9 @@ const useLocationStore = createStore(
     };
 
     const getCurrentLocation = <FullInstance extends boolean = false>(
-      fullInstance?: boolean,
+      fullInstance?: FullInstance,
     ) => {
+      const { action: lastAction } = useActionStore().current;
       const lastLocation = state.history.at(-1);
 
       if (!lastLocation) {
@@ -36,8 +40,9 @@ const useLocationStore = createStore(
       return {
         id: lastLocation.id,
         timestamp: generateTimestamp(state.history[0]!.date),
-        lastActionId: useActionStore().current.action.id,
-        ...(fullInstance ? lastLocation : {}),
+        lastAction: isRelational() ? lastAction.id : lastAction,
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        ...(fullInstance || !isRelational() ? lastLocation : {}),
       } as FullInstance extends true ? LocationInstance : LocationStamp;
     };
 
@@ -47,27 +52,25 @@ const useLocationStore = createStore(
         | ((current: Omit<LocationData, "name">) => Partial<LocationData>),
       log?: boolean,
     ) => {
-      const { id: actionId } = useActionStore().current.action;
+      const { action: lastAction } = useActionStore().current;
 
       state.totalLocations += 1;
 
       if (typeof location === "function") {
-        const { page, url } = getCurrentLocation<true>(true);
+        const { page, url } = getCurrentLocation(true);
         location = location({ page, url });
       }
 
       const date = generateDate();
 
       const finalLocation: LocationInstance = {
-        id: generateId(),
-        index: state.totalLocations,
+        ...getMeta(state.totalLocations),
         name: location?.name ?? "",
-        url: location?.url ?? getCurrentLocation<true>(true).url,
-        page: location?.page ?? getCurrentLocation<true>(true).page,
-        errors: [],
+        url: location?.url ?? getCurrentLocation(true).url,
+        page: location?.page ?? getCurrentLocation(true).page,
         timestamp: generateTimestamp(state.history[0]?.date ?? date, date),
         date,
-        lastActionId: actionId,
+        lastAction: isRelational() ? lastAction.id : lastAction,
       };
 
       state.history.push(finalLocation);
@@ -77,8 +80,13 @@ const useLocationStore = createStore(
       handleMaxPage(finalLocation.page);
     };
 
-    const logLocationError = (errorId: string): void => {
-      state.history.at(-1)!.errors.push(errorId);
+    const logLocationError = (customError: CustomError): void => {
+      const lastLocation = state.history.at(-1)!;
+      const error = isRelational() ? customError.id : customError;
+
+      if (!lastLocation.errors) lastLocation.errors = [];
+
+      lastLocation.errors.push(structuredClone(error));
     };
 
     return {

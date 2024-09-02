@@ -49,9 +49,9 @@ export interface RuntimeConfig {
      */
     include: StoreNames[];
     /**
-     * @description Reduces the amount of detail found in each registry
+     * @description How is the output data structured
      */
-    isSimple: StoreNames[];
+    schema: "MINIMAL" | "RELATIONAL" | "FULL";
     /**
      * @description If true, each item will show the meta data in a separate object (_meta).
      * When false, al information is stored at the same level

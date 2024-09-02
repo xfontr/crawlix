@@ -54,6 +54,7 @@ SCRAPER_END_PROCESS
 
 - Do isSimple also for store output.
 - If store doesn't output locations, this should alter the output content of other items. For example, each item should either not show any location ID (it's pointless because the outcome file won't have it), or should have a explicit location shown.
+- Test run store, calcs expected duration, json size, amount of items, etc
 
 ### Done
 

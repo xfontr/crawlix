@@ -1,12 +1,12 @@
 import type { Session, SessionStore } from "../types";
 import { createStore } from "../utils/stores";
-import { generateId, generateTimestamp } from "../utils/utils";
 import {
   useRuntimeConfigStore,
   useLocationStore,
   useItemStore,
   useActionStore,
 } from ".";
+import { generateTimestamp, getMeta } from "../utils/metaData";
 
 const useSessionStore = createStore(
   "session",
@@ -16,9 +16,14 @@ const useSessionStore = createStore(
   (state) => {
     const { getCurrentLocation, current } = useLocationStore();
     const {
-      successCompletionRate,
-      offset: { index },
-    } = useRuntimeConfigStore().current.public;
+      isRelational,
+      current: {
+        public: {
+          successCompletionRate,
+          offset: { index },
+        },
+      },
+    } = useRuntimeConfigStore();
 
     const init = (): void => {
       if (state.status !== "READY") {
@@ -31,12 +36,13 @@ const useSessionStore = createStore(
       state.status = "IN_PROGRESS";
 
       const startLocation = current.history[0]!;
+      const { action: lastAction } = useActionStore().current;
 
-      state.id = generateId();
+      state.id = getMeta().id;
       state.startLocation = {
         id: startLocation.id,
         timestamp: startLocation.timestamp,
-        lastActionId: useActionStore().current.action.id,
+        lastAction: isRelational() ? lastAction.id : lastAction,
       };
     };
 
@@ -59,7 +65,7 @@ const useSessionStore = createStore(
 
       state.duration = generateTimestamp(
         current.history[0]!.date,
-        getCurrentLocation<true>(true).date,
+        getCurrentLocation(true).date,
       );
 
       state.itemRange = [index, lastItem + index];

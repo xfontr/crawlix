@@ -47,13 +47,11 @@ const initialState: RuntimeConfigStore = {
       variationRange: envVar(
         v("mock_user_pause", "variation_range"),
         [0.6, 1],
-        {
-          type: "array",
-        },
+        { type: "array" },
       ),
     },
     output: {
-      isSimple: envVar(v("output", "is_simple"), [], { type: "array" }),
+      schema: envVar(v("output", "schema"), "RELATIONAL"),
       include: envVar(
         v("output", "include"),
         [
@@ -88,7 +86,9 @@ const useRuntimeConfigStore = createStore(
       ) as RuntimeConfig;
     };
 
-    return { setRuntimeConfig };
+    const isRelational = () => state.public.output.schema === "RELATIONAL";
+
+    return { setRuntimeConfig, isRelational };
   },
 );
 

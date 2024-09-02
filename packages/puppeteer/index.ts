@@ -6,6 +6,7 @@ import userAgents from "./userAgents";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { Options } from "./types";
+import { Page } from "puppeteer";
 
 const PUPPETEER_DEFAULT_OPTIONS: Options = {
   abortImages: false,
@@ -13,7 +14,9 @@ const PUPPETEER_DEFAULT_OPTIONS: Options = {
   headless: false,
 };
 
-const imageRequestHandler = async (request: any) => {
+const imageRequestHandler = async (request: any, page: Page) => {
+  page.setRequestInterception(true);
+
   if (request.resourceType() === "image") return await request.abort();
 
   return await request.continue();
@@ -55,7 +58,7 @@ const Puppeteer = async (baseOptions: Options) => {
 
   if (userAgent) await page.setUserAgent(userAgent);
 
-  if (abortImages) page.on("request", imageRequestHandler);
+  if (abortImages) page.on("request", (req) => imageRequestHandler(req, page));
 
   page.setViewport({ width: 2560, height: 1440 });
 

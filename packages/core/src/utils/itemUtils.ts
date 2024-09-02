@@ -5,7 +5,8 @@ import type {
   ItemMeta,
   LocationStamp,
 } from "../types";
-import { generateId, getPercentage } from "./utils";
+import { getMeta } from "./metaData";
+import { getPercentage } from "./utils";
 
 const computeErrors = <T extends FullObject>(
   itemInProgress: Partial<ItemData<T>>,
@@ -42,12 +43,11 @@ export const getItemMeta = <T extends FullObject>(
   const { completion, isComplete } = computeCompletion(item, itemErrors);
 
   const meta: ItemMeta = {
-    id: generateId(),
-    index,
+    ...getMeta(index),
     location,
-    itemErrors,
     isComplete,
     completion,
+    ...(Object.keys(itemErrors).length ? { itemErrors } : {}),
   };
 
   if (withMetaLayer) return meta;

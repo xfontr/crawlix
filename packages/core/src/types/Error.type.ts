@@ -1,4 +1,5 @@
 import type { LocationStamp } from "./Location.type";
+import type { Meta } from "./Meta.type";
 
 export interface CustomErrorData {
   name?: string;
@@ -17,8 +18,7 @@ export interface CustomErrorData {
     | "INTERNAL";
 }
 
-export type CustomError = CustomErrorData & {
-  id: string;
-  index: number;
-  location: LocationStamp;
-};
+export type CustomError = CustomErrorData &
+  Meta & {
+    location: LocationStamp;
+  };

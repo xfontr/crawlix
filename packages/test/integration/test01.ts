@@ -37,6 +37,7 @@ const test01 = async () => {
   afterAll((output) => writeOutput(output, "01"));
 
   await loop(
+    (i) => i === configs.limit.page,
     async (index) => {
       const list = await $p.$$(SELECTORS.list.element);
 
@@ -48,6 +49,7 @@ const test01 = async () => {
 
       // Loops through each element
       await loop(
+        (i) => i === list.length,
         async (elementIndex) => {
           await $a(
             async () => {
@@ -114,7 +116,6 @@ const test01 = async () => {
             { name: "Navigating to element" },
           );
         },
-        (i) => i === list.length,
       );
 
       await $a(
@@ -129,7 +130,6 @@ const test01 = async () => {
         { name: "Navigating to next page" },
       );
     },
-    (i) => i === configs.limit.page,
   );
 };
 

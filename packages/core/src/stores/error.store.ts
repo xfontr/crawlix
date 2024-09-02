@@ -1,12 +1,12 @@
 import type { CustomError, CustomErrorData, ErrorStore } from "../types";
 import { createStore } from "../utils/stores";
-import { generateId } from "../utils/utils";
 import {
   useRuntimeConfigStore,
   useLogStore,
   useLocationStore,
   useActionStore,
 } from ".";
+import { getMeta } from "../utils/metaData";
 
 const useErrorStore = createStore(
   "error",
@@ -22,8 +22,7 @@ const useErrorStore = createStore(
         depth <= fatalErrorDepth ? "FATAL" : error?.criticality;
 
       const customError: CustomError = {
-        id: generateId(),
-        index: state.totalErrors,
+        ...getMeta(state.totalErrors),
         ...error,
         ...(criticality ? { criticality } : {}),
         location: getCurrentLocation(),
@@ -31,7 +30,7 @@ const useErrorStore = createStore(
 
       state.errorLog.push(customError);
 
-      logLocationError(customError.id);
+      logLocationError(customError);
 
       useLogStore().logError(customError, log);
     };

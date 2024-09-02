@@ -3,7 +3,7 @@
   "description": "Scraper",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "index.d.ts",
   "author": "Xifré Font",
   "license": "MIT",
   "scripts": {

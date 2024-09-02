@@ -1,13 +1,5 @@
-import { randomUUID } from "crypto";
 import { FullFunction, FullObject } from "../types";
 import { ASCII_CHARS, WHITE_SPACES } from "../configs/constants";
-
-export const generateId = (): string => randomUUID();
-
-export const generateTimestamp = (start: number, end?: number): number =>
-  (end ?? new Date().getTime()) - new Date(start).getTime();
-
-export const generateDate = (): number => new Date().getTime();
 
 export const randomize = (
   value: number,
@@ -19,7 +11,7 @@ export const tryCatch = async <R = unknown, E = Error>(
 ): Promise<[R, undefined] | [undefined, E]> => {
   try {
     const response: void | R = await callback();
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
     return [response as R, undefined];
   } catch (error) {
     return [undefined, error as E];
@@ -34,7 +26,7 @@ export const stringifyWithKeys = <T extends FullObject = FullObject>(
 ): string =>
   Object.entries(item)
     .flatMap(([key, value]) =>
-      value ? `[${key.toLocaleUpperCase()}] ${value}` : [],
+      value ? `[${key.toLocaleUpperCase()}] ${value as string}` : [],
     )
     .join("; ");
 
