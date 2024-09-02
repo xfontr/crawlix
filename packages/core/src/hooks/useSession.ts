@@ -56,7 +56,7 @@ const useSession = () => {
     await $a(
       () =>
         runAfterAllInSeq(
-          outputStores(config.public.model, config.public.storeContent),
+          outputStores(config.public.model, config.public.output.include),
           ...state.afterAllEffects,
         ),
       {

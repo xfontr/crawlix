@@ -52,8 +52,8 @@ SCRAPER_END_PROCESS
 
 ### Pending
 
-2.- Setting to enable text cleaning (trim, replace "\n" and "\t").ScraperTools module.
-9.- Pass a hook that takes care of the errors within the item, if possible
+- Do isSimple also for store output.
+- If store doesn't output locations, this should alter the output content of other items. For example, each item should either not show any location ID (it's pointless because the outcome file won't have it), or should have a explicit location shown.
 
 ### Done
 

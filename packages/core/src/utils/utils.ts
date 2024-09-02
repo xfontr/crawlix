@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { FullFunction, FullObject } from "../types";
+import { ASCII_CHARS, WHITE_SPACES } from "../configs/constants";
 
 export const generateId = (): string => randomUUID();
 
@@ -36,3 +37,8 @@ export const stringifyWithKeys = <T extends FullObject = FullObject>(
       value ? `[${key.toLocaleUpperCase()}] ${value}` : [],
     )
     .join("; ");
+
+export const cleanUpIfText = <T>(text: T) =>
+  typeof text === "string"
+    ? text.replace(ASCII_CHARS, "").replace(WHITE_SPACES, " ").trim()
+    : text;

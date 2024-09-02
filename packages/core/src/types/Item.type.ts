@@ -18,5 +18,5 @@ export interface ItemMeta {
 export type ItemData<T extends FullObject = FullObject> = T & FullObject;
 
 export type Item<T extends FullObject = FullObject> = {
-  _meta: ItemMeta;
+  _meta?: ItemMeta;
 } & ItemData<T>;
