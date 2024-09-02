@@ -7,13 +7,15 @@ import type {
 export const promiseLoop = async <T>(
   callback: FullFunctionWithIndex<T>,
   breakingCondition: (index: number) => boolean,
-) => {
+): Promise<number> => {
   let index = 0;
 
   do {
     await callback(index);
     index += 1;
   } while (breakingCondition(index) === false);
+
+  return index;
 };
 
 export const runAfterAllInSeq = async (

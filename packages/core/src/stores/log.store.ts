@@ -66,35 +66,33 @@ const useLogStore = createStore(
       return logEntry;
     };
 
-    const logAction = (action: ActionSyncInstance, log?: boolean) => {
+    const logAction = (
+      { id, depth, name, index }: ActionSyncInstance,
+      log?: boolean,
+    ) => {
       pushLog(
         {
-          name: action.name ?? `Executed action n. '${action.index}'`,
-          message: stringifyWithKeys({
-            id: action.id,
-            depth: action.depth,
-            mocked_duration: action.mockedDuration,
-          }),
+          name: name ?? `Executed action n. '${index}'`,
+          message: stringifyWithKeys({ id }),
           type: "INFO",
-          criticality: action.depth + 1, // So that it won't be as critical as a fatal error
+          criticality: depth + 1, // So that it won't be as critical as a fatal error
           category: "ACTION",
         },
         log,
       );
     };
 
-    const logError = (error: CustomError, log?: boolean) => {
+    const logError = (
+      { criticality, name, id, message, stack }: CustomError,
+      log?: boolean,
+    ) => {
       pushLog(
         {
-          name: `Logged a '${error.criticality}' error: '${error.name}'`,
-          message: stringifyWithKeys({
-            id: error.id,
-            message: error?.message,
-            stack: error?.stack,
-          }),
+          name: `Logged a '${criticality}' error: '${name}'`,
+          message: stringifyWithKeys({ id, message, stack }),
           type: "ERROR",
-          ...(error.criticality
-            ? { criticality: ERROR_CRITICALITY[error.criticality] }
+          ...(criticality
+            ? { criticality: ERROR_CRITICALITY[criticality] }
             : {}),
           category: "ERROR",
         },
@@ -102,15 +100,14 @@ const useLogStore = createStore(
       );
     };
 
-    const logLocation = (location: LocationInstance, log?: boolean) => {
+    const logLocation = (
+      { name, id, page, url }: LocationInstance,
+      log?: boolean,
+    ) => {
       pushLog(
         {
-          name: location?.name ?? "Location updated",
-          message: stringifyWithKeys({
-            id: location.id,
-            page: location?.page,
-            url: location?.url,
-          }),
+          name: name ?? "Location updated",
+          message: stringifyWithKeys({ id, page, url }),
           type: "INFO",
           category: "LOCATION",
         },

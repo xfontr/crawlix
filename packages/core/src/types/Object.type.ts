@@ -1,6 +1,6 @@
 export type FullObject = Record<
   string,
-  string | boolean | number | undefined | void | null
+  string | boolean | number | undefined | void | null | object
 >;
 
 export type FullFunction<R = unknown> = (

@@ -11,7 +11,6 @@ const PUPPETEER_DEFAULT_OPTIONS: Options = {
   abortImages: false,
   ignoreDefaultArgs: ["--enable-automation"],
   headless: false,
-  rotateUserAgent: true,
 };
 
 const imageRequestHandler = async (request: any) => {
@@ -26,7 +25,7 @@ const Puppeteer = async (baseOptions: Options) => {
     ...baseOptions,
   };
 
-  const { abortImages, rotateUserAgent, ...options } = finalOptions;
+  const { abortImages, userAgent, ...options } = finalOptions;
 
   puppeteer.use(StealthPlugin());
 
@@ -49,14 +48,16 @@ const Puppeteer = async (baseOptions: Options) => {
     throw error;
   }
 
-  if (rotateUserAgent) {
+  if (!userAgent) {
     const index = Math.floor(Math.random() * userAgents.length);
     await page.setUserAgent(userAgents[index]!.ua);
   }
 
+  if (userAgent) await page.setUserAgent(userAgent);
+
   if (abortImages) page.on("request", imageRequestHandler);
 
-  page.setViewport({ width: 1920, height: 1080 });
+  page.setViewport({ width: 2560, height: 1440 });
 
   return { page };
 };

@@ -15,9 +15,19 @@ export interface RuntimeConfig {
   };
   logging: {
     maxCriticality: number;
+    /**
+     * @description Type of logs that are to be logged.
+     */
     types: Log["type"][];
+    /**
+     * @description Categories that are to be logged.
+     */
     categories: Log["category"][];
-    isSimple: boolean;
+    /**
+     * @description For the selected categories, the logs only show name and message.
+     * The complete log is stored anyways.
+     */
+    isSimple: Log["category"][];
   };
   mockUserPause: {
     duration: number;

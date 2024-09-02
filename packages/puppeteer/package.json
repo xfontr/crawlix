@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && pnpm pack"
   },
   "dependencies": {
     "puppeteer": "^23.0.2",

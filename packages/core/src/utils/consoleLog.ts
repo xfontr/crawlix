@@ -1,17 +1,21 @@
 import { FullFunction, Log } from "../types";
 
-const SIMPLE_INSTANCE_LENGTH = 2;
+const headLog = ({
+  name,
+  message,
+  category,
+  body,
+}: Log & { body?: string }): string => {
+  if (body) return body;
 
-const headLog = ({ name, message, category }: Log): string => {
   if (!message) return `${category}: ${name}`;
   return `${name}. Details: ${message}`;
 };
 
-const bodyLog = (logInstance: Log): string => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { name, message, ...rest } = logInstance;
+const bodyLog = (logInstance: Log & { body?: string }): string => {
+  const { body, ...rest } = logInstance;
 
-  if (Object.keys(rest).length === SIMPLE_INSTANCE_LENGTH) return "";
+  if (body) return "";
 
   return JSON.stringify(rest, null, 4);
 };
