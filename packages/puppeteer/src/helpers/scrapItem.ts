@@ -1,13 +1,16 @@
 import { type FullObject, useItems, useItemStore, useLog } from "@scraper/core";
 import { useField } from "../hooks";
-import { useSelectorsStore } from "../stores";
+import { useScraperConfigStore, useSelectorsStore } from "../stores";
 import type { ElementHandle } from "puppeteer";
 
 const scrapItem = async <T extends FullObject>(item?: ElementHandle) => {
-  const { addAttribute, post } = useItems().initItem<T>();
+  const {
+    current: { public: config },
+  } = useScraperConfigStore();
   const { log } = useLog();
   const { selectors } = useSelectorsStore().current;
   const { getField } = useField(item);
+  const { addAttribute, post } = useItems().initItem<T>({}, config.required);
 
   const attributes = Object.entries(selectors.item ?? {}).map(
     async ([name, selector]) =>

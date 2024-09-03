@@ -4,7 +4,7 @@ import {
   useAction,
 } from "@scraper/core";
 import { useScraper } from "../hooks";
-import { useScraperConfig } from "../stores";
+import { useScraperConfigStore } from "../stores";
 import { ElementHandle } from "puppeteer";
 
 interface NavigateOptions extends ActionCustomData {
@@ -17,7 +17,7 @@ export const clickAndNavigate = (
 ) => {
   const { $p } = useScraper();
   const { $a } = useAction();
-  const { navigationTimeout } = useScraperConfig().current.public;
+  const { navigationTimeout } = useScraperConfigStore().current.public;
 
   return async (callback?: FullFunction) => {
     return await $a(async () => {
