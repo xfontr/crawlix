@@ -1,10 +1,16 @@
-import type { ActionInstance, ActionSyncInstance } from "./Action.type";
-import type { CustomError } from "./Error.type";
-import type { Item } from "./Item.type";
-import type { LocationInstance } from "./Location.type";
-import type { Log } from "./Log.type";
-import type { RuntimeConfig } from "./RuntimeConfig.type";
-import type { Session } from "./Session.type";
+import type {
+  ActionInstance,
+  ActionSyncInstance,
+  Session,
+  RuntimeConfig,
+  FullObject,
+  CustomError,
+  Log,
+  LocationInstance,
+  Item,
+  ItemMeta,
+  ItemData,
+} from ".";
 
 export interface LogStore {
   totalLogs: number;
@@ -16,11 +22,13 @@ export interface LocationStore {
   history: LocationInstance[];
 }
 
-export interface ItemStore {
+export interface ItemStore<T extends FullObject = FullObject> {
   totalItems: number;
   incompleteItems: number;
   fullyCompleteItemsRate: number;
-  items: Item[];
+  currentRef: Partial<ItemData<T>> | undefined;
+  currentRefErrors: ItemMeta["errors"] | undefined;
+  items: Item<T>[];
 }
 
 export interface ErrorStore {

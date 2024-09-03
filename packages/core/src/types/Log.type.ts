@@ -1,8 +1,7 @@
-import { type LocationStamp } from "./Location.type";
+import type { LocationStamp } from "./Location.type";
+import type { Meta } from "./Meta.type";
 
-export interface AutoLog {
-  id: string;
-  index: number;
+export interface AutoLog extends Meta {
   location: LocationStamp;
 }
 
@@ -14,7 +13,7 @@ export interface LogCustomData {
 export interface LogMeta {
   type?: "WARN" | "ERROR" | "INFO" | "DEBUG" | "DEV";
   criticality?: number;
-  category?: "ACTION" | "LOCATION" | "ERROR" | "USER_INPUT";
+  category?: "ACTION" | "LOCATION" | "ERROR" | "USER_INPUT" | "SESSION";
 }
 
 export type LogData = LogMeta & LogCustomData;

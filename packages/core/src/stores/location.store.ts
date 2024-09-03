@@ -86,13 +86,22 @@ const useLocationStore = createStore(
 
       if (!lastLocation.errors) lastLocation.errors = [];
 
-      lastLocation.errors.push(structuredClone(error));
+      lastLocation.errors.push(structuredClone(error!));
+    };
+
+    const sumItem = () => {
+      const lastLocation = state.history.at(-1)!;
+
+      lastLocation.itemCount = lastLocation.itemCount
+        ? lastLocation.itemCount + 1
+        : 0;
     };
 
     return {
       logLocationError,
       getCurrentLocation,
       pushLocation,
+      sumItem,
     };
   },
 );

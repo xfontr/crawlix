@@ -16,6 +16,7 @@ export interface Location extends LocationData {
 
 export interface LocationMeta extends Meta {
   errors?: (CustomError | string)[];
+  itemCount?: number;
 }
 
 export interface LocationStamp extends Partial<LocationInstance> {

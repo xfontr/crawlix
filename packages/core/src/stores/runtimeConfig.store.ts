@@ -88,7 +88,9 @@ const useRuntimeConfigStore = createStore(
 
     const isRelational = () => state.public.output.schema === "RELATIONAL";
 
-    return { setRuntimeConfig, isRelational };
+    const isMinimal = () => state.public.output.schema === "MINIMAL";
+
+    return { setRuntimeConfig, isRelational, isMinimal };
   },
 );
 

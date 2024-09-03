@@ -5,16 +5,18 @@
   "author": "Xifré Font",
   "license": "ISC",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "index.d.ts",
   "scripts": {
-    "build": "tsc && pnpm pack"
+    "build": "rimraf build && tsc && pnpm pack"
   },
   "dependencies": {
+    "@scraper/core": "workspace:*",
     "puppeteer": "^23.0.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
+    "rimraf": "^5.0.1",
     "@types/node": "^20.6.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"

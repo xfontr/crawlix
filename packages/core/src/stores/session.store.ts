@@ -16,6 +16,7 @@ const useSessionStore = createStore(
   (state) => {
     const { getCurrentLocation, current } = useLocationStore();
     const {
+      isMinimal,
       isRelational,
       current: {
         public: {
@@ -38,7 +39,7 @@ const useSessionStore = createStore(
       const startLocation = current.history[0]!;
       const { action: lastAction } = useActionStore().current;
 
-      state.id = getMeta().id;
+      if (!isMinimal()) state.id = getMeta().id;
       state.startLocation = {
         id: startLocation.id,
         timestamp: startLocation.timestamp,

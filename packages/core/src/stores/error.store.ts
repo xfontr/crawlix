@@ -5,6 +5,7 @@ import {
   useLogStore,
   useLocationStore,
   useActionStore,
+  useItemStore,
 } from ".";
 import { getMeta } from "../utils/metaData";
 
@@ -14,6 +15,7 @@ const useErrorStore = createStore(
   (state) => {
     const pushError = (error?: CustomErrorData, log?: boolean) => {
       const { getCurrentLocation, logLocationError } = useLocationStore();
+
       const { depth } = useActionStore().current.action;
       const { fatalErrorDepth } = useRuntimeConfigStore().current.public;
 
@@ -31,12 +33,13 @@ const useErrorStore = createStore(
       state.errorLog.push(customError);
 
       logLocationError(customError);
-
+      useItemStore().logItemError(customError);
       useLogStore().logError(customError, log);
     };
 
     const getLastError = <Exists extends boolean = false>() => {
       const lastError = state.errorLog.at(-1);
+
       return (
         lastError ? structuredClone(lastError) : undefined
       ) as Exists extends true ? CustomError : CustomError | undefined;

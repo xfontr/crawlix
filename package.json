@@ -6,8 +6,9 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "build": "pnpm --filter @scraper/core run build && pnpm --filter @scraper/puppeteer run build",
-    "core:dev": "pnpm --filter @scraper/core run dev",
+    "build": "pnpm build:core && pnpm build:puppeteer",
+    "build:core": "pnpm --filter @scraper/core run build",
+    "build:puppeteer": "pnpm --filter @scraper/puppeteer run build",
     "test:serve": "pnpm --filter @scraper/test run integration:serve",
     "test:integration": "pnpm --filter @scraper/test run integration:run"
   }
