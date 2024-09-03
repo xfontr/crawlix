@@ -16,13 +16,13 @@ export interface ActionAsyncData {
 }
 
 export interface ActionLocation {
-  index: Meta["index"];
+  index?: Meta["index"];
   depth: number;
 }
 
 export type ActionSyncInstance = ActionData &
   ActionLocation & {
-    id: Meta["id"];
+    id?: Meta["id"];
     location: LocationStamp;
   };
 

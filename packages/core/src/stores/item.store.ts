@@ -49,11 +49,7 @@ const useItemStore = createStore(
 
           state.items.push({
             ...(itemInProgress.value as ItemData<T>),
-            ...(config.output.itemWithMetaLayer
-              ? {
-                  _meta: meta,
-                }
-              : meta),
+            ...(config.output.itemWithMetaLayer ? { _meta: meta } : meta),
           });
 
           itemInProgress.value = {};

@@ -10,13 +10,14 @@ export const generateTimestamp = (start: number, end?: number): number =>
 export const generateDate = (): number => new Date().getTime();
 
 export const getMeta = <T>(index?: T) => {
-  const isMinimal =
-    useRuntimeConfigStore().current.public.output.schema === "MINIMAL";
+  const { isMinimal } = useRuntimeConfigStore();
 
-  return isMinimal
-    ? {}
-    : ({
-        id: generateId(),
-        ...(index ? { index } : {}),
-      } as unknown as T extends number ? Required<Meta> : Meta);
+  return (
+    isMinimal()
+      ? {}
+      : {
+          id: generateId(),
+          ...(index ? { index } : {}),
+        }
+  ) as Meta;
 };

@@ -47,7 +47,6 @@ const test01 = async () => {
         throw new Error("Tried to loop through an empty page");
       }
 
-      // Loops through each element
       await loop(
         (i) => i === list.length,
         async (elementIndex) => {

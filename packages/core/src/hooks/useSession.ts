@@ -80,7 +80,7 @@ const useSession = () => {
     );
 
     log({
-      category: "ACTION",
+      category: "SESSION",
       type: "INFO",
       name: "Loop ends",
       message: `Loop with name '${options?.name}' has been fulfilled at index '${index}'`,

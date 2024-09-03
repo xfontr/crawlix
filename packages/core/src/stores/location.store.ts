@@ -86,7 +86,7 @@ const useLocationStore = createStore(
 
       if (!lastLocation.errors) lastLocation.errors = [];
 
-      lastLocation.errors.push(structuredClone(error));
+      lastLocation.errors.push(structuredClone(error!));
     };
 
     return {

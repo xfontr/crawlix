@@ -71,6 +71,9 @@ importers:
 
   packages/puppeteer:
     dependencies:
+      '@scraper/core':
+        specifier: workspace:*
+        version: link:../core
       puppeteer:
         specifier: ^23.0.2
         version: 23.0.2(typescript@5.3.3)
@@ -84,6 +87,9 @@ importers:
       '@types/node':
         specifier: ^20.6.0
         version: 20.10.6
+      rimraf:
+        specifier: ^5.0.1
+        version: 5.0.5
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@types/node@20.10.6)(typescript@5.3.3)
