@@ -1,7 +1,4 @@
-import { CustomError } from "./Error.type";
-import type { LocationStamp } from "./Location.type";
-import type { Meta } from "./Meta.type";
-import type { FullObject } from "./Object.type";
+import type { CustomError, Meta, FullObject, LocationStamp } from ".";
 
 export interface ItemMeta<T extends FullObject = FullObject> extends Meta {
   location: LocationStamp;

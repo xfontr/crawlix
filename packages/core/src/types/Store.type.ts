@@ -20,6 +20,7 @@ export interface LogStore {
 export interface LocationStore {
   totalLocations: number;
   history: LocationInstance[];
+  currentRef: LocationInstance | undefined;
 }
 
 export interface ItemStore<T extends FullObject = FullObject> {

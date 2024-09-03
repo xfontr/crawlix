@@ -1,6 +1,4 @@
-import type { ActionSyncInstance } from "./Action.type";
-import type { CustomError } from "./Error.type";
-import type { Meta } from "./Meta.type";
+import type { ActionSyncInstance, CustomError, Meta } from ".";
 
 export interface LocationData {
   url: string;

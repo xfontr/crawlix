@@ -1,5 +1,9 @@
-import type { LocationStamp } from "./Location.type";
-import type { Meta } from "./Meta.type";
+import type { CustomError, Meta, LocationStamp } from ".";
+
+export interface ActionMeta {
+  depth: number;
+  mockedDuration: number;
+}
 
 export interface ActionCustomData {
   name?: string;
@@ -12,7 +16,7 @@ export interface ActionData extends ActionCustomData {
 
 export interface ActionAsyncData {
   duration: number;
-  errorId?: string | undefined;
+  error?: (CustomError | string) | undefined;
 }
 
 export interface ActionLocation {

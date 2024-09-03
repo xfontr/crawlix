@@ -1,5 +1,4 @@
-import type { LocationStamp } from "./Location.type";
-import type { Meta } from "./Meta.type";
+import type { Meta, LocationStamp } from ".";
 
 export interface SessionMeta {
   id: Meta["id"];

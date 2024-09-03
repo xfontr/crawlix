@@ -1,5 +1,4 @@
-import type { LocationStamp } from "./Location.type";
-import type { Meta } from "./Meta.type";
+import type { LocationStamp, Meta } from ".";
 
 export interface CustomErrorData {
   name?: string;
