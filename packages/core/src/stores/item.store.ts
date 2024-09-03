@@ -21,7 +21,7 @@ const useItemStore = createStore(
     items: [],
   } as ItemStore,
   (state) => {
-    const { getCurrentLocation } = useLocationStore();
+    const { getCurrentLocation, sumItem } = useLocationStore();
     const {
       current: { public: config },
       isRelational,
@@ -74,6 +74,8 @@ const useItemStore = createStore(
 
           state.currentRef = undefined;
           state.currentRefErrors = undefined;
+
+          sumItem();
 
           if (meta.isComplete) return;
 
