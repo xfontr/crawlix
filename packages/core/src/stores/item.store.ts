@@ -1,7 +1,13 @@
-import type { FullObject, ItemData, ItemStore } from "../types";
+import type {
+  CustomError,
+  FullObject,
+  Item,
+  ItemData,
+  ItemStore,
+} from "../types";
 import { createStore } from "../utils/stores";
 import { cleanUpIfText, getPercentage } from "../utils/utils";
-import { getItemMeta } from "../utils/itemUtils";
+import { buildItemMeta } from "../utils/itemMetaData";
 import { useLocationStore, useRuntimeConfigStore } from ".";
 
 const useItemStore = createStore(
@@ -10,21 +16,32 @@ const useItemStore = createStore(
     totalItems: 0,
     incompleteItems: 0,
     fullyCompleteItemsRate: 0, // If 0, it's as if it was disabled
+    currentRef: undefined,
+    currentRefErrors: undefined,
     items: [],
   } as ItemStore,
   (state) => {
     const { getCurrentLocation } = useLocationStore();
-    const { public: config } = useRuntimeConfigStore().current;
+    const {
+      current: { public: config },
+      isRelational,
+    } = useRuntimeConfigStore();
 
-    const initItem = <T extends FullObject>(
+    const initItem = <T extends FullObject = FullObject>(
       attributes: Partial<ItemData<T>> = {},
+      /**
+       * @description Fields that if empty will be used to determine the item completion rate.
+       * If unset, every field will be marked as required
+       */
+      required?: (keyof T)[],
     ) => {
-      const itemInProgress = { value: attributes };
+      state.currentRef = structuredClone(attributes);
+      state.currentRefErrors = [];
 
       return {
         addAttribute: (attributes: Partial<ItemData<T>>): void => {
-          itemInProgress.value = {
-            ...itemInProgress.value,
+          state.currentRef = {
+            ...state.currentRef,
             ...structuredClone(
               Object.entries(attributes).reduce(
                 (all, [key, value]) => ({
@@ -40,19 +57,23 @@ const useItemStore = createStore(
         post: (): void => {
           state.totalItems += 1;
 
-          const meta = getItemMeta(
+          const meta = buildItemMeta<T>(
             state.totalItems + config.offset.index,
-            itemInProgress.value,
+            state as unknown as ItemStore<T>,
             getCurrentLocation(),
             config.output.itemWithMetaLayer,
+            required,
           );
 
-          state.items.push({
-            ...(itemInProgress.value as ItemData<T>),
+          const item: Item<T> = {
+            ...(state.currentRef as ItemData<T>),
             ...(config.output.itemWithMetaLayer ? { _meta: meta } : meta),
-          });
+          };
 
-          itemInProgress.value = {};
+          state.items.push(item as unknown as Item);
+
+          state.currentRef = undefined;
+          state.currentRefErrors = undefined;
 
           if (meta.isComplete) return;
 
@@ -65,7 +86,15 @@ const useItemStore = createStore(
       };
     };
 
-    return { initItem };
+    const logItemError = (error: CustomError) => {
+      if (!state.currentRef || !state.currentRefErrors) return;
+
+      state.currentRefErrors.push(
+        isRelational() ? error.id! : structuredClone(error),
+      );
+    };
+
+    return { initItem, logItemError };
   },
 );
 

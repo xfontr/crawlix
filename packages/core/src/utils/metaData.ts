@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { useRuntimeConfigStore } from "../stores";
-import { Meta } from "../types/Meta.type";
+import type { Meta } from "../types/Meta.type";
+import type { FullObject, ItemMeta } from "../types";
 
 const generateId = (): string => randomUUID();
 
@@ -20,4 +21,30 @@ export const getMeta = <T>(index?: T) => {
           ...(index ? { index } : {}),
         }
   ) as Meta;
+};
+
+export const getItemMeta = <T, I extends FullObject>(
+  index?: T,
+  {
+    completion,
+    isComplete,
+    location,
+    emptyFields,
+    errors,
+  }: Partial<ItemMeta<I>> = {},
+) => {
+  const { isMinimal } = useRuntimeConfigStore();
+
+  return {
+    ...getMeta(index),
+    ...(isMinimal()
+      ? {}
+      : {
+          completion,
+          isComplete,
+          location,
+          emptyFields,
+          errors,
+        }),
+  } as ItemMeta<I>;
 };
