@@ -5,19 +5,21 @@ import type {
   LocationStamp,
   LocationStore,
 } from "../types";
-import { createStore } from "../utils/stores";
+import { createStore } from "../helpers/stores";
 import EventBus from "../utils/EventBus";
-import { useRuntimeConfigStore, useLogStore, useActionStore } from ".";
-import { generateDate, generateTimestamp, getMeta } from "../utils/metaData";
+import { useRuntimeConfigStore, useLogStore } from ".";
+import { useMeta } from "../hooks";
 
 const useLocationStore = createStore(
   "location",
   {
     totalLocations: 0,
     history: [],
+    currentRef: undefined,
   } as LocationStore,
   (state) => {
-    const { isRelational } = useRuntimeConfigStore();
+    const { isRelational, isMinimal } = useRuntimeConfigStore();
+    const { getLocationMeta } = useMeta();
 
     const handleMaxPage = (currentPage: number): void => {
       const { page } = useRuntimeConfigStore().current.public.limit;
@@ -28,21 +30,16 @@ const useLocationStore = createStore(
     const getCurrentLocation = <FullInstance extends boolean = false>(
       fullInstance?: FullInstance,
     ) => {
-      const { action: lastAction } = useActionStore().current;
-      const lastLocation = state.history.at(-1);
+      if (!state.currentRef)
+        throw new Error("[LOCATION] No initial location found");
 
-      if (!lastLocation) {
-        throw new Error(
-          "Tried to get current location without having pushed any location first",
-        );
-      }
+      const { timestamp, lastAction } = getLocationMeta(state);
 
       return {
-        id: lastLocation.id,
-        timestamp: generateTimestamp(state.history[0]!.date),
-        lastAction: isRelational() ? lastAction.id : lastAction,
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        ...(fullInstance || !isRelational() ? lastLocation : {}),
+        id: state.currentRef.id,
+        ...(timestamp ? { timestamp } : {}),
+        ...(lastAction ? { lastAction } : {}),
+        ...(fullInstance ? state.currentRef : {}),
       } as FullInstance extends true ? LocationInstance : LocationStamp;
     };
 
@@ -52,8 +49,6 @@ const useLocationStore = createStore(
         | ((current: Omit<LocationData, "name">) => Partial<LocationData>),
       log?: boolean,
     ) => {
-      const { action: lastAction } = useActionStore().current;
-
       state.totalLocations += 1;
 
       if (typeof location === "function") {
@@ -61,28 +56,26 @@ const useLocationStore = createStore(
         location = location({ page, url });
       }
 
-      const date = generateDate();
-
-      const finalLocation: LocationInstance = {
-        ...getMeta(state.totalLocations),
+      state.currentRef = {
+        ...getLocationMeta(state),
         name: location?.name ?? "",
         url: location?.url ?? getCurrentLocation(true).url,
         page: location?.page ?? getCurrentLocation(true).page,
-        timestamp: generateTimestamp(state.history[0]?.date ?? date, date),
-        date,
-        lastAction: isRelational() ? lastAction.id : lastAction,
       };
 
-      state.history.push(finalLocation);
+      state.history.push(state.currentRef);
 
-      useLogStore().logLocation(finalLocation, log);
+      useLogStore().logLocation(state.currentRef, log);
 
-      handleMaxPage(finalLocation.page);
+      handleMaxPage(state.currentRef.page);
     };
 
     const logLocationError = (customError: CustomError): void => {
-      const lastLocation = state.history.at(-1)!;
+      if (isMinimal()) return;
+
       const error = isRelational() ? customError.id : customError;
+
+      const lastLocation = state.history.at(-1)!;
 
       if (!lastLocation.errors) lastLocation.errors = [];
 
@@ -90,10 +83,10 @@ const useLocationStore = createStore(
     };
 
     const sumItem = () => {
-      const lastLocation = state.history.at(-1)!;
+      if (!state.currentRef) return;
 
-      lastLocation.itemCount = lastLocation.itemCount
-        ? lastLocation.itemCount + 1
+      state.currentRef.itemCount = state.currentRef.itemCount
+        ? state.currentRef.itemCount + 1
         : 0;
     };
 

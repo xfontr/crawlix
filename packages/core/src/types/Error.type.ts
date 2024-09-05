@@ -1,9 +1,9 @@
-import type { LocationStamp, Meta } from ".";
+import type { Meta } from ".";
 
 export interface CustomErrorData {
   name?: string;
   message?: string;
-  stack?: string | undefined;
+  stack?: string;
   criticality?: "FATAL" | "HIGH" | "MEDIUM" | "LOW";
   type?:
     | "UNKNOWN"
@@ -18,6 +18,5 @@ export interface CustomErrorData {
 }
 
 export type CustomError = CustomErrorData &
-  Meta & {
-    location: LocationStamp;
-  };
+  Required<Pick<CustomErrorData, "criticality">> &
+  Meta;

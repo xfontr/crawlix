@@ -6,21 +6,18 @@ export interface LocationData {
   name?: string;
 }
 
-export interface Location extends LocationData {
-  date: number;
-  timestamp: number;
-  lastAction: ActionSyncInstance | string | undefined;
-}
-
 export interface LocationMeta extends Meta {
   errors?: (CustomError | string)[];
   itemCount?: number;
+  lastAction?: ActionSyncInstance | string;
+  date: number;
+  timestamp: number;
 }
 
 export interface LocationStamp extends Partial<LocationInstance> {
-  id: Meta["id"];
-  timestamp: number;
-  lastAction: ActionSyncInstance | string | undefined;
+  id: LocationMeta["id"];
+  timestamp: LocationMeta["timestamp"];
+  lastAction?: ActionSyncInstance | string;
 }
 
-export type LocationInstance = Location & LocationMeta;
+export type LocationInstance = LocationData & LocationMeta;

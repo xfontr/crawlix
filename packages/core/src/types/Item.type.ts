@@ -1,7 +1,6 @@
-import type { CustomError, Meta, FullObject, LocationStamp } from ".";
+import type { CustomError, Meta, FullObject } from ".";
 
 export interface ItemMeta<T extends FullObject = FullObject> extends Meta {
-  location: LocationStamp;
   isComplete: boolean;
   completion: number;
   emptyFields?: (keyof T)[];
@@ -10,6 +9,4 @@ export interface ItemMeta<T extends FullObject = FullObject> extends Meta {
 
 export type ItemData<T extends FullObject = FullObject> = T & FullObject;
 
-export type Item<T extends FullObject = FullObject> = {
-  _meta?: ItemMeta<T>;
-} & ItemData<T>;
+export type Item<T extends FullObject = FullObject> = ItemData<T>;

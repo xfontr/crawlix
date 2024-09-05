@@ -1,5 +1,5 @@
 import type { RuntimeConfig, RuntimeConfigStore } from "../types";
-import { createStore } from "../utils/stores";
+import { createStore } from "../helpers/stores";
 import envVar from "../utils/envVar";
 import { useSessionStore } from ".";
 import { DeepPartial } from "../types/UtilityTypes";
@@ -25,7 +25,6 @@ const initialState: RuntimeConfigStore = {
       inactivity: envVar(v("limit", "inactivity"), 5_000),
     },
     logging: {
-      maxCriticality: envVar(v("logging", "max_criticality"), 5),
       types: envVar(
         v("logging", "types"),
         ["DEBUG", "DEV", "ERROR", "INFO", "WARN"],
@@ -65,7 +64,7 @@ const initialState: RuntimeConfigStore = {
         ],
         { type: "array" },
       ),
-      itemWithMetaLayer: envVar(v("output", "item_with_meta_layer"), true),
+      flatten: envVar(v("output", "flatten"), false),
     },
     fatalErrorDepth: envVar("fatal_error_depth", 0),
     successCompletionRate: envVar(v("success_completion_rate"), 95),

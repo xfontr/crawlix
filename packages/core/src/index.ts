@@ -5,7 +5,7 @@ import {
   useSessionStore,
 } from "./stores";
 import type { FullFunction, RuntimeConfig, Session } from "./types";
-import { cleanUpStores } from "./utils/stores";
+import { cleanUpStores } from "./helpers/stores";
 import EventBus from "./utils/EventBus";
 import { useAction, useSession, useLog } from "./hooks";
 import { consoleLog } from "./utils/consoleLog";

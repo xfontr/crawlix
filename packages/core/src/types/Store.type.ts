@@ -10,6 +10,7 @@ import type {
   Item,
   ItemMeta,
   ItemData,
+  ActionAsyncData,
 } from ".";
 
 export interface LogStore {
@@ -39,7 +40,7 @@ export interface ErrorStore {
 
 export interface ActionStore {
   totalActions: number;
-  action: ActionSyncInstance;
+  currentRef: ActionSyncInstance & Partial<ActionAsyncData>;
   actionLog: ActionInstance[];
   totalMockedPausesDuration: number;
 }

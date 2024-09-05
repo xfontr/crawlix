@@ -14,7 +14,6 @@ export interface RuntimeConfig {
     inactivity: number;
   };
   logging: {
-    maxCriticality: number;
     /**
      * @description Type of logs that are to be logged.
      */

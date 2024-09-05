@@ -1,13 +1,25 @@
 # Action
 
-### Basic data
+- Name
+- Duration
 
-- name
+# Item
 
-### Meta data
+- Values
 
-- id
-- index
-- depth
-- mockedDuration
-- isCritical
+# Location
+
+- Name
+- Url
+- Page
+
+# Error
+
+- Name
+- Message
+- Stack
+
+# Log
+
+- Name
+- Message

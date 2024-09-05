@@ -5,7 +5,7 @@ import {
   useErrorStore,
   useRuntimeConfigStore,
 } from "../stores";
-import type { ActionCustomData, FullFunction } from "../types";
+import type { ActionAsyncData, ActionCustomData, FullFunction } from "../types";
 import { useError } from ".";
 import { MAX_THREAD_DEPTH } from "../configs/constants";
 
@@ -57,7 +57,6 @@ const useAction = () => {
     actionOptions: ActionCustomData & { log?: boolean } = {},
   ) => {
     if (depth > blockedThread) return;
-    const { createError } = useError();
 
     const endTracking = trackActivity();
     setBlockedThread(MAX_THREAD_DEPTH);
@@ -65,8 +64,6 @@ const useAction = () => {
     const mockUserPause = randomize(duration, variationRange);
 
     depth += 1;
-
-    const { index } = current.action;
 
     const start = Date.now();
 
@@ -81,26 +78,24 @@ const useAction = () => {
 
     const [data, error] = await tryCatch(() => delay(callback, mockUserPause));
 
-    const actionDuration = Date.now() - start;
+    const asyncAction: ActionAsyncData = {
+      duration: Date.now() - start,
+    };
 
     if (error) {
-      createError({
-        name: `[ACTION ERROR] index {'${index}'} depth {'${depth}'}`,
+      useError().createError({
+        name: `[ACTION ERROR] index {'${current.currentRef.index}'} depth {'${depth}'}`,
         message: `[${error?.name}] ${error?.message}`,
-        stack: error?.stack,
+        ...(error?.stack ? { stack: error?.stack } : {}),
         ...(actionOptions.isCritical ? { criticality: "FATAL" } : {}),
       });
 
-      pushAction({
-        errorId: useErrorStore().getLastError()?.id,
-        duration: actionDuration,
-      });
-    } else {
-      pushAction({ duration: actionDuration });
+      asyncAction.error = useErrorStore().getLastError()!;
     }
 
-    depth -= 1;
+    pushAction(asyncAction);
     endTracking();
+    depth -= 1;
 
     return data;
   };
