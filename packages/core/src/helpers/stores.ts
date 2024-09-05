@@ -1,7 +1,8 @@
 /* eslint-disable eslint-comments/disable-enable-pair */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import type { RuntimeConfigStore, StoreNames } from "../types";
+import type { FullObject, RuntimeConfigStore, StoreNames } from "../types";
+import { flattie } from "flattie";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const store: Record<string, any> = {};
@@ -14,10 +15,6 @@ export const createStore = <T, R extends object = object>(
   value: T,
   callback: (state: T) => R,
 ) => {
-  if (store[name]) {
-    // TODO: WARNING THAT A STORE WITH THE SAME NAME WILL BE OVERWRITTEN
-  }
-
   store[name] = value;
   storeInitial[name] = value;
 
@@ -43,15 +40,33 @@ export const createStore = <T, R extends object = object>(
   };
 };
 
+const flatify = <T>(item: T): unknown => {
+  if (Array.isArray(item)) return item.map(flatify);
+
+  return typeof item === "object" ? flattie(item, "_") : item;
+};
+
+const outputStore = (name: StoreNames, flatten?: boolean) =>
+  !flatten
+    ? store[name]
+    : Object.entries(store[name] as FullObject).reduce(
+        (all, [name, value]) => ({
+          ...all,
+          [name]: flatify(value),
+        }),
+        {},
+      );
+
 export const outputStores = (
   model: string,
   include: RuntimeConfigStore["public"]["output"]["include"],
+  flatten?: boolean,
 ): string =>
   JSON.stringify(
     include.reduce(
       (allStores, current) => ({
         ...allStores,
-        [current]: store[current as keyof typeof store],
+        [current]: outputStore(current, flatten),
       }),
       { model },
     ),

@@ -1,5 +1,4 @@
-import type { Log } from "./Log.type";
-import type { StoreNames } from "./Store.type";
+import type { Log, StoreNames } from ".";
 
 export interface RuntimeConfig {
   node: { env: "prod" | "production" | "dev" | "development" };
@@ -15,7 +14,6 @@ export interface RuntimeConfig {
     inactivity: number;
   };
   logging: {
-    maxCriticality: number;
     /**
      * @description Type of logs that are to be logged.
      */
@@ -53,9 +51,8 @@ export interface RuntimeConfig {
      */
     schema: "MINIMAL" | "RELATIONAL" | "FULL";
     /**
-     * @description If true, each item will show the meta data in a separate object (_meta).
-     * When false, al information is stored at the same level
+     * @description If true, objects will be flattened (no nested objects, just enough to separate different registries)
      */
-    itemWithMetaLayer: boolean;
+    flatten: boolean;
   };
 }

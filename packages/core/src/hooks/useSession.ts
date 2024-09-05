@@ -10,7 +10,7 @@ import type {
   FullFunctionWithIndex,
   Session,
 } from "../types";
-import { outputStores } from "../utils/stores";
+import { outputStores } from "../helpers/stores";
 import EventBus from "../utils/EventBus";
 import { runAfterAllInSeq, promiseLoop } from "../utils/promises";
 import { useAction, useError, useLog } from ".";
@@ -56,12 +56,14 @@ const useSession = () => {
     await $a(
       () =>
         runAfterAllInSeq(
-          outputStores(config.public.model, config.public.output.include),
+          outputStores(
+            config.public.model,
+            config.public.output.include,
+            config.public.output.flatten,
+          ),
           ...state.afterAllEffects,
         ),
-      {
-        name: "AFTER ALL EFFECTS",
-      },
+      { name: "Executing after all effects" },
     );
 
     state.afterAllEffects = [];
@@ -83,7 +85,9 @@ const useSession = () => {
       category: "SESSION",
       type: "INFO",
       name: "Loop ends",
-      message: `Loop with name '${options?.name}' has been fulfilled at index '${index}'`,
+      message: index
+        ? `Loop '${options?.name}' - Fulfilled at index '${index}'`
+        : `Loop '${options?.name}' - Interrupted`,
     });
   };
 

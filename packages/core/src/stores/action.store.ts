@@ -3,10 +3,11 @@ import type {
   ActionData,
   ActionStore,
   ActionSyncInstance,
+  CustomError,
 } from "../types";
-import { createStore } from "../utils/stores";
-import { useLocationStore, useLogStore, useSessionStore } from ".";
-import { getMeta } from "../utils/metaData";
+import { createStore } from "../helpers/stores";
+import { useLogStore, useSessionStore } from ".";
+import useMeta from "../hooks/useMeta";
 
 const useActionStore = createStore(
   "action",
@@ -14,12 +15,10 @@ const useActionStore = createStore(
     totalActions: 0,
     totalMockedPausesDuration: 0,
     actionLog: [],
-    action: {} as ActionSyncInstance,
+    currentRef: undefined as unknown as ActionSyncInstance,
   } as ActionStore,
   (state) => {
     const initAction = (action: ActionData, log?: boolean) => {
-      let _tempSyncAction: ActionSyncInstance | undefined = undefined;
-
       if (useSessionStore().isIDLE()) {
         throw new Error(
           "Cannot execute actions before initializing the session",
@@ -29,20 +28,24 @@ const useActionStore = createStore(
       state.totalActions += 1;
       state.totalMockedPausesDuration += action.mockedDuration ?? 0;
 
-      _tempSyncAction = {
-        ...getMeta(state.totalActions),
-        location: useLocationStore().getCurrentLocation(),
-        ...action,
+      state.currentRef = structuredClone(action);
+      const { addAsyncMeta, syncMeta } = useMeta().getActionMeta(state);
+
+      state.currentRef = {
+        ...state.currentRef,
+        ...syncMeta,
       };
 
-      state.action = _tempSyncAction;
+      useLogStore().logAction(state.currentRef as ActionSyncInstance, log);
 
-      useLogStore().logAction(_tempSyncAction, log);
-
-      return (asyncAction: ActionAsyncData): void => {
+      return ({
+        duration,
+        error,
+      }: ActionAsyncData & { error?: CustomError }): void => {
         state.actionLog.push({
-          ..._tempSyncAction!,
-          ...asyncAction,
+          ...(state.currentRef as ActionSyncInstance),
+          duration,
+          ...addAsyncMeta(error),
         });
       };
     };

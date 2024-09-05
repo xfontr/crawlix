@@ -1,17 +1,22 @@
-import { createStore } from "@scraper/core";
-import { ScraperConfig } from "../types";
-
-const DEFAULT: ScraperConfig = {
-  clickAndScrapItem: false,
-  navigationTimeout: 5_000,
-};
+import { createStore, type FullObject } from "@scraper/core";
+import type { ScraperConfig } from "../types";
 
 const useScraperConfig = createStore(
   "scraperConfig",
-  { public: DEFAULT },
+  {
+    public: {
+      clickAndScrapItem: false,
+      navigationTimeout: 5_000,
+    } as ScraperConfig,
+  },
   (state) => {
-    const set = (config: Partial<ScraperConfig>) => {
-      state.public = { ...state.public, ...config };
+    const set = <T extends FullObject = FullObject>(
+      config?: Partial<ScraperConfig<T>>,
+    ) => {
+      (state.public as ScraperConfig<T>) = {
+        ...state.public,
+        ...config,
+      };
     };
 
     return { set };

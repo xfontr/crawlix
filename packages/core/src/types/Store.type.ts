@@ -10,6 +10,7 @@ import type {
   Item,
   ItemMeta,
   ItemData,
+  ActionAsyncData,
 } from ".";
 
 export interface LogStore {
@@ -20,6 +21,7 @@ export interface LogStore {
 export interface LocationStore {
   totalLocations: number;
   history: LocationInstance[];
+  currentRef: LocationInstance | undefined;
 }
 
 export interface ItemStore<T extends FullObject = FullObject> {
@@ -38,7 +40,7 @@ export interface ErrorStore {
 
 export interface ActionStore {
   totalActions: number;
-  action: ActionSyncInstance;
+  currentRef: ActionSyncInstance & Partial<ActionAsyncData>;
   actionLog: ActionInstance[];
   totalMockedPausesDuration: number;
 }

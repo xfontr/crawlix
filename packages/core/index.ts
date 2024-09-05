@@ -1,4 +1,4 @@
-export * from "./src/utils/stores";
+export * from "./src/helpers/stores";
 export * from "./src/hooks";
 export * from "./src/types";
 

@@ -6,32 +6,16 @@ import type {
   LogData,
   LogStore,
 } from "../types";
-import { useLocationStore, useRuntimeConfigStore } from ".";
+import { useRuntimeConfigStore } from ".";
 import { stringifyWithKeys } from "../utils/utils";
 import EventBus from "../utils/EventBus";
-import { createStore } from "../utils/stores";
-import { getMeta } from "../utils/metaData";
-
-const DEFAULT_OPTIONS: Required<Omit<LogData, "message">> = {
-  name: "Unnamed",
-  criticality: 5,
-  type: "INFO",
-  category: "USER_INPUT",
-};
-
-const ERROR_CRITICALITY: Record<Required<CustomError>["criticality"], number> =
-  {
-    FATAL: 0,
-    HIGH: 1,
-    MEDIUM: 2,
-    LOW: 3,
-  };
+import { createStore } from "../helpers/stores";
+import { useMeta } from "../hooks";
 
 const useLogStore = createStore(
   "log",
   { totalLogs: 0, logs: [] } as LogStore,
   (state) => {
-    const { getCurrentLocation } = useLocationStore();
     const { logging } = useRuntimeConfigStore().current.public;
 
     const pushLog = (
@@ -39,13 +23,15 @@ const useLogStore = createStore(
       forceLog?: boolean,
       consoleLog = true,
     ): Log | undefined => {
+      const isText = typeof baseLog === "string";
+
       const logEntry: Log = {
-        ...getMeta(state.totalLogs),
-        ...DEFAULT_OPTIONS,
-        ...(typeof baseLog === "string"
-          ? { name: baseLog }
-          : structuredClone(baseLog)),
-        location: getCurrentLocation(),
+        ...useMeta().getLogMeta(state, baseLog),
+        type: isText ? "INFO" : baseLog.type ?? "INFO",
+        name: isText ? "Message" : baseLog.name ?? "Message",
+        ...(isText || baseLog.message
+          ? { message: isText ? baseLog : baseLog.message }
+          : {}),
       };
 
       if (!forceLog)
@@ -53,8 +39,7 @@ const useLogStore = createStore(
           !(
             logging.categories.includes(logEntry.category) &&
             logging.types.includes(logEntry.type)
-          ) ||
-          logging.maxCriticality < logEntry.criticality
+          )
         ) {
           return;
         }
@@ -67,7 +52,7 @@ const useLogStore = createStore(
     };
 
     const logAction = (
-      { id, depth, name, index }: ActionSyncInstance,
+      { id, name, index }: ActionSyncInstance,
       log?: boolean,
     ) => {
       pushLog(
@@ -75,7 +60,6 @@ const useLogStore = createStore(
           name: name ?? `Executed action n. '${index}'`,
           message: stringifyWithKeys({ id }),
           type: "INFO",
-          criticality: depth + 1, // So that it won't be as critical as a fatal error
           category: "ACTION",
         },
         log,
@@ -91,9 +75,6 @@ const useLogStore = createStore(
           name: `Logged a '${criticality}' error: '${name}'`,
           message: stringifyWithKeys({ id, message, stack }),
           type: "ERROR",
-          ...(criticality
-            ? { criticality: ERROR_CRITICALITY[criticality] }
-            : {}),
           category: "ERROR",
         },
         log,

@@ -1,12 +1,8 @@
 import type { Session, SessionStore } from "../types";
-import { createStore } from "../utils/stores";
-import {
-  useRuntimeConfigStore,
-  useLocationStore,
-  useItemStore,
-  useActionStore,
-} from ".";
-import { generateTimestamp, getMeta } from "../utils/metaData";
+import { createStore } from "../helpers/stores";
+import { useRuntimeConfigStore, useLocationStore, useItemStore } from ".";
+import { useMeta } from "../hooks";
+import { generateDate, generateTimestamp } from "../utils/locationUtils";
 
 const useSessionStore = createStore(
   "session",
@@ -14,17 +10,11 @@ const useSessionStore = createStore(
     status: "IDLE",
   } as Partial<SessionStore> & Required<Pick<SessionStore, "status">>,
   (state) => {
-    const { getCurrentLocation, current } = useLocationStore();
+    const { current } = useLocationStore();
     const {
-      isMinimal,
-      isRelational,
-      current: {
-        public: {
-          successCompletionRate,
-          offset: { index },
-        },
-      },
-    } = useRuntimeConfigStore();
+      successCompletionRate,
+      offset: { index },
+    } = useRuntimeConfigStore().current.public;
 
     const init = (): void => {
       if (state.status !== "READY") {
@@ -36,15 +26,7 @@ const useSessionStore = createStore(
 
       state.status = "IN_PROGRESS";
 
-      const startLocation = current.history[0]!;
-      const { action: lastAction } = useActionStore().current;
-
-      if (!isMinimal()) state.id = getMeta().id;
-      state.startLocation = {
-        id: startLocation.id,
-        timestamp: startLocation.timestamp,
-        lastAction: isRelational() ? lastAction.id : lastAction,
-      };
+      state.startLocation = current.history[0]!;
     };
 
     const ready = (): void => {
@@ -61,15 +43,14 @@ const useSessionStore = createStore(
 
     const end = (status?: Session["status"]): void => {
       state.status = status ?? isSessionComplete() ? "SUCCESS" : "INCOMPLETE";
-      state.endLocation = getCurrentLocation();
-      const lastItem = useItemStore().current.totalItems;
+      state.endLocation = useMeta().get().location!;
 
       state.duration = generateTimestamp(
         current.history[0]!.date,
-        getCurrentLocation(true).date,
+        generateDate(),
       );
 
-      state.itemRange = [index, lastItem + index];
+      state.itemRange = [index, useItemStore().current.totalItems + index];
     };
 
     const isSessionOver = (): boolean =>

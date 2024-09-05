@@ -1,11 +1,11 @@
-import Puppeteer from "@scraper/puppeteer";
+import { useScraper } from "@scraper/puppeteer";
 
 const Scraper = async () => {
-  return await Puppeteer({
-    abortImages: false,
-    executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  });
+  const scraper = useScraper();
+
+  await scraper.init();
+
+  return { $p: scraper.$p };
 };
 
 export default Scraper;

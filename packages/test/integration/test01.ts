@@ -24,8 +24,9 @@ const test01 = async () => {
   const { $a } = useAction();
   const { log } = useLog();
 
-  // Uncaught: We want the app to break if the scraper fails to init
-  const { page: $p } = await Scraper();
+  const { $p } = await Scraper();
+
+  afterAll((output) => writeOutput(output, "01"));
 
   (await $a(
     async () => {
@@ -33,8 +34,6 @@ const test01 = async () => {
     },
     { name: "BEFORE ALL" },
   ))!;
-
-  afterAll((output) => writeOutput(output, "01"));
 
   await loop(
     (i) => i === configs.limit.page,

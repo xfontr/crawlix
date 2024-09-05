@@ -1,6 +1,6 @@
 import { useAction, useLocation, useSession } from "@scraper/core";
 import { useScraper } from "../hooks";
-import { useScraperConfig, useSelectorsStore } from "../stores";
+import { useScraperConfigStore, useSelectorsStore } from "../stores";
 import { clickAndNavigate } from "../utils/navigate";
 import { ElementHandle } from "puppeteer";
 
@@ -16,7 +16,7 @@ const scrapList = async (
     current: {
       public: { clickAndScrapItem },
     },
-  } = useScraperConfig();
+  } = useScraperConfigStore();
 
   const getAllItems = async (name?: string) => {
     return (

@@ -1,10 +1,9 @@
-import type { LocationStamp } from "./Location.type";
-import type { Meta } from "./Meta.type";
+import type { Meta, LocationStamp, LocationInstance } from ".";
 
 export interface SessionMeta {
   id: Meta["id"];
-  startLocation: LocationStamp;
-  endLocation: LocationStamp;
+  startLocation: LocationStamp | LocationInstance;
+  endLocation: LocationStamp | LocationInstance;
   duration: number;
   itemRange: [number, number];
 }

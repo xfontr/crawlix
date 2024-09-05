@@ -5,27 +5,24 @@ import type {
   ItemData,
   ItemStore,
 } from "../types";
-import { createStore } from "../utils/stores";
+import { createStore } from "../helpers/stores";
 import { cleanUpIfText, getPercentage } from "../utils/utils";
-import { buildItemMeta } from "../utils/itemMetaData";
 import { useLocationStore, useRuntimeConfigStore } from ".";
+import { useMeta } from "../hooks";
 
 const useItemStore = createStore(
   "item",
   {
     totalItems: 0,
     incompleteItems: 0,
-    fullyCompleteItemsRate: 0, // If 0, it's as if it was disabled
+    fullyCompleteItemsRate: 0,
     currentRef: undefined,
     currentRefErrors: undefined,
     items: [],
   } as ItemStore,
   (state) => {
-    const { getCurrentLocation, sumItem } = useLocationStore();
-    const {
-      current: { public: config },
-      isRelational,
-    } = useRuntimeConfigStore();
+    const { sumItem } = useLocationStore();
+    const { isRelational } = useRuntimeConfigStore();
 
     const initItem = <T extends FullObject = FullObject>(
       attributes: Partial<ItemData<T>> = {},
@@ -33,7 +30,7 @@ const useItemStore = createStore(
        * @description Fields that if empty will be used to determine the item completion rate.
        * If unset, every field will be marked as required
        */
-      required?: (keyof T)[],
+      required?: (keyof Partial<T>)[],
     ) => {
       state.currentRef = structuredClone(attributes);
       state.currentRefErrors = [];
@@ -57,20 +54,17 @@ const useItemStore = createStore(
         post: (): void => {
           state.totalItems += 1;
 
-          const meta = buildItemMeta<T>(
-            state.totalItems + config.offset.index,
+          const meta = useMeta().getItemMeta<T>(
             state as unknown as ItemStore<T>,
-            getCurrentLocation(),
-            config.output.itemWithMetaLayer,
             required,
           );
 
           const item: Item<T> = {
             ...(state.currentRef as ItemData<T>),
-            ...(config.output.itemWithMetaLayer ? { _meta: meta } : meta),
+            meta,
           };
 
-          state.items.push(item as unknown as Item);
+          state.items.push(item);
 
           state.currentRef = undefined;
           state.currentRefErrors = undefined;
