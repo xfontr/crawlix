@@ -5,7 +5,12 @@ import {
   useErrorStore,
   useRuntimeConfigStore,
 } from "../stores";
-import type { ActionAsyncData, ActionCustomData, FullFunction } from "../types";
+import type {
+  ActionAsyncData,
+  ActionCustomData,
+  CustomError,
+  FullFunction,
+} from "../types";
 import { useError } from ".";
 import { MAX_THREAD_DEPTH } from "../configs/constants";
 
@@ -78,7 +83,7 @@ const useAction = () => {
 
     const [data, error] = await tryCatch(() => delay(callback, mockUserPause));
 
-    const asyncAction: ActionAsyncData = {
+    const asyncAction: ActionAsyncData & { error?: CustomError } = {
       duration: Date.now() - start,
     };
 
