@@ -9,11 +9,12 @@ const headLog = ({
   if (body) return body;
 
   if (!message) return `${category}: ${name}`;
-  return `${name}. Details: ${message}`;
+  return `${name} | ${message}`;
 };
 
 const bodyLog = (logInstance: Log & { body?: string }): string => {
-  const { body, ...rest } = logInstance;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { body, message, name, ...rest } = logInstance;
 
   if (body) return "";
 
@@ -23,7 +24,7 @@ const bodyLog = (logInstance: Log & { body?: string }): string => {
 export const consoleLog = (logInstance: Log): void => {
   if (!logInstance.type) return;
 
-  const options: Record<Log["type"], FullFunction> = {
+  const options: Record<NonNullable<Log["type"]>, FullFunction> = {
     DEBUG: console.debug,
     DEV: console.log,
     ERROR: console.error,

@@ -59,7 +59,7 @@ const useAction = () => {
 
   const $a = async <T>(
     callback: FullFunction<T>,
-    actionOptions: ActionCustomData & { log?: boolean } = {},
+    actionOptions: ActionCustomData & { forceLog?: boolean } = {},
   ) => {
     if (depth > blockedThread) return;
 
@@ -78,7 +78,7 @@ const useAction = () => {
         depth,
         mockedDuration: mockUserPause,
       },
-      !!actionOptions.log,
+      !!actionOptions.forceLog,
     );
 
     const [data, error] = await tryCatch(() => delay(callback, mockUserPause));

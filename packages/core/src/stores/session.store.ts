@@ -11,10 +11,6 @@ const useSessionStore = createStore(
   } as Partial<SessionStore> & Required<Pick<SessionStore, "status">>,
   (state) => {
     const { current } = useLocationStore();
-    const {
-      successCompletionRate,
-      offset: { index },
-    } = useRuntimeConfigStore().current.public;
 
     const init = (): void => {
       if (state.status !== "READY") {
@@ -36,12 +32,14 @@ const useSessionStore = createStore(
     const isIDLE = (): boolean => state.status === "IDLE";
 
     const isSessionComplete = (): boolean => {
+      const { public: config } = useRuntimeConfigStore().current;
       const { fullyCompleteItemsRate } = useItemStore().current;
 
-      return successCompletionRate >= fullyCompleteItemsRate;
+      return config.successCompletionRate >= fullyCompleteItemsRate;
     };
 
     const end = (status?: Session["status"]): void => {
+      const { public: config } = useRuntimeConfigStore().current;
       state.status = status ?? isSessionComplete() ? "SUCCESS" : "INCOMPLETE";
       state.endLocation = useMeta().get().location!;
 
@@ -50,7 +48,10 @@ const useSessionStore = createStore(
         generateDate(),
       );
 
-      state.itemRange = [index, useItemStore().current.totalItems + index];
+      state.itemRange = [
+        config.offset.index,
+        useItemStore().current.totalItems + config.offset.index,
+      ];
     };
 
     const isSessionOver = (): boolean =>

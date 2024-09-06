@@ -8,6 +8,7 @@ import type { Meta } from "../types/Meta.type";
 import type {
   ActionMeta,
   ActionStore,
+  ActionSyncInstance,
   CustomError,
   FullObject,
   ItemMeta,
@@ -26,21 +27,19 @@ const generateId = (): string => randomUUID();
 const useMeta = () => {
   const {
     isMinimal,
-    isRelational,
     current: { public: config },
   } = useRuntimeConfigStore();
-  const locationStore = useLocationStore();
 
-  const get = (index?: number, skipLocation?: boolean) =>
-    (isMinimal()
-      ? {}
+  const get = (index?: number, skipLocation?: boolean): Meta =>
+    isMinimal()
+      ? ({} as Meta)
       : {
           id: generateId(),
           ...(skipLocation
             ? {}
-            : { location: locationStore.getCurrentLocation(!isRelational()) }),
+            : { location: useLocationStore().getCurrentLocation() }),
           ...(index ? { index } : {}),
-        }) as Meta;
+        };
 
   const getItemMeta = <T extends FullObject>(
     state: ItemStore<T>,
@@ -50,17 +49,18 @@ const useMeta = () => {
     ...(isMinimal() ? ({} as ItemMeta<T>) : buildItemMeta(state, required)),
   });
 
-  const getActionMeta = ({ totalActions, currentRef }: ActionStore) => {
+  const getActionMeta = (
+    { totalActions }: ActionStore,
+    action: ActionSyncInstance,
+  ) => {
     let syncMeta: ActionMeta | undefined = {
       ...get(totalActions + 1),
       ...(isMinimal()
         ? ({} as ActionMeta)
         : {
-            depth: currentRef.depth,
-            mockedDuration: currentRef.mockedDuration,
-            ...(currentRef.isCritical
-              ? { isCritical: currentRef.isCritical }
-              : {}),
+            depth: action.depth,
+            mockedDuration: action.mockedDuration,
+            ...(action.isCritical ? { isCritical: action.isCritical } : {}),
           }),
     };
 
@@ -72,7 +72,7 @@ const useMeta = () => {
         return {
           ...(!error || isMinimal()
             ? ({} as Pick<ActionMeta, "error">)
-            : { error: isRelational() ? error.id! : error }),
+            : { error: error.id! }),
         };
       },
     };
@@ -96,7 +96,7 @@ const useMeta = () => {
     history,
     totalLocations,
   }: LocationStore): LocationMeta => {
-    const { currentRef: lastAction } = useActionStore().current;
+    const { currentRef } = useActionStore().current;
     const date = generateDate();
 
     return isMinimal()
@@ -105,7 +105,7 @@ const useMeta = () => {
           ...get(totalLocations + 1, true),
           timestamp: generateTimestamp(history[0]?.date ?? date, date),
           date,
-          lastAction: isRelational() ? lastAction.id! : lastAction,
+          ...(currentRef?.id ? { lastAction: currentRef?.id } : {}),
         };
   };
 

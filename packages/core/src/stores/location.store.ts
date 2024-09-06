@@ -18,7 +18,7 @@ const useLocationStore = createStore(
     currentRef: undefined,
   } as LocationStore,
   (state) => {
-    const { isRelational, isMinimal } = useRuntimeConfigStore();
+    const { isMinimal } = useRuntimeConfigStore();
     const { getLocationMeta } = useMeta();
 
     const handleMaxPage = (currentPage: number): void => {
@@ -73,17 +73,15 @@ const useLocationStore = createStore(
     const logLocationError = (customError: CustomError): void => {
       if (isMinimal()) return;
 
-      const error = isRelational() ? customError.id : customError;
-
       const lastLocation = state.history.at(-1)!;
 
       if (!lastLocation.errors) lastLocation.errors = [];
 
-      lastLocation.errors.push(structuredClone(error!));
+      lastLocation.errors.push(customError.id!);
     };
 
     const sumItem = () => {
-      if (!state.currentRef) return;
+      if (isMinimal() || !state.currentRef) return;
 
       state.currentRef.itemCount = state.currentRef.itemCount
         ? state.currentRef.itemCount + 1

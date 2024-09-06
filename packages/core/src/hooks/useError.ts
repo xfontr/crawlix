@@ -5,7 +5,7 @@ import EventBus from "../utils/EventBus";
 const useError = () => {
   const createError = (error: CustomErrorData = {}, log?: boolean): void => {
     const { pushError, getLastError } = useErrorStore();
-    const { depth } = useActionStore().current.action;
+    const { depth } = useActionStore().current.currentRef;
 
     pushError({ ...error }, log);
 

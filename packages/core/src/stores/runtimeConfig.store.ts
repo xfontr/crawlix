@@ -50,7 +50,7 @@ const initialState: RuntimeConfigStore = {
       ),
     },
     output: {
-      schema: envVar(v("output", "schema"), "RELATIONAL"),
+      schema: envVar(v("output", "schema"), undefined),
       include: envVar(
         v("output", "include"),
         [
@@ -85,11 +85,9 @@ const useRuntimeConfigStore = createStore(
       ) as RuntimeConfig;
     };
 
-    const isRelational = () => state.public.output.schema === "RELATIONAL";
-
     const isMinimal = () => state.public.output.schema === "MINIMAL";
 
-    return { setRuntimeConfig, isRelational, isMinimal };
+    return { setRuntimeConfig, isMinimal };
   },
 );
 
