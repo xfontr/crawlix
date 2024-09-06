@@ -18,7 +18,7 @@ const useActionStore = createStore(
     currentRef: undefined as unknown as ActionSyncInstance,
   } as ActionStore,
   (state) => {
-    const initAction = (action: ActionData, log?: boolean) => {
+    const initAction = (action: ActionData, forceLog?: boolean) => {
       if (useSessionStore().isIDLE()) {
         throw new Error(
           "Cannot execute actions before initializing the session",
@@ -28,25 +28,30 @@ const useActionStore = createStore(
       state.totalActions += 1;
       state.totalMockedPausesDuration += action.mockedDuration ?? 0;
 
-      state.currentRef = structuredClone(action);
-      const { addAsyncMeta, syncMeta } = useMeta().getActionMeta(state);
+      const { name, ...current } = structuredClone(action);
 
-      state.currentRef = {
-        ...state.currentRef,
-        ...syncMeta,
-      };
+      state.currentRef = { name } as ActionSyncInstance;
 
-      useLogStore().logAction(state.currentRef as ActionSyncInstance, log);
+      const { addAsyncMeta, syncMeta } = useMeta().getActionMeta(
+        state,
+        current,
+      );
+
+      state.currentRef = { ...state.currentRef, ...syncMeta };
+      let _temp = state.currentRef;
+      useLogStore().logAction(state.currentRef as ActionSyncInstance, forceLog);
 
       return ({
         duration,
         error,
       }: ActionAsyncData & { error?: CustomError }): void => {
         state.actionLog.push({
-          ...(state.currentRef as ActionSyncInstance),
+          ..._temp,
           duration,
           ...addAsyncMeta(error),
         });
+
+        _temp = undefined as unknown as ActionSyncInstance;
       };
     };
 

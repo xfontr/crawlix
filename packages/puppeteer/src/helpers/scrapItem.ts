@@ -25,7 +25,7 @@ const scrapItem = async <T extends FullObject>(item?: ElementHandle) => {
 
   log({
     category: "SESSION",
-    message: `Scrapped item '${useItemStore().current.totalItems}'`,
+    message: `Scraped item '${useItemStore().current.totalItems}'`,
   });
 };
 

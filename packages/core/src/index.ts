@@ -61,7 +61,6 @@ export const _dangerouslyAbort = (status?: Session["status"]): void => {
   if (!config.public.node.env.startsWith("dev")) {
     pushLog({
       type: "DEV",
-      criticality: 0,
       name: "FORCE_ABORT",
       message:
         "Forced ending in production setting. Ensure an organic ending, that is, by success, error or timeout",

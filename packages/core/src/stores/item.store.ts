@@ -7,7 +7,7 @@ import type {
 } from "../types";
 import { createStore } from "../helpers/stores";
 import { cleanUpIfText, getPercentage } from "../utils/utils";
-import { useLocationStore, useRuntimeConfigStore } from ".";
+import { useLocationStore } from ".";
 import { useMeta } from "../hooks";
 
 const useItemStore = createStore(
@@ -22,7 +22,6 @@ const useItemStore = createStore(
   } as ItemStore,
   (state) => {
     const { sumItem } = useLocationStore();
-    const { isRelational } = useRuntimeConfigStore();
 
     const initItem = <T extends FullObject = FullObject>(
       attributes: Partial<ItemData<T>> = {},
@@ -61,7 +60,7 @@ const useItemStore = createStore(
 
           const item: Item<T> = {
             ...(state.currentRef as ItemData<T>),
-            meta,
+            ...meta,
           };
 
           state.items.push(item);
@@ -85,9 +84,7 @@ const useItemStore = createStore(
     const logItemError = (error: CustomError) => {
       if (!state.currentRef || !state.currentRefErrors) return;
 
-      state.currentRefErrors.push(
-        isRelational() ? error.id! : structuredClone(error),
-      );
+      state.currentRefErrors.push(error.id!);
     };
 
     return { initItem, logItemError };

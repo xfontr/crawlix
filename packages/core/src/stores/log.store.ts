@@ -24,11 +24,12 @@ const useLogStore = createStore(
       consoleLog = true,
     ): Log | undefined => {
       const isText = typeof baseLog === "string";
+      const type = isText ? "INFO" : baseLog.type ?? "INFO";
 
       const logEntry: Log = {
         ...useMeta().getLogMeta(state, baseLog),
-        type: isText ? "INFO" : baseLog.type ?? "INFO",
-        name: isText ? "Message" : baseLog.name ?? "Message",
+        type,
+        ...(isText ? {} : { name: baseLog.name }),
         ...(isText || baseLog.message
           ? { message: isText ? baseLog : baseLog.message }
           : {}),
@@ -37,14 +38,16 @@ const useLogStore = createStore(
       if (!forceLog)
         if (
           !(
-            logging.categories.includes(logEntry.category) &&
-            logging.types.includes(logEntry.type)
+            logging.categories.includes(
+              isText ? "USER_INPUT" : baseLog.category ?? "USER_INPUT",
+            ) && logging.types.includes(type)
           )
         ) {
           return;
         }
 
       state.totalLogs += 1;
+
       state.logs.push(logEntry);
 
       if (consoleLog) EventBus.log.emit(structuredClone(logEntry));
