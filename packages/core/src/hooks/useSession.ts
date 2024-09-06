@@ -14,6 +14,7 @@ import { outputStores } from "../helpers/stores";
 import EventBus from "../utils/EventBus";
 import { runAfterAllInSeq, promiseLoop } from "../utils/promises";
 import { useAction, useError, useLog } from ".";
+import { MAX_LOOP_ITERATIONS } from "../configs/constants";
 
 const state = {
   beforeAllEffects: [] as FullFunction[],
@@ -74,10 +75,15 @@ const useSession = () => {
   const loop = async (
     breakingCondition: (index: number) => boolean,
     callback: FullFunctionWithIndex,
-    options?: ActionCustomData,
+    options?: ActionCustomData & { maxIterationsFallback?: number },
   ): Promise<void> => {
     const index = await $a(
-      () => promiseLoop(callback, breakingCondition),
+      () =>
+        promiseLoop(
+          callback,
+          breakingCondition,
+          options?.maxIterationsFallback ?? MAX_LOOP_ITERATIONS,
+        ),
       options,
     );
 

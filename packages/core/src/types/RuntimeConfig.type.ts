@@ -47,9 +47,10 @@ export interface RuntimeConfig {
      */
     include: StoreNames[];
     /**
-     * @description How is the output data structured. Default: Relational database
+     * @description How is the output data structured.
+     * @default "RELATIONAL"
      */
-    schema: "MINIMAL" | undefined;
+    schema: "MINIMAL" | "RELATIONAL";
     /**
      * @description If true, objects will be flattened (no nested objects, just enough to separate different registries)
      */
