@@ -9,13 +9,15 @@ import {
 } from ".";
 import { useMeta } from "../hooks";
 
+const CRITICALITY_INCREASE = 2;
+
 const criticalityMap = (
   base: number,
 ): Record<CustomError["criticality"], number> => ({
   FATAL: base,
-  HIGH: base + 2,
-  MEDIUM: base + 2,
-  LOW: base + 2,
+  HIGH: base + CRITICALITY_INCREASE,
+  MEDIUM: base + CRITICALITY_INCREASE * 2,
+  LOW: base + CRITICALITY_INCREASE * 3,
 });
 
 const useErrorStore = createStore(
@@ -32,22 +34,9 @@ const useErrorStore = createStore(
 
       const criticalityLevels = criticalityMap(fatalErrorDepth);
 
-      if (
-        actionDepth <= criticalityLevels.FATAL &&
-        actionDepth >= criticalityLevels.HIGH
-      )
-        return "FATAL";
-
-      if (
-        actionDepth <= criticalityLevels.HIGH &&
-        actionDepth >= criticalityLevels.MEDIUM
-      )
-        return "HIGH";
-
-      return actionDepth <= criticalityLevels.MEDIUM &&
-        actionDepth >= criticalityLevels.LOW
-        ? "MEDIUM"
-        : "LOW";
+      if (actionDepth <= criticalityLevels.FATAL) return "FATAL";
+      if (actionDepth <= criticalityLevels.HIGH) return "HIGH";
+      return actionDepth <= criticalityLevels.MEDIUM ? "MEDIUM" : "LOW";
     };
 
     const pushError = (error: CustomErrorData, log?: boolean) => {
