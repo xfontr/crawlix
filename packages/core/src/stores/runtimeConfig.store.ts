@@ -50,7 +50,7 @@ const initialState: RuntimeConfigStore = {
       ),
     },
     output: {
-      schema: envVar(v("output", "schema"), undefined),
+      schema: envVar(v("output", "schema"), "RELATIONAL"),
       include: envVar(
         v("output", "include"),
         [

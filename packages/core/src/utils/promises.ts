@@ -7,12 +7,17 @@ import type {
 export const promiseLoop = async <T>(
   callback: FullFunctionWithIndex<T>,
   breakingCondition: (index: number) => boolean,
+  maxIterations?: number,
 ): Promise<number> => {
   let index = 0;
 
   do {
     await callback(index);
     index += 1;
+
+    if (index === maxIterations) {
+      throw new Error(`Loop size has been exceeded at index '${index}'`);
+    }
   } while (breakingCondition(index) === false);
 
   return index;
