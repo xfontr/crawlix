@@ -1,5 +1,5 @@
 import type { FullObject, ItemData, ItemMeta, ItemStore } from "../types";
-import { getPercentage } from "./utils";
+import { getPercentage } from ".";
 
 const computeEmptyFields = <T extends FullObject>(
   itemInProgress: Partial<ItemData<T>>,

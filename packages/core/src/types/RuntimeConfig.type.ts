@@ -9,8 +9,21 @@ export interface RuntimeConfig {
     url: string;
   };
   limit: {
+    /**
+     * @description Ends session when reaching the set page limit
+     */
     page: number;
+    /**
+     * @description Ends session when reaching the item count limit
+     */
+    items: number;
+    /**
+     * @description The maximum time allowed to run before forcibly stopped
+     */
     timeout: number;
+    /**
+     * @description The maximum time allowed to run without any activity
+     */
     inactivity: number;
   };
   logging: {
@@ -38,9 +51,6 @@ export interface RuntimeConfig {
    * @description If the process should be exited upon session end
    */
   endProcess: boolean;
-  /**
-   * @description Instructions on how the final output should look like
-   */
   output: {
     /**
      * @description Selects the registries (actions, locations, etc.) that should end up in the final output

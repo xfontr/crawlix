@@ -1,5 +1,3 @@
-import { delay } from "../utils/promises";
-import { randomize, tryCatch } from "../utils/utils";
 import {
   useActionStore,
   useErrorStore,
@@ -13,6 +11,7 @@ import type {
 } from "../types";
 import { useError } from ".";
 import { MAX_THREAD_DEPTH } from "../configs/constants";
+import { randomize, tryCatch, delay } from "../utils";
 
 let blockedThread = MAX_THREAD_DEPTH;
 
@@ -49,6 +48,16 @@ const trackActivity = () => {
   };
 };
 
+const cleanOptions = <T>(
+  options:
+    | (ActionCustomData & { forceLog?: boolean })
+    | string
+    | FullFunction<T>,
+) => {
+  if (typeof options === "string") return { name: options };
+  return typeof options === "function" ? {} : options;
+};
+
 const useAction = () => {
   const { initAction, current } = useActionStore();
   const {
@@ -57,10 +66,32 @@ const useAction = () => {
 
   let depth = 0;
 
+  const createError = (
+    error: Error | undefined,
+    options: ActionCustomData,
+  ): CustomError | undefined => {
+    if (!error) return;
+
+    useError().createError({
+      name: `[ACTION ERROR] index {'${current.currentRef.index}'} depth {'${depth}'}`,
+      message: `[${error?.name}] ${error?.message}`,
+      ...(error?.stack ? { stack: error?.stack } : {}),
+      ...(options.isCritical ? { criticality: "FATAL" } : {}),
+    });
+
+    return useErrorStore().getLastError()!;
+  };
+
   const $a = async <T>(
+    options:
+      | (ActionCustomData & { forceLog?: boolean })
+      | string
+      | FullFunction<T>,
     callback: FullFunction<T>,
-    actionOptions: ActionCustomData & { forceLog?: boolean } = {},
   ) => {
+    if (typeof options === "function") callback = options;
+    options = cleanOptions(options);
+
     if (depth > blockedThread) return;
 
     const endTracking = trackActivity();
@@ -74,11 +105,11 @@ const useAction = () => {
 
     const pushAction = initAction(
       {
-        name: actionOptions?.name ?? "",
+        name: options?.name ?? "",
         depth,
         mockedDuration: mockUserPause,
       },
-      !!actionOptions.forceLog,
+      !!options.forceLog,
     );
 
     const [data, error] = await tryCatch(() => delay(callback, mockUserPause));
@@ -87,16 +118,8 @@ const useAction = () => {
       duration: Date.now() - start,
     };
 
-    if (error) {
-      useError().createError({
-        name: `[ACTION ERROR] index {'${current.currentRef.index}'} depth {'${depth}'}`,
-        message: `[${error?.name}] ${error?.message}`,
-        ...(error?.stack ? { stack: error?.stack } : {}),
-        ...(actionOptions.isCritical ? { criticality: "FATAL" } : {}),
-      });
-
-      asyncAction.error = useErrorStore().getLastError()!;
-    }
+    const hasLastError = createError(error, options);
+    if (hasLastError) asyncAction.error = hasLastError;
 
     pushAction(asyncAction);
     endTracking();

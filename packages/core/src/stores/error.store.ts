@@ -1,5 +1,5 @@
 import type { CustomError, CustomErrorData, ErrorStore } from "../types";
-import { createStore } from "../helpers/stores";
+import { createStore } from "../helpers";
 import {
   useRuntimeConfigStore,
   useLogStore,

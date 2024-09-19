@@ -8,3 +8,4 @@ export * from "./RuntimeConfig.type";
 export * from "./Session.type";
 export * from "./Store.type";
 export * from "./Meta.type";
+export * from "./UtilityTypes";

@@ -1,7 +1,12 @@
 /* eslint-disable eslint-comments/disable-enable-pair */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import type { FullObject, RuntimeConfigStore, StoreNames } from "../types";
+import type {
+  FullFunction,
+  FullObject,
+  RuntimeConfigStore,
+  StoreNames,
+} from "../types";
 import { flattie } from "flattie";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10,7 +15,10 @@ const store: Record<string, any> = {};
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const storeInitial: Record<string, any> = {};
 
-export const createStore = <T, R extends object = object>(
+export const createStore = <
+  T,
+  R extends FullObject & { resetStore?: FullFunction } = FullObject,
+>(
   name: StoreNames,
   value: T,
   callback: (state: T) => R,
@@ -76,6 +84,8 @@ export const outputStores = (
 
 export const cleanUpStores = (complete: boolean): void => {
   for (const key of Object.getOwnPropertyNames(store)) {
+    store[key]?.private?.resetStore();
+
     if (complete) delete store[key];
     if (!complete) store[key] = storeInitial[key];
   }

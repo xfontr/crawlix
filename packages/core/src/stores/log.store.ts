@@ -7,9 +7,9 @@ import type {
   LogStore,
 } from "../types";
 import { useRuntimeConfigStore } from ".";
-import { stringifyWithKeys } from "../utils/utils";
+import { stringifyWithKeys } from "../utils";
 import EventBus from "../utils/EventBus";
-import { createStore } from "../helpers/stores";
+import { createStore } from "../helpers";
 import { useMeta } from "../hooks";
 
 const useLogStore = createStore(

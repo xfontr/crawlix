@@ -1,6 +1,6 @@
-import { useLogStore, useRuntimeConfigStore } from "../stores";
 import type { FullFunction, LogData } from "../types";
-import { consoleLog } from "../utils/consoleLog";
+import { useLogStore, useRuntimeConfigStore } from "../stores";
+import { consoleLog } from "../utils";
 
 let rawLog: FullFunction = consoleLog;
 
@@ -18,7 +18,7 @@ const useLog = () => {
 
   const print = (logInstance: LogData): void => {
     rawLog(
-      logging.isSimple.includes(logInstance.category!)
+      logging.isSimple.includes(logInstance.category)
         ? {
             category: logInstance.category,
             type: logInstance.type,

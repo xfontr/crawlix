@@ -12,7 +12,7 @@ import type {
 } from "../types";
 import { outputStores } from "../helpers/stores";
 import EventBus from "../utils/EventBus";
-import { runAfterAllInSeq, promiseLoop } from "../utils/promises";
+import { runAfterAllInSeq, promiseLoop } from "../utils";
 import { useAction, useError, useLog } from ".";
 import { MAX_LOOP_ITERATIONS } from "../configs/constants";
 
@@ -54,17 +54,15 @@ const useSession = () => {
 
     sessionStore.end(status);
 
-    await $a(
-      () =>
-        runAfterAllInSeq(
-          outputStores(
-            config.public.model,
-            config.public.output.include,
-            config.public.output.flatten,
-          ),
-          ...state.afterAllEffects,
+    await $a("Executing after all effects", () =>
+      runAfterAllInSeq(
+        outputStores(
+          config.public.model,
+          config.public.output.include,
+          config.public.output.flatten,
         ),
-      { name: "Executing after all effects" },
+        ...state.afterAllEffects,
+      ),
     );
 
     state.afterAllEffects = [];
@@ -77,14 +75,12 @@ const useSession = () => {
     callback: FullFunctionWithIndex,
     options?: ActionCustomData & { maxIterationsFallback?: number },
   ): Promise<void> => {
-    const index = await $a(
-      () =>
-        promiseLoop(
-          callback,
-          breakingCondition,
-          options?.maxIterationsFallback ?? MAX_LOOP_ITERATIONS,
-        ),
-      options,
+    const index = await $a(options, () =>
+      promiseLoop(
+        callback,
+        breakingCondition,
+        options?.maxIterationsFallback ?? MAX_LOOP_ITERATIONS,
+      ),
     );
 
     log({

@@ -1,8 +1,8 @@
 import type { Session, SessionStore } from "../types";
-import { createStore } from "../helpers/stores";
+import { createStore } from "../helpers";
 import { useRuntimeConfigStore, useLocationStore, useItemStore } from ".";
 import { useMeta } from "../hooks";
-import { generateDate, generateTimestamp } from "../utils/locationUtils";
+import { generateDate, generateTimestamp } from "../utils";
 
 const useSessionStore = createStore(
   "session",

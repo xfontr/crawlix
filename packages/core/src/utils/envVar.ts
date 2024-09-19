@@ -19,7 +19,8 @@ const envVar = <T>(
   const retrievedVar = get(variable);
 
   if (options?.required) retrievedVar.required();
-  if (defaultValue) retrievedVar.default(cleanDefaultValue(defaultValue));
+  if (typeof defaultValue !== "undefined")
+    retrievedVar.default(cleanDefaultValue(defaultValue)!);
 
   const check = {
     string: retrievedVar.asString,
