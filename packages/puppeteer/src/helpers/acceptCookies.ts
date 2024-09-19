@@ -7,14 +7,12 @@ const acceptCookies = async () => {
   const { $a } = useAction();
   const { cookies } = useSelectorsStore().current.selectors;
 
-  if (cookies)
-    await $a(
-      async () => {
-        const acceptButton = await $p.$(cookies);
-        await acceptButton?.click();
-      },
-      { name: "Accept cookies" },
-    );
+  if (!cookies) return;
+
+  await $a("Accept cookies", async () => {
+    const acceptButton = await $p.$(cookies);
+    await acceptButton?.click();
+  });
 };
 
 export default acceptCookies;

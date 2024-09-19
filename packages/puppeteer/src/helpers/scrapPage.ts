@@ -45,29 +45,29 @@ const scrapPage = async (
       if (index + 1 === limit.page) return;
 
       if (options.navigation === "click" && nextPage) {
-        await $a(
-          async () => {
-            const afterNavigation = clickAndNavigate(await $p.$(nextPage), {
+        await $a("Get next page button", async () => {
+          const afterNavigation = clickAndNavigate(
+            {
               name: "Navigate to next page",
-            });
+            },
+            await $p.$(nextPage),
+          );
 
-            await afterNavigation(() => {
-              pageUp({ url: $p.url() });
-            });
-          },
-          { name: "Get next page button" },
-        );
+          await afterNavigation(() => {
+            pageUp({ url: $p.url() });
+          });
+        });
       }
 
       if (options.navigation !== "click") {
         const afterNavigation = forceNavigate(
-          typeof options.navigation === "function"
-            ? options.navigation(index + 1)
-            : options.navigation,
           {
             name: "Force navigate to specified page",
             forceWait: options.forceWait,
           },
+          typeof options.navigation === "function"
+            ? options.navigation(index + 1)
+            : options.navigation,
         );
 
         await afterNavigation(() => {

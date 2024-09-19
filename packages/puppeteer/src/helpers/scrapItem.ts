@@ -1,9 +1,23 @@
-import { type FullObject, useItems, useItemStore, useLog } from "@scraper/core";
+import {
+  type FullObject,
+  useAction,
+  useItems,
+  useItemStore,
+  useLog,
+} from "@scraper/core";
 import { useField } from "../hooks";
 import { useScraperConfigStore, useSelectorsStore } from "../stores";
 import type { ElementHandle } from "puppeteer";
 
-const scrapItem = async <T extends FullObject>(item?: ElementHandle) => {
+type ScrapItemOptions = {
+  logResult?: boolean;
+};
+
+const scrapItem = async <T extends FullObject>(
+  item: ElementHandle | undefined,
+  callback?: () => Promise<T> | T,
+  options?: ScrapItemOptions,
+) => {
   const {
     current: { public: config },
   } = useScraperConfigStore();
@@ -11,15 +25,26 @@ const scrapItem = async <T extends FullObject>(item?: ElementHandle) => {
   const { selectors } = useSelectorsStore().current;
   const { getField } = useField(item);
   const { addAttribute, post } = useItems().initItem<T>({}, config.required);
+  const { $a } = useAction();
 
   const attributes = Object.entries(selectors.item ?? {}).map(
-    async ([name, selector]) =>
+    async ([name, selector]) => {
+      if (
+        typeof selector === "object" &&
+        !Array.isArray(selector) &&
+        selector.skip
+      )
+        return;
+
       addAttribute({
-        [name]: await getField(selector.attribute, name, selector.selector),
-      } as Partial<T>),
+        [name]: await getField(name, selector, options?.logResult),
+      } as Partial<T>);
+    },
   );
 
   await Promise.all(attributes);
+
+  if (callback) addAttribute((await $a("Add custom attributes", callback))!);
 
   post();
 

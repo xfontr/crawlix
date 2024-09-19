@@ -1,65 +1,60 @@
+import type { ElementHandle } from "puppeteer";
+import type { Selector, SelectorModel, SingleSelectorModel } from "../types";
 import { useAction, useLog } from "@scraper/core";
 import { useScraper } from ".";
-import type { ElementHandle } from "puppeteer";
+import { useSelectorsStore } from "../stores";
+import { getFromOneOrMoreOptions as get } from "../utils";
 
 const useField = (item?: ElementHandle) => {
   const { $a } = useAction();
   const { log } = useLog();
   const { $p } = useScraper();
+  const { cleanAttribute } = useSelectorsStore();
+
+  const getHref = (name: string, selector: SingleSelectorModel) =>
+    $a<string>(`Get field href '${name}'`, () =>
+      (item ?? $p).$eval(selector.selector, (el) => el.href),
+    );
+
+  const getTextContent = (name: string, selector: SingleSelectorModel) =>
+    selector.selectAll
+      ? getAllTextContent(name, selector)
+      : $a<string>(`Get field text content '${name}'`, () =>
+          (item ?? $p).$eval(selector.selector, (el) => el.textContent),
+        );
+
+  const getAllTextContent = (name: string, selector: SingleSelectorModel) =>
+    $a<string>(`Get field text content '${name}'`, async () =>
+      (
+        await (item ?? $p).$$eval(selector.selector, (el) =>
+          el.map((n) => n.textContent),
+        )
+      ).join("; "),
+    );
+
+  const getSrc = (name: string, selector: SingleSelectorModel) =>
+    $a<string>(`Get field src '${name}'`, () =>
+      (item ?? $p).$eval(selector.selector, (el) => el.src),
+    );
 
   const getField = async (
-    attribute: "textContent" | "src" | "href",
     name: string,
-    selector: string,
+    selector: Selector,
     logResult?: boolean,
   ) => {
-    if (attribute === "src")
-      return await getFieldSrc(name, selector, logResult);
-    if (attribute === "href")
-      return await getFieldTextHref(name, selector, logResult);
+    const $s: SelectorModel =
+      typeof selector === "string" || Array.isArray(selector)
+        ? { selector, attribute: "textContent" }
+        : (selector as unknown as SelectorModel);
 
-    return await getFieldTextContent(name, selector, logResult);
-  };
+    let result;
 
-  const getFieldTextHref = async (
-    name: string,
-    selector: string,
-    logResult?: boolean,
-  ) => {
-    const result = await $a<string>(
-      () => (item ?? $p).$eval(selector, (el: any) => el.href),
-      { name: `Get field href '${name}'` },
-    );
+    if ($s.attribute === "src") result = await get(name, $s, getSrc);
+    if ($s.attribute === "href") result = await get(name, $s, getHref);
+    if ($s.attribute === "textContent")
+      result = await get(name, $s, getTextContent);
 
-    if (logResult) log(`${name}: ${result}`);
-
-    return result;
-  };
-
-  const getFieldTextContent = async (
-    name: string,
-    selector: string,
-    logResult?: boolean,
-  ) => {
-    const result = await $a<string>(
-      () => (item ?? $p).$eval(selector, (el: any) => el.textContent),
-      { name: `Get field text content '${name}'` },
-    );
-
-    if (logResult) log(`${name}: ${result}`);
-
-    return result;
-  };
-
-  const getFieldSrc = async (
-    name: string,
-    selector: string,
-    logResult?: boolean,
-  ) => {
-    const result = await $a<string>(
-      () => (item ?? $p).$eval(selector, (el: any) => el.src),
-      { name: `Get field src '${name}'` },
-    );
+    result = cleanAttribute(name, result);
 
     if (logResult) log(`${name}: ${result}`);
 

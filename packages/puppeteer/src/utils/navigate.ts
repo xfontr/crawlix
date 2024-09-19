@@ -2,6 +2,7 @@ import {
   type ActionCustomData,
   type FullFunction,
   useAction,
+  actionNameToOptions,
 } from "@scraper/core";
 import { useScraper } from "../hooks";
 import { useScraperConfigStore } from "../stores";
@@ -12,38 +13,44 @@ interface NavigateOptions extends ActionCustomData {
 }
 
 export const clickAndNavigate = (
+  options: NavigateOptions | string = {},
   item: ElementHandle | undefined | null,
-  options: NavigateOptions = {},
 ) => {
+  options = actionNameToOptions(options);
+
   const { $p } = useScraper();
   const { $a } = useAction();
   const { navigationTimeout } = useScraperConfigStore().current.public;
 
   return async (callback?: FullFunction) => {
-    return await $a(async () => {
+    return await $a(options, async () => {
       await Promise.all([
         await item?.click.bind(item).call(item),
         await $p.waitForNavigation({ timeout: navigationTimeout }),
       ]);
 
       return await callback?.();
-    }, options);
+    });
   };
 };
 
-export const forceNavigate = (url: string, options: NavigateOptions = {}) => {
+export const forceNavigate = (
+  options: NavigateOptions | string = {},
+  url: string,
+) => {
+  options = actionNameToOptions(options);
+
   const { $p } = useScraper();
   const { $a } = useAction();
 
   return async (callback?: FullFunction) => {
-    return await $a(async () => {
+    return await $a(options, async () => {
       await $p.goto(url);
 
-      if (options.forceWait) {
+      if (options.forceWait)
         await new Promise((r) => setTimeout(r, options.forceWait));
-      }
 
       return await callback?.();
-    }, options);
+    });
   };
 };
