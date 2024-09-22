@@ -28,107 +28,78 @@ const test01 = async () => {
 
   afterAll((output) => writeOutput(output, "01"));
 
-  (await $a(
-    async () => {
-      await $p.goto(useLocationStore().current.history.at(-1)!.url);
-    },
-    { name: "BEFORE ALL" },
-  ))!;
+  (await $a("Before all", async () => {
+    await $p.goto(useLocationStore().current.history.at(-1)!.url);
+  }))!;
 
-  await loop(
-    (i) => i === configs.limit.page,
-    async (index) => {
-      const list = await $p.$$(SELECTORS.list.element);
+  await loop("Loop through each page", configs.limit.page, async (index) => {
+    const list = await $p.$$(SELECTORS.list.element);
 
-      log(`Looping through the page ${index}. ${list.length} items detected`);
+    log(`Looping through the page ${index}. ${list.length} items detected`);
 
-      if (!list.length) {
-        throw new Error("Tried to loop through an empty page");
-      }
+    if (!list.length) {
+      throw new Error("Tried to loop through an empty page");
+    }
 
-      await loop(
-        (i) => i === list.length,
-        async (elementIndex) => {
-          await $a(
-            async () => {
-              const currentElement = (await $p.$$(SELECTORS.list.element))[
-                elementIndex
-              ];
+    await loop("Loop through each item", list.length, async (elementIndex) => {
+      await $a("Navigating to element", async () => {
+        const currentElement = (await $p.$$(SELECTORS.list.element))[
+          elementIndex
+        ];
 
-              await Promise.all([
-                await currentElement.click(),
-                await $p.waitForNavigation({ timeout: NAVIGATION_TIMEOUT }),
-              ]);
+        await Promise.all([
+          await currentElement.click(),
+          await $p.waitForNavigation({ timeout: NAVIGATION_TIMEOUT }),
+        ]);
 
-              location.goTo($p.url(), "Item page");
+        location.goTo($p.url(), "Item page");
 
-              const author = await $a(
-                async () => {
-                  return await $p.$eval(
-                    SELECTORS.element.author,
-                    (el) => el.textContent,
-                  );
-                },
-                { name: "Author tag" },
-              );
-
-              const { addAttribute, post } = useItems().initItem({ author });
-
-              const price = await $a(
-                async () => {
-                  return await $p.$eval(
-                    SELECTORS.element.price,
-                    (el) => el.textContent,
-                  );
-                },
-                { name: "Price tag" },
-              );
-
-              addAttribute({ price });
-
-              const title = await $a(
-                async () => {
-                  return await $p.$eval(
-                    SELECTORS.element.title,
-                    (el) => el.textContent,
-                  );
-                },
-                { name: "Title tag" },
-              );
-
-              addAttribute({ title });
-
-              post();
-
-              await $a(
-                async () => {
-                  await $p.goBack({ waitUntil: "load" });
-                },
-                {
-                  name: "Navigating back",
-                },
-              );
-
-              location.goBack();
-            },
-            { name: "Navigating to element" },
+        const author = await $a("Author tag", async () => {
+          return await $p.$eval(
+            SELECTORS.element.author,
+            (el) => el.textContent,
           );
-        },
-      );
+        });
 
-      await $a(
-        async () => {
-          const hasNextPage = !!(await $p.$(SELECTORS.pagination.nextPage));
+        const { addAttribute, post } = useItems().initItem({ author });
 
-          if (hasNextPage) {
-            await $p.click(SELECTORS.pagination.nextPage);
-            location.pageUp({ url: $p.url() });
-          }
-        },
-        { name: "Navigating to next page" },
-      );
-    },
-  );
+        const price = await $a("Price tag", async () => {
+          return await $p.$eval(
+            SELECTORS.element.price,
+            (el) => el.textContent,
+          );
+        });
+
+        addAttribute({ price });
+
+        const title = await $a("Title tag", async () => {
+          return await $p.$eval(
+            SELECTORS.element.title,
+            (el) => el.textContent,
+          );
+        });
+
+        addAttribute({ title });
+
+        post();
+
+        await $a("Navigating back", async () => {
+          await $p.goBack({ waitUntil: "load" });
+        });
+
+        location.goBack();
+      });
+    });
+
+    await $a("Navigating to next page", async () => {
+      const hasNextPage = !!(await $p.$(SELECTORS.pagination.nextPage));
+
+      if (hasNextPage) {
+        await $p.click(SELECTORS.pagination.nextPage);
+        location.pageUp({ url: $p.url() });
+      }
+    });
+  });
 };
 
 export default test01;

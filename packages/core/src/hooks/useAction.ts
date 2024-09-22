@@ -87,7 +87,7 @@ const useAction = () => {
       | (ActionCustomData & { forceLog?: boolean })
       | string
       | FullFunction<T>,
-    callback: FullFunction<T>,
+    callback?: FullFunction<T>,
   ) => {
     if (typeof options === "function") callback = options;
     options = cleanOptions(options);
@@ -112,7 +112,7 @@ const useAction = () => {
       !!options.forceLog,
     );
 
-    const [data, error] = await tryCatch(() => delay(callback, mockUserPause));
+    const [data, error] = await tryCatch(() => delay(callback!, mockUserPause));
 
     const asyncAction: ActionAsyncData & { error?: CustomError } = {
       duration: Date.now() - start,
