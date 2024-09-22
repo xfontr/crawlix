@@ -1,4 +1,4 @@
-import { FullFunction, FullObject } from "../types";
+import { ActionCustomData, FullFunction, FullObject } from "../types";
 import { ASCII_CHARS, WHITE_SPACES } from "../configs/constants";
 
 export const randomize = (
@@ -34,3 +34,10 @@ export const cleanUpIfText = <T>(text: T) =>
   typeof text === "string"
     ? text.replace(ASCII_CHARS, "").replace(WHITE_SPACES, " ").trim()
     : text;
+
+export const actionNameToOptions = (
+  nameOrOptions: string | ActionCustomData,
+): ActionCustomData => {
+  if (typeof nameOrOptions === "string") return { name: nameOrOptions };
+  return nameOrOptions;
+};

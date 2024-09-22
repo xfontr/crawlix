@@ -4,6 +4,15 @@ import type {
   FullFunctionWithIndex,
 } from "../types";
 
+export type BreakingCondition = (index: number) => boolean;
+
+export interface LoopOptions {
+  errorMaxIterationCount?: number;
+  breakingCondition?: BreakingCondition | number;
+}
+
+export type SimpleLoopOptions = LoopOptions | BreakingCondition | number;
+
 export const promiseLoop = async <T>(
   callback: FullFunctionWithIndex<T>,
   breakingCondition: (index: number) => boolean,

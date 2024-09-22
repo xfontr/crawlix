@@ -52,12 +52,9 @@ SCRAPER_END_PROCESS
 
 ### Pending
 
-- Do isSimple also for store output.
-- If store doesn't output locations, this should alter the output content of other items. For example, each item should either not show any location ID (it's pointless because the outcome file won't have it), or should have a explicit location shown.
 - Test run store, calcs expected duration, json size, amount of items, etc
 
-### Done
+- Failed sessions in a row: Config that the consumer passes, informing the amount of failed sessions prior to the current one. The program will automatically reset the counter or increase it by one depending on the success of the session. After, implement a new notification type that will trigger when X amount of fails happen. Goal: inform the consumer that there is probably a critical error that is preventing the scrapper to run at all.
+- Premade config packages
 
-7.- Failed sessions in a row: Config that the consumer passes, informing the amount of failed sessions prior to the current one. The program will automatically reset the counter or increase it by one depending on the success of the session. After, implement a new notification type that will trigger when X amount of fails happen. Goal: inform the consumer that there is probably a critical error that is preventing the scrapper to run at all.
-8.- Premade config packages
-9.- Loading bar for the runInLoop function
+- Loading bar

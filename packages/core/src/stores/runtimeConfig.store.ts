@@ -1,8 +1,7 @@
-import type { RuntimeConfig, RuntimeConfigStore } from "../types";
-import { createStore } from "../helpers/stores";
-import envVar from "../utils/envVar";
+import type { RuntimeConfig, RuntimeConfigStore, DeepPartial } from "../types";
+import { createStore } from "../helpers";
+import { envVar } from "../utils";
 import { useSessionStore } from ".";
-import { DeepPartial } from "../types/UtilityTypes";
 import deepmerge from "deepmerge";
 
 const v = (...keys: string[]): string =>
@@ -23,6 +22,7 @@ const initialState: RuntimeConfigStore = {
       page: envVar(v("limit", "page"), 10),
       timeout: envVar(v("limit", "timeout"), 50_000),
       inactivity: envVar(v("limit", "inactivity"), 5_000),
+      items: envVar(v("limit", "items"), 10_000),
     },
     logging: {
       types: envVar(

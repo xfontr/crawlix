@@ -5,9 +5,9 @@ import type {
   ActionSyncInstance,
   CustomError,
 } from "../types";
-import { createStore } from "../helpers/stores";
+import { createStore } from "../helpers";
 import { useLogStore, useSessionStore } from ".";
-import useMeta from "../hooks/useMeta";
+import { useMeta } from "../hooks";
 
 const useActionStore = createStore(
   "action",
@@ -26,7 +26,8 @@ const useActionStore = createStore(
       }
 
       state.totalActions += 1;
-      state.totalMockedPausesDuration += action.mockedDuration ?? 0;
+      state.totalMockedPausesDuration += action.mockedDuration;
+      state.totalMockedPausesDuration.toFixed(2);
 
       const { name, ...current } = structuredClone(action);
 

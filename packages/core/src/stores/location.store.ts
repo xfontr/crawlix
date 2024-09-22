@@ -5,7 +5,7 @@ import type {
   LocationStamp,
   LocationStore,
 } from "../types";
-import { createStore } from "../helpers/stores";
+import { createStore } from "../helpers";
 import EventBus from "../utils/EventBus";
 import { useRuntimeConfigStore, useLogStore } from ".";
 import { useMeta } from "../hooks";
@@ -75,16 +75,17 @@ const useLocationStore = createStore(
 
       const lastLocation = state.history.at(-1)!;
 
-      if (!lastLocation.errors) lastLocation.errors = [];
-
+      lastLocation.errors ??= [];
       lastLocation.errors.push(customError.id!);
     };
 
     const sumItem = () => {
       if (isMinimal() || !state.currentRef) return;
 
-      state.currentRef.itemCount = state.currentRef.itemCount
-        ? state.currentRef.itemCount + 1
+      const lastLocation = state.history.at(-1)!;
+
+      lastLocation.itemCount = lastLocation.itemCount
+        ? lastLocation.itemCount + 1
         : 0;
     };
 

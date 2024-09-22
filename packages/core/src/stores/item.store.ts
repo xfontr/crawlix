@@ -5,10 +5,11 @@ import type {
   ItemData,
   ItemStore,
 } from "../types";
-import { createStore } from "../helpers/stores";
-import { cleanUpIfText, getPercentage } from "../utils/utils";
-import { useLocationStore } from ".";
+import { createStore } from "../helpers";
+import { cleanUpIfText, getPercentage } from "../utils";
+import { useLocationStore, useRuntimeConfigStore } from ".";
 import { useMeta } from "../hooks";
+import EventBus from "../utils/EventBus";
 
 const useItemStore = createStore(
   "item",
@@ -22,6 +23,13 @@ const useItemStore = createStore(
   } as ItemStore,
   (state) => {
     const { sumItem } = useLocationStore();
+    const { limit } = useRuntimeConfigStore().current.public;
+
+    const checkIfMaxItem = () => {
+      if (state.totalItems !== limit.items) return;
+
+      EventBus.endSession.emit();
+    };
 
     const initItem = <T extends FullObject = FullObject>(
       attributes: Partial<ItemData<T>> = {},
@@ -69,6 +77,8 @@ const useItemStore = createStore(
           state.currentRefErrors = undefined;
 
           sumItem();
+
+          if (limit.items) checkIfMaxItem();
 
           if (meta.isComplete) return;
 

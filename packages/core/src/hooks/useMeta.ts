@@ -4,7 +4,6 @@ import {
   useLocationStore,
   useRuntimeConfigStore,
 } from "../stores";
-import type { Meta } from "../types/Meta.type";
 import type {
   ActionMeta,
   ActionStore,
@@ -18,9 +17,9 @@ import type {
   LogData,
   LogMeta,
   LogStore,
+  Meta,
 } from "../types";
-import { buildItemMeta } from "../utils/itemMetaData";
-import { generateDate, generateTimestamp } from "../utils/locationUtils";
+import { buildItemMeta, generateDate, generateTimestamp } from "../utils";
 
 const generateId = (): string => randomUUID();
 

@@ -126,7 +126,6 @@ const SessionStore = () => {
 
   const nextPage = (url?: string): void => {
     updateLocation({ page: store.session.location!.page + 1, url: url ?? "" });
-    console.log(store.session.location!.page);
 
     url && store.session.history!.push(url);
   };

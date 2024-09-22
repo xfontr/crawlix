@@ -4,12 +4,16 @@ import {
   useRuntimeConfigStore,
   useSessionStore,
 } from "./stores";
-import type { FullFunction, RuntimeConfig, Session } from "./types";
+import type {
+  FullFunction,
+  RuntimeConfig,
+  Session,
+  DeepPartial,
+} from "./types";
 import { cleanUpStores } from "./helpers/stores";
 import EventBus from "./utils/EventBus";
 import { useAction, useSession, useLog } from "./hooks";
-import { consoleLog } from "./utils/consoleLog";
-import { DeepPartial } from "./types/UtilityTypes";
+import { consoleLog } from "./utils";
 
 const { setRuntimeConfig, current: config } = useRuntimeConfigStore();
 const { pushLocation } = useLocationStore();
@@ -23,9 +27,7 @@ const cleanUp = () => {
   EventBus.removeAllListeners();
   cleanUpStores(config.public.endProcess);
 
-  if (config.public.endProcess) {
-    process.exit(0);
-  }
+  if (config.public.endProcess) process.exit(0);
 
   useLog().setLogger(consoleLog);
 };

@@ -5,7 +5,13 @@ import { clickAndNavigate } from "../utils/navigate";
 import { ElementHandle } from "puppeteer";
 
 const scrapList = async (
-  callback: (item: ElementHandle | undefined) => Promise<unknown>,
+  callback: (
+    item: ElementHandle | undefined,
+    index: number,
+  ) => Promise<unknown>,
+  customizeList?: (
+    items: ElementHandle[],
+  ) => Promise<ElementHandle[]> | ElementHandle[],
 ) => {
   const { $p } = useScraper();
   const { $a } = useAction();
@@ -19,53 +25,45 @@ const scrapList = async (
   } = useScraperConfigStore();
 
   const getAllItems = async (name?: string) => {
-    return (
-      (await $a(() => $p.$$(selectors.allItems!), {
-        name: name ?? "Get all list links",
-      })) ?? []
+    const list = await $a(name ?? "Get all list links", () =>
+      $p.$$(selectors.allItems!),
     );
+
+    if (customizeList) return await customizeList(list ?? []);
+
+    return list ?? [];
   };
 
-  await $a(
-    async () => {
-      const initialItems = await getAllItems();
+  await $a("Select all headings and start item loop", async () => {
+    const initialItems = await getAllItems();
 
-      await loop(
-        (i) => i === initialItems.length,
-        async (index) => {
-          if (!clickAndScrapItem) await callback(initialItems[index]);
+    await loop("Scrap list loop", initialItems.length, async (index) => {
+      if (!clickAndScrapItem) await callback(initialItems[index], index);
 
-          if (clickAndScrapItem)
-            await $a(
-              async () => {
-                const items = await getAllItems("Get current item link");
+      if (clickAndScrapItem)
+        await $a(`Select item '${index}'`, async () => {
+          const items = await getAllItems("Get current item link");
 
-                const afterNavigation = clickAndNavigate(items[index], {
-                  name: "Click current item",
-                });
+          const afterNavigation = clickAndNavigate(
+            {
+              name: "Click current item",
+            },
+            items[index],
+          );
 
-                await afterNavigation(async () => {
-                  goTo($p.url(), `Item '${index}'`);
+          await afterNavigation(async () => {
+            goTo($p.url(), `Item '${index}'`);
 
-                  await callback(items[index]);
+            await callback(items[index], index);
 
-                  await $a(
-                    async () => {
-                      await $p.goBack({ waitUntil: "load" });
-                      goBack();
-                    },
-                    { name: "Go back to item list page" },
-                  );
-                });
-              },
-              { name: `Select item '${index}'` },
-            );
-        },
-        { name: "Scrap list loop" },
-      );
-    },
-    { name: "Select all headings and start item loop" },
-  );
+            await $a("Go back to item list page", async () => {
+              await $p.goBack({ waitUntil: "load" });
+              goBack();
+            });
+          });
+        });
+    });
+  });
 };
 
 export default scrapList;
