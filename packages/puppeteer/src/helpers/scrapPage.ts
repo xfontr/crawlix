@@ -31,52 +31,48 @@ const scrapPage = async (
   const { limit } = useRuntimeConfigStore().current.public;
   const { nextPage } = useSelectorsStore().current.selectors;
 
-  await loop(
-    (i) => i === limit.page,
-    async (index) => {
-      log({
-        message: `Scraping page with index '${index}'`,
-        category: "SESSION",
-      });
+  await loop("Scrap page loop", limit.page, async (index) => {
+    log({
+      message: `Scraping page with index '${index}'`,
+      category: "SESSION",
+    });
 
-      await acceptCookies();
-      await callback();
+    await acceptCookies();
+    await callback();
 
-      if (index + 1 === limit.page) return;
+    if (index + 1 === limit.page) return;
 
-      if (options.navigation === "click" && nextPage) {
-        await $a("Get next page button", async () => {
-          const afterNavigation = clickAndNavigate(
-            {
-              name: "Navigate to next page",
-            },
-            await $p.$(nextPage),
-          );
-
-          await afterNavigation(() => {
-            pageUp({ url: $p.url() });
-          });
-        });
-      }
-
-      if (options.navigation !== "click") {
-        const afterNavigation = forceNavigate(
+    if (options.navigation === "click" && nextPage) {
+      await $a("Get next page button", async () => {
+        const afterNavigation = clickAndNavigate(
           {
-            name: "Force navigate to specified page",
-            forceWait: options.forceWait,
+            name: "Navigate to next page",
           },
-          typeof options.navigation === "function"
-            ? options.navigation(index + 1)
-            : options.navigation,
+          await $p.$(nextPage),
         );
 
         await afterNavigation(() => {
           pageUp({ url: $p.url() });
         });
-      }
-    },
-    { name: "Scrap page loop" },
-  );
+      });
+    }
+
+    if (options.navigation !== "click") {
+      const afterNavigation = forceNavigate(
+        {
+          name: "Force navigate to specified page",
+          forceWait: options.forceWait,
+        },
+        typeof options.navigation === "function"
+          ? options.navigation(index + 1)
+          : options.navigation,
+      );
+
+      await afterNavigation(() => {
+        pageUp({ url: $p.url() });
+      });
+    }
+  });
 };
 
 export default scrapPage;

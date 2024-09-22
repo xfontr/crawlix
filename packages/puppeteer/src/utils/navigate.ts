@@ -36,19 +36,26 @@ export const clickAndNavigate = (
 
 export const forceNavigate = (
   options: NavigateOptions | string = {},
-  url: string,
+  url?: string,
 ) => {
-  options = actionNameToOptions(options);
+  let navigateOptions: NavigateOptions = {};
+
+  if (typeof options === "string") {
+    url = options;
+    navigateOptions = {
+      name: `Force navigation to ${url}`,
+    };
+  }
 
   const { $p } = useScraper();
   const { $a } = useAction();
 
   return async (callback?: FullFunction) => {
-    return await $a(options, async () => {
-      await $p.goto(url);
+    return await $a(navigateOptions, async () => {
+      await $p.goto(url!);
 
-      if (options.forceWait)
-        await new Promise((r) => setTimeout(r, options.forceWait));
+      if (navigateOptions.forceWait)
+        await new Promise((r) => setTimeout(r, navigateOptions.forceWait));
 
       return await callback?.();
     });

@@ -12,9 +12,14 @@ import type {
 } from "../types";
 import { outputStores } from "../helpers/stores";
 import EventBus from "../utils/EventBus";
-import { runAfterAllInSeq, promiseLoop } from "../utils";
+import { runAfterAllInSeq, promiseLoop, actionNameToOptions } from "../utils";
 import { useAction, useError, useLog } from ".";
 import { MAX_LOOP_ITERATIONS } from "../configs/constants";
+import {
+  BreakingCondition,
+  LoopOptions,
+  SimpleLoopOptions,
+} from "../utils/promises";
 
 const state = {
   beforeAllEffects: [] as FullFunction[],
@@ -70,16 +75,82 @@ const useSession = () => {
     EventBus.sessionCleanUp.emit();
   };
 
+  const loopOptionsKeys = Object.keys({
+    breakingCondition: 0,
+    errorMaxIterationCount: 0,
+  });
+
+  const isLoopOptions = (
+    options: LoopOptions | ActionCustomData,
+  ): options is LoopOptions & {
+    breakingCondition: BreakingCondition;
+  } => Object.keys(options).some((key) => loopOptionsKeys.includes(key));
+
+  /**
+   * TODO: This code is unreadable, needs clean up
+   */
+  const cleanUpOptions = (
+    options: ActionCustomData | string | SimpleLoopOptions,
+    loopOptions: SimpleLoopOptions | FullFunctionWithIndex,
+    callback?: FullFunctionWithIndex,
+  ) => {
+    let actionOptions: ActionCustomData = {};
+    let finalLoopOptions: LoopOptions & {
+      breakingCondition: BreakingCondition;
+    } = {
+      breakingCondition: () => true,
+    };
+    let finalCallback: FullFunctionWithIndex | undefined = callback;
+
+    // FIRST OPTIONS OBJECT
+    if (typeof options === "string") {
+      actionOptions = actionNameToOptions(options);
+    } else if (typeof options === "function") {
+      finalLoopOptions.breakingCondition = options;
+    } else if (typeof options === "number") {
+      finalLoopOptions.breakingCondition = (index: number) => index === options;
+    } else if (isLoopOptions(options)) {
+      finalLoopOptions = options;
+    } else {
+      actionOptions = options as ActionCustomData;
+    }
+
+    // SECOND OPTIONS OBJECT
+    if (typeof loopOptions === "function") {
+      finalCallback = loopOptions;
+    } else if (typeof loopOptions === "number") {
+      finalLoopOptions.breakingCondition = (index: number) =>
+        index === loopOptions;
+    } else if (typeof loopOptions.breakingCondition === "number") {
+      finalLoopOptions.breakingCondition = (index: number) =>
+        index === loopOptions.breakingCondition;
+    } else {
+      finalLoopOptions = loopOptions as typeof finalLoopOptions;
+    }
+
+    return {
+      actionOptions,
+      finalLoopOptions,
+      finalCallback,
+    };
+  };
+
   const loop = async (
-    breakingCondition: (index: number) => boolean,
-    callback: FullFunctionWithIndex,
-    options?: ActionCustomData & { maxIterationsFallback?: number },
+    options: ActionCustomData | string | SimpleLoopOptions,
+    loopOptions: SimpleLoopOptions | FullFunctionWithIndex,
+    callback?: FullFunctionWithIndex,
   ): Promise<void> => {
-    const index = await $a(options, () =>
+    const { actionOptions, finalLoopOptions, finalCallback } = cleanUpOptions(
+      options,
+      loopOptions,
+      callback,
+    );
+
+    const index = await $a(actionOptions, () =>
       promiseLoop(
-        callback,
-        breakingCondition,
-        options?.maxIterationsFallback ?? MAX_LOOP_ITERATIONS,
+        finalCallback!,
+        finalLoopOptions.breakingCondition,
+        finalLoopOptions?.errorMaxIterationCount ?? MAX_LOOP_ITERATIONS,
       ),
     );
 
@@ -88,8 +159,8 @@ const useSession = () => {
       type: "INFO",
       name: "Loop ends",
       message: index
-        ? `Loop '${options?.name}' - Fulfilled at index '${index}'`
-        : `Loop '${options?.name}' - Interrupted`,
+        ? `Loop '${actionOptions?.name}' - Fulfilled at index '${index}'`
+        : `Loop '${actionOptions?.name}' - Interrupted`,
     });
   };
 
