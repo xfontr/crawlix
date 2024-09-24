@@ -1,5 +1,5 @@
 {
-  "name": "@scraper/core",
+  "name": "@crawlix/core",
   "description": "Scraper",
   "version": "1.0.0",
   "main": "dist/index.js",

@@ -15,7 +15,7 @@ export type SimpleLoopOptions = LoopOptions | BreakingCondition | number;
 
 export const promiseLoop = async <T>(
   callback: FullFunctionWithIndex<T>,
-  breakingCondition: (index: number) => boolean,
+  breakingCondition: BreakingCondition,
   maxIterations?: number,
 ): Promise<number> => {
   let index = 0;
@@ -31,7 +31,6 @@ export const promiseLoop = async <T>(
 
   return index;
 };
-
 export const runAfterAllInSeq = async (
   output: string,
   ...callbacks: FullFunctionWithApp[]
@@ -44,7 +43,6 @@ export const runAfterAllInSeq = async (
     index += 1;
   } while (index < callbacks.length);
 };
-
 export const delay = async <T>(
   callback: FullFunction<T>,
   delay?: number,

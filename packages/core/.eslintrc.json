@@ -10,7 +10,7 @@
   ],
   "overrides": [
     {
-      "files": ["**/*.test.ts", "**/*.spec.ts"],
+      "files": ["**/*.test.ts"],
       "extends": ["plugin:jest/recommended", "plugin:jest/style"]
     }
   ],
