@@ -4,7 +4,7 @@ import {
   useItems,
   useItemStore,
   useLog,
-} from "@scraper/core";
+} from "@crawlix/core";
 import { useField } from "../hooks";
 import { useScraperConfigStore, useSelectorsStore } from "../stores";
 import type { ElementHandle } from "puppeteer";

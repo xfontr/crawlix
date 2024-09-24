@@ -1,4 +1,4 @@
-import { useAction, useLocation, useSession } from "@scraper/core";
+import { useAction, useLocation, useSession } from "@crawlix/core";
 import { useScraper } from "../hooks";
 import { useScraperConfigStore, useSelectorsStore } from "../stores";
 import { clickAndNavigate } from "../utils/navigate";
@@ -45,9 +45,7 @@ const scrapList = async (
           const items = await getAllItems("Get current item link");
 
           const afterNavigation = clickAndNavigate(
-            {
-              name: "Click current item",
-            },
+            "Click current item",
             items[index],
           );
 

@@ -1,4 +1,4 @@
-import { useAction } from "@scraper/core";
+import { useAction } from "@crawlix/core";
 import { useScraper } from "../hooks";
 import { useSelectorsStore } from "../stores";
 

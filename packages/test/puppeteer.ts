@@ -1,4 +1,4 @@
-import { useScraper } from "@scraper/puppeteer";
+import { useScraper } from "@crawlix/puppeteer";
 
 const Scraper = async () => {
   const scraper = useScraper();

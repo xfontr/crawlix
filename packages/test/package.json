@@ -1,5 +1,5 @@
 {
-  "name": "@scraper/test",
+  "name": "@crawlix/test",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@scraper/puppeteer": "workspace:*",
-    "@scraper/core": "workspace:*",
+    "@crawlix/puppeteer": "workspace:*",
+    "@crawlix/core": "workspace:*",
     "nodemon": "^3.0.1",
     "serve": "^14.2.3"
   }

@@ -1,4 +1,4 @@
-import { createStore, type FullObject } from "@scraper/core";
+import { createStore, type FullObject } from "@crawlix/core";
 import type { ScraperConfig } from "../types";
 
 const useScraperConfig = createStore(

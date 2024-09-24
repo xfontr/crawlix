@@ -1,4 +1,4 @@
-import { promiseLoop } from "@scraper/core";
+import { promiseLoop } from "@crawlix/core";
 import type { SelectorModel, SingleSelectorModel } from "../types";
 
 export const getFromOneOrMoreOptions = async <T = string>(

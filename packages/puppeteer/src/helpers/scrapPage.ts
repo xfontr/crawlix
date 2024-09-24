@@ -5,7 +5,7 @@ import {
   useLog,
   useRuntimeConfigStore,
   useSession,
-} from "@scraper/core";
+} from "@crawlix/core";
 import acceptCookies from "./acceptCookies";
 import { useScraper } from "../hooks";
 import { clickAndNavigate, forceNavigate } from "../utils/navigate";
@@ -45,9 +45,7 @@ const scrapPage = async (
     if (options.navigation === "click" && nextPage) {
       await $a("Get next page button", async () => {
         const afterNavigation = clickAndNavigate(
-          {
-            name: "Navigate to next page",
-          },
+          "Navigate to next page",
           await $p.$(nextPage),
         );
 

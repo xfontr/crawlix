@@ -1,5 +1,5 @@
 {
-  "name": "@scraper/puppeteer",
+  "name": "@crawlix/puppeteer",
   "version": "1.0.0",
   "description": "",
   "author": "Xifré Font",
@@ -10,7 +10,7 @@
     "build": "rimraf build && tsc && pnpm pack"
   },
   "dependencies": {
-    "@scraper/core": "workspace:*",
+    "@crawlix/core": "workspace:*",
     "puppeteer": "^23.0.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
