@@ -10,9 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@crawlix/puppeteer": "workspace:*",
-    "@crawlix/core": "workspace:*",
+    "@crawlix/core": "^1.0.0",
+    "@crawlix/puppeteer": "^1.0.1",
     "nodemon": "^3.0.1",
     "serve": "^14.2.3"
+  },
+  "optionalDependencies": {
+    "@crawlix/core": "workspace:*",
+    "@crawlix/puppeteer": "workspace:*"
   }
 }

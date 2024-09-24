@@ -1,6 +1,6 @@
 {
   "name": "@crawlix/puppeteer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "author": "Xifré Font",
   "license": "ISC",
@@ -10,7 +10,7 @@
     "build": "rimraf build && tsc && pnpm pack"
   },
   "dependencies": {
-    "@crawlix/core": "workspace:*",
+    "@crawlix/core": "^1.0.0",
     "puppeteer": "^23.0.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
@@ -20,5 +20,8 @@
     "@types/node": "^20.6.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
+  },
+  "optionalDependencies": {
+    "@crawlix/core": "workspace:*"
   }
 }
