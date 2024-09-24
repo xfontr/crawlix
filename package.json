@@ -1,5 +1,5 @@
 {
-  "name": "scraper",
+  "name": "crawlix",
   "version": "0.0.1",
   "description": "",
   "keywords": [],
@@ -7,9 +7,9 @@
   "license": "ISC",
   "scripts": {
     "build": "pnpm build:core && pnpm build:puppeteer",
-    "build:core": "pnpm --filter @scraper/core run build",
-    "build:puppeteer": "pnpm --filter @scraper/puppeteer run build",
-    "test:serve": "pnpm --filter @scraper/test run integration:serve",
-    "test:integration": "pnpm --filter @scraper/test run integration:run"
+    "build:core": "pnpm --filter @crawlix/core run build",
+    "build:puppeteer": "pnpm --filter @crawlix/puppeteer run build",
+    "test:serve": "pnpm --filter @crawlix/test run integration:serve",
+    "test:integration": "pnpm --filter @crawlix/test run integration:run"
   }
 }

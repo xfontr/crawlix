@@ -1,4 +1,4 @@
-import type { FullObject } from "@scraper/core";
+import type { FullObject } from "@crawlix/core";
 
 export interface ScraperConfig<T extends FullObject = FullObject> {
   navigationTimeout: number;

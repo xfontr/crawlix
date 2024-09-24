@@ -3,7 +3,7 @@ import {
   type FullFunction,
   useAction,
   actionNameToOptions,
-} from "@scraper/core";
+} from "@crawlix/core";
 import { useScraper } from "../hooks";
 import { useScraperConfigStore } from "../stores";
 import { ElementHandle } from "puppeteer";

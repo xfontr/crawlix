@@ -6,7 +6,7 @@ import {
   useItems,
   useRuntimeConfigStore,
   useLocation,
-} from "@scraper/core";
+} from "@crawlix/core";
 import { writeOutput } from "../utils/writeOutput";
 import Scraper from "../puppeteer";
 import { SELECTORS } from ".";

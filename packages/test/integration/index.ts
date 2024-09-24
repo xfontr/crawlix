@@ -1,4 +1,4 @@
-import { app } from "@scraper/core";
+import { app } from "@crawlix/core";
 import test01 from "./test01";
 
 app.init({

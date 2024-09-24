@@ -1,6 +1,6 @@
 import type { ElementHandle } from "puppeteer";
 import type { Selector, SelectorModel, SingleSelectorModel } from "../types";
-import { useAction, useLog } from "@scraper/core";
+import { useAction, useLog } from "@crawlix/core";
 import { useScraper } from ".";
 import { useSelectorsStore } from "../stores";
 import { getFromOneOrMoreOptions as get } from "../utils";
