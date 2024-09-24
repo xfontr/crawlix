@@ -16,7 +16,11 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@crawlix/core": "1.0.0",
-    "@crawlix/puppeteer": "1.0.0"
+    "@crawlix/core": "^1.0.0",
+    "@crawlix/puppeteer": "^1.0.1"
+  },
+  "optionalDependencies": {
+    "@crawlix/core": "workspace:*",
+    "@crawlix/puppeteer": "workspace:*"
   }
 }
