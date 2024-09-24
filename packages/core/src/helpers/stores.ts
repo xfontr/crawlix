@@ -65,6 +65,9 @@ const outputStore = (name: StoreNames, flatten?: boolean) =>
         {},
       );
 
+/**
+ * @description Outputs all the stores to a JSON string
+ */
 export const outputStores = (
   model: string,
   include: RuntimeConfigStore["public"]["output"]["include"],
@@ -81,6 +84,10 @@ export const outputStores = (
     null,
     4,
   );
+
+/**
+ * @description Resets all the stores. Useful for testing and garbage collection
+ */
 
 export const cleanUpStores = (complete: boolean): void => {
   for (const key of Object.getOwnPropertyNames(store)) {
