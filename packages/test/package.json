@@ -12,7 +12,7 @@
   "dependencies": {
     "@crawlix/puppeteer": "workspace:*",
     "@crawlix/core": "workspace:*",
-    "nodemon": "^3.0.1",
+    "nodemon": "^3.1.7",
     "serve": "^14.2.3"
   }
 }
