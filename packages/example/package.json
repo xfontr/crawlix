@@ -9,7 +9,7 @@
     "start": "nodemon --watch src --watch .env --exec \"node -r dotenv/config -r ts-node/register --inspect\" index.ts"
   },
   "devDependencies": {
-    "@types/node": "^20.6.0",
+    "@types/node": "^22.7.4",
     "dotenv": "^16.3.1",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
